@@ -208,7 +208,38 @@ export function settingsSearchTextMatches(value: string, query: string): boolean
 // by user attention: personal/look-and-feel first, system plumbing last.
 // Management surfaces (sessions, worktrees, activity, memory import) are
 // workspace destinations, not settings; model setup is a subpage of Models.
-export const SETTINGS_NAVIGATION_GROUPS = [
+/**
+ * Settings surfaces hidden from Psyntient Node.
+ *
+ * Judged by "would a researcher use this?", not by whether it came from
+ * OpenClaw -- which is why connectors (channels/communications) are KEPT
+ * despite looking operator-ish: reaching Cortex from Telegram is a real
+ * research feature. What goes are coding, fleet-management and raw-plumbing
+ * surfaces.
+ *
+ * Hidden, not deleted: these are upstream route dirs, and several are
+ * referenced through the wider NavigationRouteId type. Re-apply on OpenClaw
+ * updates is one line.
+ *
+ * `agents` / `ai-agents` are hidden FOR NOW and are expected back: the
+ * "Project = agent instance" research task (see NOETIC_UI_PLAN.md section 7)
+ * may reintroduce them as Projects, without the identity editor.
+ */
+export const PSYNTIENT_HIDDEN_SETTINGS: ReadonlySet<string> = new Set([
+  "custodian", // infra babysitting
+  "nodes", // remote node fleet
+  "agents", // multi-agent management + identity editor
+  "ai-agents", // agent personas; same territory
+  "labs", // experimental
+  "automation", // scheduled agent runs; operator feature
+  "approvals", // exec approvals, tied to tools this product disables
+  "infrastructure", // operator
+  "advanced", // raw config editing; the file is there for power users
+  "debug", // operator
+  "logs", // operator
+]);
+
+const RAW_SETTINGS_NAVIGATION_GROUPS = [
   { labelKey: null, routes: ["custodian", "profile", "config", "appearance", "notifications"] },
   {
     labelKey: "nav.settingsGroupConnections",
@@ -227,6 +258,13 @@ export const SETTINGS_NAVIGATION_GROUPS = [
     routes: ["infrastructure", "advanced", "debug", "logs", "about"],
   },
 ] as const satisfies readonly SettingsNavigationGroup[];
+
+// Drop hidden routes, then drop any group left empty by the filtering.
+export const SETTINGS_NAVIGATION_GROUPS: readonly SettingsNavigationGroup[] =
+  RAW_SETTINGS_NAVIGATION_GROUPS.map((group) => ({
+    ...group,
+    routes: group.routes.filter((route) => !PSYNTIENT_HIDDEN_SETTINGS.has(route)),
+  })).filter((group) => group.routes.length > 0);
 
 // Settings subpages render with settings chrome but stay out of the sidebar:
 // model setup is reached from the Models page ("Run setup"). The sidebar
