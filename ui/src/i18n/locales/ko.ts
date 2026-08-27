@@ -1822,7 +1822,7 @@ export const ko: TranslationMap = {
     worktrees: "Worktree",
     channels: "채널",
     connection: "연결",
-    sessions: "세션",
+    sessions: "Projects",
     usage: "사용량",
     cron: "Cron 작업",
     tasks: "작업",
@@ -1858,7 +1858,7 @@ export const ko: TranslationMap = {
     worktrees: "격리된 에이전트 작업 체크아웃 및 복구 스냅샷입니다.",
     channels: "채널 및 설정.",
     connection: "Gateway 엔드포인트, 자격 증명 및 핸드셰이크 상태.",
-    sessions: "활성 세션 및 기본값.",
+    sessions: "Your research projects and defaults.",
     usage: "API 사용량 및 비용.",
     cron: "웨이크업 및 반복 실행.",
     tasks: "백그라운드 작업: 하위 에이전트, cron 실행, CLI.",
@@ -3711,7 +3711,7 @@ export const ko: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "이 브라우저는 업데이트 후에도 일회성 기기 승인이 필요합니다.",
       action: "이 브라우저 보안 설정",

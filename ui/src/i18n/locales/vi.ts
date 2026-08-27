@@ -1833,7 +1833,7 @@ export const vi: TranslationMap = {
     worktrees: "Worktree",
     channels: "Kênh",
     connection: "Kết nối",
-    sessions: "Phiên",
+    sessions: "Projects",
     usage: "Mức sử dụng",
     cron: "Tác vụ Cron",
     tasks: "Tác vụ",
@@ -1869,7 +1869,7 @@ export const vi: TranslationMap = {
     worktrees: "Các bản checkout tác vụ agent được cô lập và snapshot khôi phục.",
     channels: "Kênh và cài đặt.",
     connection: "Điểm cuối Gateway, thông tin xác thực và trạng thái bắt tay.",
-    sessions: "Phiên đang hoạt động và mặc định.",
+    sessions: "Your research projects and defaults.",
     usage: "Mức sử dụng API và chi phí.",
     cron: "Đánh thức và chạy định kỳ.",
     tasks: "Tác vụ nền: subagent, cron run, CLI.",
@@ -3738,7 +3738,7 @@ export const vi: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "Trình duyệt này vẫn cần phê duyệt thiết bị một lần sau khi cập nhật.",
       action: "Bảo mật trình duyệt này",

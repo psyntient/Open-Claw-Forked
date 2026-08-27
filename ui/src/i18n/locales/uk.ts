@@ -1842,7 +1842,7 @@ export const uk: TranslationMap = {
     worktrees: "Worktrees",
     channels: "Канали",
     connection: "Підключення",
-    sessions: "Сеанси",
+    sessions: "Projects",
     usage: "Використання",
     cron: "Завдання Cron",
     tasks: "Завдання",
@@ -1878,7 +1878,7 @@ export const uk: TranslationMap = {
     worktrees: "Ізольовані копії для завдань агентів і знімки для відновлення.",
     channels: "Канали та налаштування.",
     connection: "Кінцева точка Gateway, облікові дані та стан рукостискання.",
-    sessions: "Активні сеанси та типові значення.",
+    sessions: "Your research projects and defaults.",
     usage: "Використання API та витрати.",
     cron: "Пробудження та повторювані запуски.",
     tasks: "Фонові завдання: субагенти, запуски cron, CLI.",
@@ -3747,7 +3747,7 @@ export const uk: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "Цей браузер усе ще потребує одноразового схвалення пристрою після оновлення.",
       action: "Захистити цей браузер",

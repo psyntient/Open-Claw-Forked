@@ -1840,7 +1840,7 @@ export const ja_JP: TranslationMap = {
     worktrees: "ワークツリー",
     channels: "チャンネル",
     connection: "接続",
-    sessions: "セッション",
+    sessions: "Projects",
     usage: "使用状況",
     cron: "Cron ジョブ",
     tasks: "タスク",
@@ -1876,7 +1876,7 @@ export const ja_JP: TranslationMap = {
     worktrees: "分離されたエージェントタスクのチェックアウトと復旧スナップショット。",
     channels: "チャンネルと設定。",
     connection: "Gatewayのエンドポイント、認証情報、ハンドシェイクの状態。",
-    sessions: "アクティブなセッションとデフォルト。",
+    sessions: "Your research projects and defaults.",
     usage: "API 使用量とコスト。",
     cron: "ウェイクアップと定期実行。",
     tasks: "バックグラウンドタスク: サブエージェント、cron 実行、CLI。",
@@ -3751,7 +3751,7 @@ export const ja_JP: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "このブラウザーは、更新後に一度だけデバイスの承認が必要です。",
       action: "このブラウザーを保護",

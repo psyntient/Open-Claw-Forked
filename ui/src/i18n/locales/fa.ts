@@ -1826,7 +1826,7 @@ export const fa: TranslationMap = {
     worktrees: "Worktreeها",
     channels: "کانال‌ها",
     connection: "اتصال",
-    sessions: "نشست‌ها",
+    sessions: "Projects",
     usage: "مصرف",
     cron: "کارهای Cron",
     tasks: "وظایف",
@@ -1862,7 +1862,7 @@ export const fa: TranslationMap = {
     worktrees: "checkoutهای ایزولهٔ وظایف عامل و snapshotهای بازیابی.",
     channels: "کانال‌ها و تنظیمات.",
     connection: "نقطه پایانی Gateway، اطلاعات ورود و وضعیت دست‌دهی.",
-    sessions: "نشست‌های فعال و پیش‌فرض‌ها.",
+    sessions: "Your research projects and defaults.",
     usage: "مصرف و هزینه‌های API.",
     cron: "بیدارباش‌ها و اجراهای تکرارشونده.",
     tasks: "وظایف پس‌زمینه: subagents، cron runs، CLI.",
@@ -3725,7 +3725,7 @@ export const fa: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "این مرورگر پس از به‌روزرسانی همچنان به تأیید یک‌باره دستگاه نیاز دارد.",
       action: "ایمن‌سازی این مرورگر",

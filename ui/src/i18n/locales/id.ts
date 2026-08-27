@@ -1830,7 +1830,7 @@ export const id: TranslationMap = {
     worktrees: "Worktree",
     channels: "Saluran",
     connection: "Koneksi",
-    sessions: "Sesi",
+    sessions: "Projects",
     usage: "Penggunaan",
     cron: "Tugas Cron",
     tasks: "Tugas",
@@ -1866,7 +1866,7 @@ export const id: TranslationMap = {
     worktrees: "Checkout tugas agen terisolasi dan snapshot pemulihan.",
     channels: "Saluran dan pengaturan.",
     connection: "Endpoint Gateway, kredensial, dan status handshake.",
-    sessions: "Sesi aktif dan default.",
+    sessions: "Your research projects and defaults.",
     usage: "Penggunaan API dan biaya.",
     cron: "Bangun dan proses berulang.",
     tasks: "Tugas latar belakang: subagen, eksekusi cron, CLI.",
@@ -3734,7 +3734,7 @@ export const id: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "Browser ini masih memerlukan persetujuan perangkat sekali pakai setelah pembaruan.",
       action: "Amankan browser ini",

@@ -14,6 +14,9 @@ import "../../../components/web-awesome.ts";
 import { t } from "../../../i18n/index.ts";
 import { formatRelativeTimestamp } from "../../../lib/format.ts";
 
+/** Product switch: the thread workspace file browser is a coding affordance. */
+const PSYNTIENT_SHOW_THREAD_WORKSPACE = false;
+
 export type ChatPaneHeaderAction = "reveal" | "copy-path" | "copy-branch";
 
 type ChatPaneHeaderProps = {
@@ -114,6 +117,13 @@ export function canRevealSessionWorkspace(params: {
   methodAdvertised: boolean;
   hasAdminAccess: boolean;
 }): boolean {
+  // Psyntient Node hides the thread workspace / "Show thread files" panel.
+  // It exposes the agent's working directory as a file browser, which is a
+  // coding-agent affordance -- not something a research Node should put in
+  // front of the user. Single gate on purpose: flip this to re-enable.
+  if (!PSYNTIENT_SHOW_THREAD_WORKSPACE) {
+    return false;
+  }
   return Boolean(
     params.workspaceRoot &&
     params.methodAdvertised &&

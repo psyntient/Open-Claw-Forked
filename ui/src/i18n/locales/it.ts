@@ -1851,7 +1851,7 @@ export const it: TranslationMap = {
     worktrees: "Worktree",
     channels: "Canali",
     connection: "Connessione",
-    sessions: "Sessioni",
+    sessions: "Projects",
     usage: "Utilizzo",
     cron: "Processi cron",
     tasks: "Attività",
@@ -1887,7 +1887,7 @@ export const it: TranslationMap = {
     worktrees: "Checkout isolati delle attività degli agenti e snapshot di ripristino.",
     channels: "Canali e impostazioni.",
     connection: "Endpoint del Gateway, credenziali e stato dell'handshake.",
-    sessions: "Sessioni attive e valori predefiniti.",
+    sessions: "Your research projects and defaults.",
     usage: "Utilizzo API e costi.",
     cron: "Risvegli ed esecuzioni ricorrenti.",
     tasks: "Attività in background: subagenti, esecuzioni cron, CLI.",
@@ -3774,7 +3774,7 @@ export const it: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner:
         "Questo browser richiede ancora un'approvazione dispositivo una tantum dopo l'aggiornamento.",

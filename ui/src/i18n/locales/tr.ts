@@ -1834,7 +1834,7 @@ export const tr: TranslationMap = {
     worktrees: "Worktree'ler",
     channels: "Kanallar",
     connection: "Bağlantı",
-    sessions: "Oturumlar",
+    sessions: "Projects",
     usage: "Kullanım",
     cron: "Cron İşleri",
     tasks: "Görevler",
@@ -1870,7 +1870,7 @@ export const tr: TranslationMap = {
     worktrees: "Yalıtılmış aracı görev checkout'ları ve kurtarma anlık görüntüleri.",
     channels: "Kanallar ve ayarlar.",
     connection: "Gateway uç noktası, kimlik bilgileri ve el sıkışma durumu.",
-    sessions: "Etkin oturumlar ve varsayılanlar.",
+    sessions: "Your research projects and defaults.",
     usage: "API kullanımı ve maliyetler.",
     cron: "Uyandırmalar ve yinelenen çalıştırmalar.",
     tasks: "Arka plan görevleri: alt ajanlar, cron çalıştırmaları, CLI.",
@@ -3752,7 +3752,7 @@ export const tr: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "Bu tarayıcı güncellemeden sonra hâlâ tek seferlik cihaz onayı gerektiriyor.",
       action: "Bu tarayıcıyı güvence altına al",

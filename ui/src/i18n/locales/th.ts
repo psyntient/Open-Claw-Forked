@@ -1800,7 +1800,7 @@ export const th: TranslationMap = {
     worktrees: "Worktrees",
     channels: "ช่องทาง",
     connection: "การเชื่อมต่อ",
-    sessions: "เซสชัน",
+    sessions: "Projects",
     usage: "การใช้งาน",
     cron: "งาน Cron",
     tasks: "งาน",
@@ -1836,7 +1836,7 @@ export const th: TranslationMap = {
     worktrees: "การ checkout งานของเอเจนต์แบบแยก และสแนปช็อตสำหรับการกู้คืน",
     channels: "ช่องทางและการตั้งค่า",
     connection: "ปลายทาง Gateway ข้อมูลประจำตัว และสถานะการจับมือ",
-    sessions: "เซสชันที่ใช้งานอยู่และค่าเริ่มต้น",
+    sessions: "Your research projects and defaults.",
     usage: "การใช้งาน API และค่าใช้จ่าย",
     cron: "การปลุกและการทำงานตามรอบ",
     tasks: "งานเบื้องหลัง: subagents, การรัน cron, CLI.",
@@ -3672,7 +3672,7 @@ export const th: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "เบราว์เซอร์นี้ยังต้องการการอนุมัติอุปกรณ์ครั้งเดียวหลังการอัปเดต",
       action: "ทำให้เบราว์เซอร์นี้ปลอดภัย",

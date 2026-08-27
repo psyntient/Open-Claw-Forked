@@ -1788,7 +1788,7 @@ export const zh_TW: TranslationMap = {
     worktrees: "Worktrees",
     channels: "頻道",
     connection: "連線",
-    sessions: "工作階段",
+    sessions: "Projects",
     usage: "使用情況",
     cron: "定時任務",
     tasks: "任務",
@@ -1824,7 +1824,7 @@ export const zh_TW: TranslationMap = {
     worktrees: "隔離的代理程式任務簽出與復原快照。",
     channels: "頻道和設置。",
     connection: "Gateway 端點、憑證和交握狀態。",
-    sessions: "活動會話和默認設置。",
+    sessions: "Your research projects and defaults.",
     usage: "API 使用情況和成本。",
     cron: "喚醒和重複運行。",
     tasks: "背景任務：子代理、cron 執行、CLI。",
@@ -3653,7 +3653,7 @@ export const zh_TW: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "更新後，此瀏覽器仍需要一次性裝置核准。",
       action: "保護此瀏覽器",

@@ -1839,7 +1839,7 @@ export const nl: TranslationMap = {
     worktrees: "Worktrees",
     channels: "Kanalen",
     connection: "Verbinding",
-    sessions: "Sessies",
+    sessions: "Projects",
     usage: "Gebruik",
     cron: "Cronjobs",
     tasks: "Taken",
@@ -1875,7 +1875,7 @@ export const nl: TranslationMap = {
     worktrees: "Geïsoleerde agenttaak-checkouts en herstelsnapshots.",
     channels: "Kanalen en instellingen.",
     connection: "Gateway-eindpunt, inloggegevens en handshakestatus.",
-    sessions: "Actieve sessies en standaarden.",
+    sessions: "Your research projects and defaults.",
     usage: "API-gebruik en kosten.",
     cron: "Wakeups en terugkerende runs.",
     tasks: "Achtergrondtaken: subagents, cron-runs, CLI.",
@@ -3752,7 +3752,7 @@ export const nl: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "Deze browser heeft na de update nog eenmalige apparaatgoedkeuring nodig.",
       action: "Beveilig deze browser",

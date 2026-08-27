@@ -1846,7 +1846,7 @@ export const ru: TranslationMap = {
     worktrees: "Рабочие деревья",
     channels: "Каналы",
     connection: "Подключение",
-    sessions: "Сеансы",
+    sessions: "Projects",
     usage: "Использование",
     cron: "Задания Cron",
     tasks: "Задачи",
@@ -1882,7 +1882,7 @@ export const ru: TranslationMap = {
     worktrees: "Изолированные копии для задач агентов и снимки восстановления.",
     channels: "Каналы и настройки.",
     connection: "Адрес Gateway, учётные данные и статус рукопожатия.",
-    sessions: "Активные сеансы и значения по умолчанию.",
+    sessions: "Your research projects and defaults.",
     usage: "Использование API и расходы.",
     cron: "Пробуждения и повторяющиеся запуски.",
     tasks: "Фоновые задачи: субагенты, запуски cron, CLI.",
@@ -3764,7 +3764,7 @@ export const ru: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner:
         "Для этого браузера всё ещё требуется однократное подтверждение устройства после обновления.",

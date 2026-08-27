@@ -1814,7 +1814,7 @@ export const ar: TranslationMap = {
     worktrees: "مساحات العمل",
     channels: "القنوات",
     connection: "الاتصال",
-    sessions: "الجلسات",
+    sessions: "Projects",
     usage: "الاستخدام",
     cron: "مهام Cron",
     tasks: "المهام",
@@ -1850,7 +1850,7 @@ export const ar: TranslationMap = {
     worktrees: "نسخ معزولة لمهام الوكلاء ولقطات استرداد.",
     channels: "القنوات والإعدادات.",
     connection: "نقطة نهاية Gateway وبيانات الاعتماد وحالة المصافحة.",
-    sessions: "الجلسات النشطة والافتراضيات.",
+    sessions: "Your research projects and defaults.",
     usage: "استخدام API والتكاليف.",
     cron: "الإيقاظات والتشغيلات المتكررة.",
     tasks: "مهام الخلفية: الوكلاء الفرعيون، تشغيلات cron، CLI.",
@@ -3697,7 +3697,7 @@ export const ar: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "لا يزال هذا المتصفح بحاجة إلى موافقة الجهاز لمرة واحدة بعد التحديث.",
       action: "تأمين هذا المتصفح",

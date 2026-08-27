@@ -56,7 +56,31 @@ export type SidebarZoneEntry =
 
 // Keep the highest-value operational destinations visible on first use. Users
 // can still replace this route set through the customize menu.
-export const DEFAULT_SIDEBAR_ENTRIES = ["cron", "plugins"].map((route) =>
+/**
+ * Routes hidden from the Psyntient Node product surface.
+ *
+ * These are OpenClaw operator/coding surfaces that a research Node has no use
+ * for. They are hidden from navigation rather than deleted: the route
+ * directories are upstream code we do not own, several are referenced through
+ * the wider NavigationRouteId type, and removing them from SIDEBAR_NAV_ROUTES
+ * would narrow SidebarNavRoute and break unrelated call sites (workboard alone
+ * has ~28 references). Hiding is reversible and survives OpenClaw updates with
+ * a one-line re-apply.
+ *
+ * `channels` is deliberately included but is a product decision, not an
+ * obvious drop -- hiding it forecloses the Telegram/Slack direction. The code
+ * stays; only the nav entry goes.
+ */
+export const PSYNTIENT_HIDDEN_ROUTES: ReadonlySet<string> = new Set([
+  "workboard",
+  "cron",
+  "tasks",
+  "plugins",
+  "apps",
+  "activity",
+]);
+
+export const DEFAULT_SIDEBAR_ENTRIES = ["sessions", "usage"].map((route) =>
   serializeSidebarEntry({ type: "route", route: route as SidebarNavRoute }),
 );
 
@@ -120,7 +144,9 @@ export function sidebarMoreRoutes(entries: readonly string[]): SidebarNavRoute[]
       return parsed?.type === "route" ? [parsed.route] : [];
     }),
   );
-  return SIDEBAR_NAV_ROUTES.filter((routeId) => !visibleRoutes.has(routeId));
+  return SIDEBAR_NAV_ROUTES.filter(
+    (routeId) => !visibleRoutes.has(routeId) && !PSYNTIENT_HIDDEN_ROUTES.has(routeId),
+  );
 }
 
 type SettingsNavigationGroup = {

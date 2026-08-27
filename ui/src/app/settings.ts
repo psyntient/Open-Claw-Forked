@@ -28,6 +28,8 @@ type PersistedUiSettings = Omit<UiSettings, "token" | "sessionKey" | "lastActive
   sessionKey?: string;
   lastActiveSessionKey?: string;
   sessionsByGateway?: Record<string, ScopedSessionSelection>;
+  /** Marks that the one-time Claw -> Psyntient rebrand migration has run. */
+  psyntientRebrand?: boolean;
 };
 
 import {
@@ -445,10 +447,24 @@ export function loadSettings(): UiSettings {
     const gatewayUrl = parsedGatewayUrl === pageDerivedUrl ? defaultUrl : parsedGatewayUrl;
     const scopedSessionSelection = resolveScopedSessionSelection(gatewayUrl, parsed, defaults);
     const customTheme = parseImportedCustomTheme((parsed as { customTheme?: unknown }).customTheme);
-    const { theme, mode } = parseThemeSelection(
+    const { theme: storedTheme, mode } = parseThemeSelection(
       (parsed as { theme?: unknown }).theme,
       (parsed as { themeMode?: unknown }).themeMode,
     );
+    // One-time rebrand migration.
+    //
+    // Changing the *default* to Psyntient only affects fresh installs: anyone
+    // who had already opened the dashboard has an explicit `theme: "claw"`
+    // persisted under openclaw.control.settings.v1:<gatewayUrl>, and a stored
+    // value always wins. Those users would never see the product branding --
+    // which is exactly what happened on the first real run.
+    //
+    // "claw" is upstream's default, not a deliberate Psyntient choice, so
+    // migrate it once and stamp a marker. The marker means a user who later
+    // picks Claw on purpose keeps it, and it is only ever applied once.
+    const rebrandMarker = (parsed as { psyntientRebrand?: unknown }).psyntientRebrand;
+    const needsRebrand = rebrandMarker !== true && storedTheme === "claw";
+    const theme = needsRebrand ? ("psyntient" as typeof storedTheme) : storedTheme;
     const parsedRecord = parsed as unknown as Record<string, unknown>;
     const hasSidebarEntries = Object.hasOwn(parsedRecord, "sidebarEntries");
     // One-time read of the retired route-only shape; all writes use sidebarEntries.
@@ -619,6 +635,10 @@ function persistSettings(next: UiSettings, options: { selectGateway?: boolean } 
   );
   const persisted: PersistedUiSettings = {
     gatewayUrl: next.gatewayUrl,
+    // Stamped on every write so the one-time rebrand migration above fires
+    // at most once. Without this it would re-run on each load and would
+    // override a user who later picks Claw deliberately.
+    psyntientRebrand: true,
     theme: next.theme,
     themeMode: next.themeMode,
     chatShowThinking: next.chatShowThinking,

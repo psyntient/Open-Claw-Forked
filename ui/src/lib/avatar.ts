@@ -8,7 +8,11 @@ const CONTROL_UI_SAME_ORIGIN_AVATAR_URL_RE = /^\/(?!\/)/;
 const UNSAFE_ASSISTANT_TEXT_AVATAR_CHARS = /[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/u;
 
 export function assistantAvatarFallbackUrl(basePath: string): string {
-  return controlUiPublicAssetPath("apple-touch-icon.png", basePath);
+  // The Cortex persona (the "magic elf") is the brand mascot and is the
+  // assistant's face, not the app icon. Upstream fell back to
+  // apple-touch-icon.png, which in this fork is the Psyntient app mark -- fine
+  // for a tab, wrong for a chat avatar.
+  return controlUiPublicAssetPath("psyntient-elf.png", basePath);
 }
 
 export function isRenderableControlUiAvatarUrl(value: string): boolean {

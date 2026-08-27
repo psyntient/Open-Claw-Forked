@@ -1843,7 +1843,7 @@ export const pl: TranslationMap = {
     worktrees: "Worktree",
     channels: "Kanały",
     connection: "Połączenie",
-    sessions: "Sesje",
+    sessions: "Projects",
     usage: "Użycie",
     cron: "Zadania Cron",
     tasks: "Zadania",
@@ -1879,7 +1879,7 @@ export const pl: TranslationMap = {
     worktrees: "Izolowane kopie robocze zadań agentów i migawki do odzyskiwania.",
     channels: "Kanały i ustawienia.",
     connection: "Punkt końcowy Gateway, dane uwierzytelniające i stan uzgadniania połączenia.",
-    sessions: "Aktywne sesje i ustawienia domyślne.",
+    sessions: "Your research projects and defaults.",
     usage: "Zużycie API i koszty.",
     cron: "Wybudzenia i cykliczne uruchomienia.",
     tasks: "Zadania w tle: subagenci, uruchomienia cron, CLI.",
@@ -3766,7 +3766,7 @@ export const pl: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner:
         "Ta przeglądarka nadal wymaga jednorazowego zatwierdzenia urządzenia po aktualizacji.",

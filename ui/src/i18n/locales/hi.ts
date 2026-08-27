@@ -1814,7 +1814,7 @@ export const hi: TranslationMap = {
     worktrees: "Worktrees",
     channels: "चैनल",
     connection: "कनेक्शन",
-    sessions: "सत्र",
+    sessions: "Projects",
     usage: "उपयोग",
     cron: "Cron Jobs",
     tasks: "कार्य",
@@ -1850,7 +1850,7 @@ export const hi: TranslationMap = {
     worktrees: "पृथक agent task checkouts और recovery snapshots.",
     channels: "चैनल और सेटिंग्स।",
     connection: "Gateway एंडपॉइंट, क्रेडेंशियल और हैंडशेक की स्थिति।",
-    sessions: "सक्रिय सेशन और डिफ़ॉल्ट्स।",
+    sessions: "Your research projects and defaults.",
     usage: "API उपयोग और लागतें।",
     cron: "वेकअप्स और आवर्ती रन।",
     tasks: "पृष्ठभूमि कार्य: subagents, cron runs, CLI.",
@@ -3693,7 +3693,7 @@ export const hi: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Noetic Interface",
+    subtitle: "Node",
     deviceAuthMigration: {
       banner: "अपडेट के बाद इस ब्राउज़र को एक बार डिवाइस अनुमोदन की आवश्यकता है।",
       action: "इस ब्राउज़र को सुरक्षित करें",
