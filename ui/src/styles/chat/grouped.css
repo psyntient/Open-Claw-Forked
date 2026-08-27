@@ -1077,3 +1077,115 @@ details.msg-meta:not([open]) .msg-meta__details {
     padding-left: 0;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Cortex elf avatar (Psyntient)
+
+   Three stacked frames — idle (the <img>), blink, talk — plus gold sparks.
+   The talk state is driven by :has() on the working indicator, so no run
+   state has to be threaded down to every avatar instance.
+
+   Corrections carried over from the WebClaw version, do not regress them:
+   the mascot stays SOLID and vivid throughout (no fade-out), and there is
+   NO pulsing gold ring while thinking — that ring was removed once already.
+--------------------------------------------------------------------------- */
+.psy-elf {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+
+.psy-elf__idle,
+.psy-elf__blink,
+.psy-elf__talk {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-size: cover;
+  background-position: center;
+  opacity: 1; /* full opacity: mascot must read as solid, never ghosted */
+}
+
+.psy-elf__idle {
+  position: relative;
+  display: block;
+  object-fit: cover;
+}
+
+.psy-elf__blink {
+  background-image: url("/brand/elf/elf-chat-blink-128.png");
+  opacity: 0;
+  animation: psy-elf-blink 6s steps(1, end) infinite;
+}
+
+.psy-elf__talk {
+  background-image: url("/brand/elf/elf-chat-talk-128.png");
+  opacity: 0;
+}
+
+/* Randomised-feeling blink: two quick closures per cycle. */
+@keyframes psy-elf-blink {
+  0%, 92% { opacity: 0; }
+  93%, 95% { opacity: 1; }
+  96%, 97% { opacity: 0; }
+  98%, 99% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Speaking: alternate idle/talk at ~7fps while a run is in flight. */
+.chat-pane:has(.chat-working-indicator) .psy-elf__talk,
+.chat:has(.chat-working-indicator) .psy-elf__talk {
+  animation: psy-elf-talk 280ms steps(1, end) infinite;
+}
+.chat-pane:has(.chat-working-indicator) .psy-elf__blink,
+.chat:has(.chat-working-indicator) .psy-elf__blink {
+  animation: none;
+  opacity: 0;
+}
+@keyframes psy-elf-talk {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Gold sparks — only while speaking. */
+.psy-elf__sparks {
+  position: absolute;
+  inset: -22%;
+  pointer-events: none;
+  opacity: 0;
+}
+.chat-pane:has(.chat-working-indicator) .psy-elf__sparks,
+.chat:has(.chat-working-indicator) .psy-elf__sparks {
+  opacity: 1;
+}
+.psy-elf__sparks i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent, #eebc4a);
+  box-shadow: 0 0 6px var(--accent, #eebc4a);
+  opacity: 0;
+}
+.psy-elf__sparks i:nth-child(1) { left: 8%;  top: 60%; animation: psy-spark 2.2s ease-in-out infinite; }
+.psy-elf__sparks i:nth-child(2) { left: 82%; top: 52%; animation: psy-spark 2.2s ease-in-out .55s infinite; }
+.psy-elf__sparks i:nth-child(3) { left: 24%; top: 18%; animation: psy-spark 2.2s ease-in-out 1.1s infinite; }
+.psy-elf__sparks i:nth-child(4) { left: 68%; top: 14%; animation: psy-spark 2.2s ease-in-out 1.65s infinite; }
+
+@keyframes psy-spark {
+  0%   { opacity: 0; transform: translateY(4px) scale(.6); }
+  35%  { opacity: 1; transform: translateY(-2px) scale(1); }
+  70%  { opacity: .5; transform: translateY(-7px) scale(.8); }
+  100% { opacity: 0; transform: translateY(-12px) scale(.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psy-elf__blink,
+  .psy-elf__talk,
+  .psy-elf__sparks i {
+    animation: none !important;
+  }
+  .psy-elf__sparks { opacity: 0 !important; }
+}

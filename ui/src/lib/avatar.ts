@@ -12,7 +12,7 @@ export function assistantAvatarFallbackUrl(basePath: string): string {
   // assistant's face, not the app icon. Upstream fell back to
   // apple-touch-icon.png, which in this fork is the Psyntient app mark -- fine
   // for a tab, wrong for a chat avatar.
-  return controlUiPublicAssetPath("psyntient-elf.png", basePath);
+  return controlUiPublicAssetPath("brand/elf/elf-chat-idle-128.png", basePath);
 }
 
 export function isRenderableControlUiAvatarUrl(value: string): boolean {

@@ -159,11 +159,20 @@ export function renderChatAvatar(
         ${assistantAvatarText}
       </div>`;
     }
-    return html`<img
-      class="chat-avatar ${className} chat-avatar--logo"
-      src="${assistantFallbackAvatar}"
-      alt="${assistantName}"
-    />`;
+    // Cortex persona: layered elf frames. Idle is the <img> so the avatar
+    // still reads correctly with images-only / no CSS; blink and talk are CSS
+    // layers over it, and the talk state is driven by :has() on the working
+    // indicator rather than plumbing run state down to every avatar.
+    return html`<span
+      class="chat-avatar ${className} chat-avatar--logo psy-elf"
+      role="img"
+      aria-label="${assistantName}"
+    >
+      <img class="psy-elf__idle" src="${assistantFallbackAvatar}" alt="" aria-hidden="true" />
+      <span class="psy-elf__blink" aria-hidden="true"></span>
+      <span class="psy-elf__talk" aria-hidden="true"></span>
+      <span class="psy-elf__sparks" aria-hidden="true"> <i></i><i></i><i></i><i></i> </span>
+    </span>`;
   }
 
   if (normalized === "assistant") {
