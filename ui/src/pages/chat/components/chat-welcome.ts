@@ -100,9 +100,13 @@ function selectWelcomeRecentSessions(
 }
 
 function renderWelcomeClawd() {
+  // Cortex, not Clawd. The welcome hero is the most prominent persona slot in
+  // the product, so it must not fall back to OpenClaw's mascot. Kept under the
+  // original function name and wrapper class so the drag/drop mascot lookups
+  // in renderWelcomeState keep resolving.
   return html`
-    <div class="agent-chat__welcome-clawd" aria-hidden="true">
-      <openclaw-mascot mood="idle" .size=${112}></openclaw-mascot>
+    <div class="agent-chat__welcome-clawd psy-elf-hero" aria-hidden="true">
+      <img src="/brand/elf/elf-chat-idle-256.png" alt="" width="112" height="112" />
     </div>
   `;
 }

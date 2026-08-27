@@ -1214,3 +1214,11 @@ details.msg-meta:not([open]) .msg-meta__details {
   height: 100%;
   object-fit: contain;
 }
+
+/* Welcome hero: Cortex, sized to match the mascot it replaces. */
+.psy-elf-hero img {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  display: block;
+}

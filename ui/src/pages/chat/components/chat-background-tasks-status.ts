@@ -115,7 +115,9 @@ export function renderBackgroundTasksStatusRow(
   return html`
     <openclaw-tooltip class="chat-tasks-status__preview">
       <div class="chat-tasks-status" id=${backgroundTasks.statusRowId} role="status">
-        <span class="chat-tasks-status__claw" aria-hidden="true">${icons.claw}</span>
+        <span class="chat-tasks-status__claw psy-elf-static" aria-hidden="true">
+          <img src="/brand/elf/elf-chat-idle-64.png" alt="" />
+        </span>
         ${status.startedMs !== null
           ? html`
               <!-- Ticking time stays out of the polite live region: without
