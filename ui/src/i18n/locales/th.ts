@@ -2361,6 +2361,12 @@ export const th: TranslationMap = {
     serverRegion: "เซิร์ฟเวอร์",
     you: "คุณ",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

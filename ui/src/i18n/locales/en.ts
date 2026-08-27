@@ -2356,6 +2356,12 @@ export const en: TranslationMap = {
     serverRegion: "Server",
     you: "you",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

@@ -2411,6 +2411,12 @@ export const vi: TranslationMap = {
     serverRegion: "Máy chủ",
     you: "bạn",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

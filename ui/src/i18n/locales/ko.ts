@@ -2393,6 +2393,12 @@ export const ko: TranslationMap = {
     serverRegion: "서버",
     you: "나",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

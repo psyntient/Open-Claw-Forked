@@ -2377,6 +2377,12 @@ export const hi: TranslationMap = {
     serverRegion: "सर्वर",
     you: "आप",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

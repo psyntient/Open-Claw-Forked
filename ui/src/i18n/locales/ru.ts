@@ -2430,6 +2430,12 @@ export const ru: TranslationMap = {
     serverRegion: "Сервер",
     you: "вы",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

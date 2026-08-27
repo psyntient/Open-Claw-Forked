@@ -5768,3 +5768,37 @@ td.data-table-key-col {
 .provider-brand-icon[data-provider-icon="opencodego"] {
   color: var(--text-strong);
 }
+
+/* Vault badge (BRANDING.md section 6). The psy-aura live dot is section 7's
+   spec: scale 1 -> 1.18, opacity .35 -> .7, 7s ease-in-out. */
+.psy-vault-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground, var(--text));
+  white-space: nowrap;
+}
+.psy-vault-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+.psy-vault-badge--warn { border-color: var(--destructive); color: var(--destructive); }
+.psy-vault-badge--warn .psy-vault-badge__dot { background: var(--destructive); }
+
+@keyframes psy-aura {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50% { transform: scale(1.18); opacity: 0.7; }
+}
+.psy-aura { animation: psy-aura 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .psy-aura { animation: none; opacity: 0.7; }
+}

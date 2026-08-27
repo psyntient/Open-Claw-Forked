@@ -2398,6 +2398,12 @@ export const fa: TranslationMap = {
     serverRegion: "سرور",
     you: "شما",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

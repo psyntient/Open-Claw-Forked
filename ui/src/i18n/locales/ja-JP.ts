@@ -2420,6 +2420,12 @@ export const ja_JP: TranslationMap = {
     serverRegion: "サーバー",
     you: "あなた",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

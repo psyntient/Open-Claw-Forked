@@ -2338,6 +2338,12 @@ export const zh_CN: TranslationMap = {
     serverRegion: "服务器",
     you: "你",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

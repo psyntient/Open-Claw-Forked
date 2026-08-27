@@ -2380,6 +2380,12 @@ export const ar: TranslationMap = {
     serverRegion: "الخادم",
     you: "أنت",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",

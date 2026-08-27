@@ -2424,6 +2424,12 @@ export const uk: TranslationMap = {
     serverRegion: "Сервер",
     you: "ви",
   },
+  vaultBadge: {
+    title: "Neural Vault",
+    local: "Local Vault",
+    cloud: "Cloud Vault",
+    readOnly: "not writable",
+  },
   psyntientAccount: {
     title: "Psyntient Account",
     status: "Pairing status",
