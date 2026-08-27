@@ -227,10 +227,10 @@ export function renderWelcomeState(props: ChatWelcomeProps) {
               "chat.welcome.hintAfterShortcut",
             )}`,
       })}
-      ${props.composer ?? nothing}
+      ${props.composer ?? nothing} ${renderWelcomeSuggestions(props)}
       ${recentSessions.length > 0
         ? renderWelcomeRecentSessions(recentSessions, props.onOpenSession)
-        : renderWelcomeSuggestions(props)}
+        : nothing}
     </div>
   `;
 }

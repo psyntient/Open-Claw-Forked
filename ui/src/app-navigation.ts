@@ -120,6 +120,10 @@ export function serializeSidebarEntry(entry: SidebarZoneEntry): string {
  * list; malformed and duplicate entries are dropped.
  */
 export function normalizeSidebarEntries(value: unknown): string[] | null {
+  // Drop hidden product routes from PERSISTED entries too, not just defaults.
+  // Changing DEFAULT_SIDEBAR_ENTRIES only affects fresh profiles; anyone who
+  // has used the dashboard already has sidebarEntries saved and would keep
+  // seeing cron/plugins/workboard forever. Same trap as the theme default.
   if (!Array.isArray(value)) {
     return null;
   }
@@ -127,6 +131,9 @@ export function normalizeSidebarEntries(value: unknown): string[] | null {
   for (const valueEntry of value) {
     const parsed = parseSidebarEntry(valueEntry);
     if (!parsed) {
+      continue;
+    }
+    if (parsed.type === "route" && PSYNTIENT_HIDDEN_ROUTES.has(parsed.route)) {
       continue;
     }
     const entry = serializeSidebarEntry(parsed);
