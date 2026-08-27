@@ -9,10 +9,11 @@ import { applicationContext, type ApplicationContext } from "../../app/context.t
 import { beginNativeWindowDragFromTopInset } from "../../app/native-window-drag.ts";
 import { hasOperatorAdminAccess } from "../../app/operator-access.ts";
 import { loadSettings } from "../../app/settings.ts";
+import { t } from "../../i18n/index.ts";
 import "../../components/tooltip.ts";
 import "../../components/web-awesome-popover.ts";
-import { t } from "../../i18n/index.ts";
 import { listSelectableAgents } from "../../lib/agents/display.ts";
+import { DEFAULT_PROJECT_ID, readSelectedProjectId } from "../../lib/psyntient-projects.ts";
 import { searchForSession } from "../../lib/sessions/index.ts";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../lib/sessions/session-key.ts";
 import { normalizeOptionalString } from "../../lib/string-coerce.ts";
@@ -870,6 +871,24 @@ class NewSessionPage extends OpenClawLightDomElement {
         }
         this.error = context.sessions.state.error ?? t("newSession.createFailed");
         return;
+      }
+      // Psyntient: file the thread into the active Project.
+      //
+      // The sidebar "+" navigates here rather than creating directly, so the
+      // inheritance added to chat-pane-reset's createSession never covered this
+      // path -- threads started from "+" landed in the Default Project instead
+      // of the one the user was looking at.
+      //
+      // Fire-and-forget: failing to file must never block starting a thread.
+      {
+        const projectId = readSelectedProjectId();
+        if (projectId && projectId !== DEFAULT_PROJECT_ID) {
+          void context.sessions
+            .patch(result.key, { category: projectId }, { agentId: draft.agentId })
+            .catch(() => {
+              // The thread exists; it just lands in the Default Project.
+            });
+        }
       }
       if (cloudProfileId && submissionCloudRecovery) {
         const recoveryPhase =
