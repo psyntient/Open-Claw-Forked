@@ -26,18 +26,11 @@ const IDENTITY_MENU_LINKS: ReadonlyArray<{
   icon: IconName;
   label: () => string;
 }> = [
-  { href: "https://docs.openclaw.ai", icon: "book", label: () => t("common.docs") },
-  {
-    href: "https://docs.openclaw.ai/help",
-    icon: "messageSquare",
-    label: () => t("agentChip.getHelp"),
-  },
-  { href: "https://discord.gg/clawd", icon: "users", label: () => t("agentChip.discord") },
-  {
-    href: "https://docs.openclaw.ai/releases",
-    icon: "scrollText",
-    label: () => t("agentChip.viewChangelog"),
-  },
+  // Empty on purpose. Upstream pointed at docs.openclaw.ai, the OpenClaw
+  // Discord and its changelog -- sending Psyntient users to another product's
+  // community. Psyntient equivalents are not published yet, and inventing URLs
+  // that 404 is worse than showing nothing, so the submenu renders empty until
+  // there are real destinations to link.
 ];
 
 /** Above this roster size the chip menu switches to pinned agents + filter. */
@@ -450,10 +443,6 @@ export function renderSidebarIdentityMenu(params: SidebarIdentityMenuParams) {
         >
           <span slot="icon" class="nav-item__icon" aria-hidden="true">${icons.smartphone}</span>
           <span class="sidebar-customize-menu__text">${t("nodes.pairing.button")}</span>
-        </wa-dropdown-item>
-        <wa-dropdown-item class="sidebar-customize-menu__item" value="command:apps">
-          <span slot="icon" class="nav-item__icon" aria-hidden="true">${icons.layoutGrid}</span>
-          <span class="sidebar-customize-menu__text">${t("agentChip.getApps")}</span>
         </wa-dropdown-item>
         <wa-dropdown-item
           class="sidebar-customize-menu__item sidebar-identity-menu__help"

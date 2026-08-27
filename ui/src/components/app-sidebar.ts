@@ -398,16 +398,9 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
               .soundsEnabled=${this.lobsterPetSounds}
               .gatewayVersion=${this.gatewayVersion}
             ></openclaw-lobster-pet>
-            ${this.devGitBranch
-              ? html`<openclaw-tooltip .content=${this.devGitBranch}>
-                  <div class="sidebar-footer-branch">
-                    <span class="sidebar-footer-branch__icon" aria-hidden="true"
-                      >${icons.gitBranch}</span
-                    >
-                    <span class="sidebar-footer-branch__name">${this.devGitBranch}</span>
-                  </div>
-                </openclaw-tooltip>`
-              : nothing}
+            <!-- The dev git-branch chip is hidden: it exposes the checkout's
+                 branch name to end users, which is a developer affordance and
+                 meaningless (and alarming, in red) in a shipped product. -->
             <psyntient-vault-badge
               .authToken=${this.context?.gateway.connection?.token ?? null}
             ></psyntient-vault-badge>
