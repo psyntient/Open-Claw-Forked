@@ -22,10 +22,40 @@ export type PsyntientAccountState = {
 
 const PAIRING_ROUTE = "/__openclaw__/psyntient/pairing";
 
-/** Never throws: an unreachable route degrades to an "unknown" row, not a broken page. */
-export async function loadPsyntientAccount(): Promise<PsyntientAccountState> {
+function authHeaders(token: string | null): Record<string, string> {
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+/**
+ * Unpairs this Node from psyntient.io. Destructive and not casually
+ * reversible -- re-pairing requires a full browser round-trip through
+ * /link-node (AUTH_FLOW.md) -- so callers MUST confirm first.
+ */
+export async function unpairPsyntientNode(
+  token: string | null,
+): Promise<{ ok: boolean; error?: string }> {
   try {
-    const res = await fetch(PAIRING_ROUTE, { credentials: "same-origin" });
+    const res = await fetch(PAIRING_ROUTE, { method: "DELETE", headers: authHeaders(token) });
+    if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** Never throws: an unreachable route degrades to an "unknown" row, not a broken page. */
+export async function loadPsyntientAccount(
+  token: string | null = null,
+): Promise<PsyntientAccountState> {
+  try {
+    const res = await fetch(PAIRING_ROUTE, {
+      headers: authHeaders(token),
+      credentials: "same-origin",
+    });
     if (!res.ok) {
       return { status: "error", error: `HTTP ${res.status}` };
     }
@@ -82,7 +112,7 @@ function statusRow(state: PsyntientAccountState) {
   });
 }
 
-export function renderPsyntientAccountSection(state: PsyntientAccountState) {
+export function renderPsyntientAccountSection(state: PsyntientAccountState, onUnpair?: () => void) {
   const details =
     state.status === "paired"
       ? html`
@@ -104,8 +134,23 @@ export function renderPsyntientAccountSection(state: PsyntientAccountState) {
         `
       : nothing;
 
+  const unpairRow =
+    state.status === "paired" && onUnpair
+      ? renderSettingsRow({
+          title: t("psyntientAccount.unpair"),
+          description: t("psyntientAccount.unpairDesc"),
+          control: html`<button
+            type="button"
+            class="settings-button settings-button--danger"
+            @click=${onUnpair}
+          >
+            ${t("psyntientAccount.unpairAction")}
+          </button>`,
+        })
+      : nothing;
+
   return renderSettingsSection(
     { title: t("psyntientAccount.title") },
-    html`${statusRow(state)}${details}`,
+    html`${statusRow(state)}${details}${unpairRow}`,
   );
 }

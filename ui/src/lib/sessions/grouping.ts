@@ -212,7 +212,14 @@ export function groupSidebarSessionRows<Row extends SidebarGroupableRow>(
   if (groups.length > 0) {
     sections.push({ id: "groups", groups: true, rows: groups });
   }
-  sections.push({ id: "work", work: true, rows: coding });
+  // Psyntient Node does not surface the "Coding" section. It groups sessions
+  // spawned by coding agents (Claude Code and friends) -- a developer workflow
+  // this product does not present. The rows still exist and are reachable; only
+  // the section is omitted, so nothing is lost if this is reverted.
+  const PSYNTIENT_SHOW_CODING_SECTION: boolean = false;
+  if (PSYNTIENT_SHOW_CODING_SECTION) {
+    sections.push({ id: "work", work: true, rows: coding });
+  }
   return sections;
 }
 

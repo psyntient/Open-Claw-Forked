@@ -50,6 +50,7 @@ import {
 import {
   loadPsyntientAccount,
   renderPsyntientAccountSection,
+  unpairPsyntientNode,
   type PsyntientAccountState,
 } from "./psyntient-account-section.ts";
 import { buildInsights, firstActiveDate, formatTokenScale, type ProfileInsights } from "./stats.ts";
@@ -85,6 +86,24 @@ export class ProfilePage extends OpenClawLightDomElement {
   @consume({ context: applicationContext, subscribe: false })
   private context!: ApplicationContext;
 
+  private handleUnpairPsyntient = async () => {
+    // Destructive: re-pairing needs a full browser round-trip through
+
+    // psyntient.io/link-node, so never do this without an explicit confirm.
+
+    if (!globalThis.confirm(t("psyntientAccount.unpairConfirm"))) {
+      return;
+    }
+
+    const token = this.context?.gateway.connection?.token ?? null;
+
+    const result = await unpairPsyntientNode(token);
+
+    this.psyntientAccount = result.ok
+      ? { status: "unpaired" }
+      : { status: "error", error: result.error ?? null };
+  };
+
   @state() private psyntientAccount: PsyntientAccountState = { status: "loading" };
 
   @state() private loading = false;
@@ -115,7 +134,7 @@ export class ProfilePage extends OpenClawLightDomElement {
   };
 
   override connectedCallback() {
-    void loadPsyntientAccount().then((next) => {
+    void loadPsyntientAccount(this.context?.gateway.connection?.token ?? null).then((next) => {
       this.psyntientAccount = next;
     });
     super.connectedCallback();
@@ -589,9 +608,11 @@ export class ProfilePage extends OpenClawLightDomElement {
     return renderSettingsPage(
       hasActivity
         ? html`${this.renderHero(insights)} ${renderProfileStats(this.costSummary, insights)}
-          ${renderPsyntientAccountSection(this.psyntientAccount)} ${this.renderIdentity()}
-          ${renderProfileHeatmap(this.costSummary)} ${renderProfileInsights(insights)}`
-        : html`${this.renderHero(insights)} ${renderPsyntientAccountSection(this.psyntientAccount)}
+          ${renderPsyntientAccountSection(this.psyntientAccount, this.handleUnpairPsyntient)}
+          ${this.renderIdentity()} ${renderProfileHeatmap(this.costSummary)}
+          ${renderProfileInsights(insights)}`
+        : html`${this.renderHero(insights)}
+          ${renderPsyntientAccountSection(this.psyntientAccount, this.handleUnpairPsyntient)}
           ${this.renderIdentity()} ${emptyState}`,
     );
   }

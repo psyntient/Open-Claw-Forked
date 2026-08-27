@@ -324,7 +324,7 @@ export const zh_CN: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "配对移动设备",
+      button: "Pair a device",
       adminRequired: "需要管理员访问权限才能创建设置码。",
       title: "OpenClaw 移动版",
       subtitle: "在移动应用中扫描此二维码以连接新手机。",
@@ -2345,6 +2345,11 @@ export const zh_CN: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

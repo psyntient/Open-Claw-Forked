@@ -346,7 +346,7 @@ export const es: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "Vincular dispositivo móvil",
+      button: "Pair a device",
       adminRequired: "Se requiere acceso de administrador para crear códigos de configuración.",
       title: "OpenClaw móvil",
       subtitle: "Escanea este código QR en la app móvil para conectar un teléfono nuevo.",
@@ -2448,6 +2448,11 @@ export const es: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

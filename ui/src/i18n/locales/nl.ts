@@ -344,7 +344,7 @@ export const nl: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "Mobiel apparaat koppelen",
+      button: "Pair a device",
       adminRequired: "Beheerderstoegang is vereist om installatiecodes te maken.",
       title: "OpenClaw mobiel",
       subtitle: "Scan deze QR-code in de mobiele app om een nieuwe telefoon te verbinden.",
@@ -2428,6 +2428,11 @@ export const nl: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

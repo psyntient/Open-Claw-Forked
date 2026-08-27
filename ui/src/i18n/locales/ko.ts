@@ -340,7 +340,7 @@ export const ko: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "모바일 기기 페어링",
+      button: "Pair a device",
       adminRequired: "설정 코드를 생성하려면 관리자 권한이 필요합니다.",
       title: "OpenClaw 모바일",
       subtitle: "새 휴대폰을 연결하려면 모바일 앱에서 이 QR 코드를 스캔하세요.",
@@ -2400,6 +2400,11 @@ export const ko: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

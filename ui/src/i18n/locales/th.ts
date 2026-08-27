@@ -332,7 +332,7 @@ export const th: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "จับคู่อุปกรณ์มือถือ",
+      button: "Pair a device",
       adminRequired: "จำเป็นต้องมีสิทธิ์ผู้ดูแลระบบเพื่อสร้างรหัสตั้งค่า",
       title: "OpenClaw mobile",
       subtitle: "สแกนคิวอาร์โค้ดนี้ในแอปมือถือเพื่อเชื่อมต่อโทรศัพท์เครื่องใหม่",
@@ -2368,6 +2368,11 @@ export const th: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

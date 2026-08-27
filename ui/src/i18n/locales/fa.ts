@@ -341,7 +341,7 @@ export const fa: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "جفت‌سازی دستگاه همراه",
+      button: "Pair a device",
       adminRequired: "برای ایجاد کدهای راه‌اندازی، دسترسی مدیر لازم است.",
       title: "موبایل OpenClaw",
       subtitle: "برای اتصال یک تلفن جدید، این کد QR را در برنامه موبایل اسکن کنید.",
@@ -2405,6 +2405,11 @@ export const fa: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

@@ -343,7 +343,7 @@ export const vi: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "Ghép nối thiết bị di động",
+      button: "Pair a device",
       adminRequired: "Cần quyền truy cập quản trị viên để tạo mã thiết lập.",
       title: "OpenClaw di động",
       subtitle: "Quét mã QR này trong ứng dụng di động để kết nối điện thoại mới.",
@@ -2418,6 +2418,11 @@ export const vi: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

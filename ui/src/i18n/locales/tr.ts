@@ -341,7 +341,7 @@ export const tr: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "Mobil cihazı eşleştir",
+      button: "Pair a device",
       adminRequired: "Kurulum kodları oluşturmak için yönetici erişimi gerekir.",
       title: "OpenClaw mobil",
       subtitle: "Yeni bir telefonu bağlamak için mobil uygulamada bu QR kodunu tarayın.",
@@ -2431,6 +2431,11 @@ export const tr: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",

@@ -431,6 +431,10 @@ export function renderSidebarIdentityMenu(params: SidebarIdentityMenuParams) {
             >${isApplePlatform() ? "⌘⇧," : "Ctrl+Shift+,"}</span
           >
         </wa-dropdown-item>
+        <wa-dropdown-item class="sidebar-customize-menu__item" value="command:profile">
+          <span slot="icon" class="nav-item__icon" aria-hidden="true">${icons.users}</span>
+          <span class="sidebar-customize-menu__text">${t("psyntientAccount.title")}</span>
+        </wa-dropdown-item>
         <wa-dropdown-item class="sidebar-customize-menu__item" value="command:usage">
           <span slot="icon" class="nav-item__icon" aria-hidden="true">${icons.coins}</span>
           <span class="sidebar-customize-menu__text">${titleForRoute("usage")}</span>

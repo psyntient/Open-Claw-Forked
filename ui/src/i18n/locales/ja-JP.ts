@@ -345,7 +345,7 @@ export const ja_JP: TranslationMap = {
   },
   nodes: {
     pairing: {
-      button: "モバイルデバイスをペアリング",
+      button: "Pair a device",
       adminRequired: "セットアップコードを作成するには管理者アクセスが必要です。",
       title: "OpenClaw mobile",
       subtitle:
@@ -2427,6 +2427,11 @@ export const ja_JP: TranslationMap = {
     readOnly: "not writable",
   },
   psyntientAccount: {
+    unpair: "Unpair this Node",
+    unpairDesc: "Disconnect this Node from your psyntient.io account.",
+    unpairAction: "Unpair",
+    unpairConfirm:
+      "Unpair this Node from your psyntient.io account?\n\nRe-pairing requires signing in again at psyntient.io.",
     title: "Psyntient Account",
     status: "Pairing status",
     paired: "Paired",
