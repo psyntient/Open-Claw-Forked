@@ -51,17 +51,11 @@ export function renderAppSidebarBrand(host: AppSidebarRenderHost) {
       <psyntient-project-select
         .authToken=${host.context?.gateway.connection?.token ?? null}
       ></psyntient-project-select>
-      <openclaw-sidebar-agent-card
-        .agentName=${cardName}
-        .avatarUrl=${cardAgent ? resolveAgentAvatarUrl(cardAgent) : null}
-        .avatarText=${cardAvatarText}
-        .subtitle=${host.agentChipSubtitle(cardAgentId)}
-        .menuOpen=${host.sidebarMenus.agentMenuPosition !== null}
-        .menuUnread=${menuUnread}
-        .approvalCount=${approvalCount}
-        .switcherAvailable=${cardAgents.length > 1}
-        .onToggleMenu=${(trigger: HTMLElement) => host.sidebarMenus.toggleAgentMenu(trigger)}
-      ></openclaw-sidebar-agent-card>
+      <!-- The agent card and its menu (New agent / What can main do? / Agent
+           settings) are removed: Psyntient Node runs exactly one Cortex, and
+           Projects are the organising concept. Exposing an agent switcher beside
+           a Project selector offered two competing mental models, and "New agent"
+           opened the identity editor this product deliberately avoids. -->
       <div class="sidebar-brand__actions">
         <openclaw-tooltip
           .content=${host.connected

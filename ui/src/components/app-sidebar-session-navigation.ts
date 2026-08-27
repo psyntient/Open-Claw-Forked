@@ -13,6 +13,7 @@ import {
   searchForSession,
   sessionMatchesArchivedFilter,
 } from "../lib/sessions/index.ts";
+import { resolveRowProjectId } from "../lib/sessions/navigation.ts";
 import {
   areUiSessionKeysEquivalent,
   buildAgentMainSessionKey,
@@ -529,12 +530,20 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
         ? (this.sessionData.sessionsResult?.sessions ?? [])
         : (this.sessionData.sessionRowsByAgent[selected] ?? []);
     const rowsByKey = new Map(rows.map((row) => [row.key, row]));
+    // Psyntient: the Project scope must apply to BOTH branches. The fast path
+    // below reuses navigationState.visibleSessions and never calls
+    // filterVisibleSessionRows, so passing projectId only to the slow path
+    // left the sidebar unfiltered in the common case.
+    const projectId = readSelectedProjectId();
+    const inSelectedProject = (row: GatewaySessionRow) => resolveRowProjectId(row) === projectId;
     const rootRows =
       selected === routeAgentId && selected === loadedAgentId
-        ? navigationState.visibleSessions.flatMap((session) => {
-            const row = rowsByKey.get(session.key);
-            return row ? [row] : [];
-          })
+        ? navigationState.visibleSessions
+            .flatMap((session) => {
+              const row = rowsByKey.get(session.key);
+              return row ? [row] : [];
+            })
+            .filter(inSelectedProject)
         : filterVisibleSessionRows(rows, {
             agentId: selected,
             defaultAgentId: resolveUiDefaultAgentId({
@@ -545,7 +554,7 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
             // Psyntient: scope the sidebar to the selected Project. Threads
             // with no category resolve to the Default Project, so nothing is
             // hidden by a filter the user did not set.
-            projectId: readSelectedProjectId(),
+            projectId,
             showCron: this.sessionsShowCron,
             archivedFilter: this.sessionsStatusFilter,
           }).toSorted(this.compareSidebarSessionRows);
