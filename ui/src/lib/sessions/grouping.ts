@@ -205,10 +205,26 @@ export function groupSidebarSessionRows<Row extends SidebarGroupableRow>(
       .filter((name) => !knownGroups.includes(name))
       .toSorted((a, b) => a.localeCompare(b)),
   ];
-  for (const category of orderedCategories) {
-    sections.push({ id: `category:${category}`, category, rows: categories.get(category) ?? [] });
+  // Psyntient Node does not render category sections.
+  //
+  // A category IS a Project here, and the Project selector already scopes the
+  // sidebar to one of them -- so a section header per category just repeats
+  // the selector, and stacks an empty header for every Project the user is not
+  // currently in. The requirement is simply: select a Project, see its threads
+  // under THREADS.
+  //
+  // Categorised rows are folded into the ungrouped list rather than dropped,
+  // so nothing becomes unreachable. Flip this to restore upstream's grouping.
+  const PSYNTIENT_SHOW_CATEGORY_SECTIONS: boolean = false;
+  if (PSYNTIENT_SHOW_CATEGORY_SECTIONS) {
+    for (const category of orderedCategories) {
+      sections.push({ id: `category:${category}`, category, rows: categories.get(category) ?? [] });
+    }
+    sections.push({ id: "ungrouped", rows: threads });
+  } else {
+    const categorised = orderedCategories.flatMap((name) => categories.get(name) ?? []);
+    sections.push({ id: "ungrouped", rows: [...categorised, ...threads] });
   }
-  sections.push({ id: "ungrouped", rows: threads });
   if (groups.length > 0) {
     sections.push({ id: "groups", groups: true, rows: groups });
   }
