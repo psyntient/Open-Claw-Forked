@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import "./psyntient-project-select.ts";
 import type { GatewayControlUiPluginTab } from "../api/gateway.ts";
 import {
   serializeSidebarEntry,
@@ -47,6 +48,9 @@ export function renderAppSidebarBrand(host: AppSidebarRenderHost) {
   // keeps its separate offline-tolerant ⌘N mirror.
   return html`
     <div class="sidebar-brand">
+      <psyntient-project-select
+        .authToken=${host.context?.gateway.connection?.token ?? null}
+      ></psyntient-project-select>
       <openclaw-sidebar-agent-card
         .agentName=${cardName}
         .avatarUrl=${cardAgent ? resolveAgentAvatarUrl(cardAgent) : null}

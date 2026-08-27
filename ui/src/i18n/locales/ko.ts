@@ -2026,6 +2026,40 @@ export const ko: TranslationMap = {
     replaceHint: "충돌을 다시 미리 보고 교체 전에 항목 백업을 보존합니다.",
   },
   onboarding: {
+    progress: "Setup progress",
+    checking: "Checking your setup…",
+    step: {
+      welcome: "Welcome",
+      key: "Model",
+      pairing: "Account",
+      vault: "Vault",
+      install: "Ready",
+    },
+    welcomeTitle: "Welcome to Psyntient Node",
+    welcomeBody:
+      "Your Node runs entirely on this machine. Your research, your memory, and your Vault never leave it.",
+    initialize: "Initialize Node",
+    keyTitle: "Connect a model",
+    keyBody:
+      "Psyntient uses your own provider key. It is stored on this Node and never sent to psyntient.io.",
+    provider: "Provider",
+    keyPlaceholder: "Paste your API key",
+    testing: "Testing the connection…",
+    keySaveFailed: "The key could not be saved.",
+    keyTestFailed: "The key was saved, but the connection test failed.",
+    pairingTitle: "Link your Psyntient account",
+    pairingBody:
+      "This links the Node to your psyntient.io account. Your Vault and conversations stay on this machine.",
+    pairNow: "Link account",
+    pairingWaiting: "Waiting for you to approve in the browser…",
+    pairingFailed: "Pairing did not complete.",
+    tryAgain: "Try again",
+    vaultTitle: "Your Neural Vault",
+    vaultBody: "This is where your research is kept. It lives on this machine.",
+    readyTitle: "Your Node is ready",
+    readyBody: "Cortex is set up and waiting.",
+    enter: "Enter Psyntient Node",
+    continue: "Continue",
     memoryImport: {
       title: "어시스턴트 메모리 가져오기",
       body: "OpenClaw에서 다른 코딩 어시스턴트의 메모리를 찾았습니다. 에이전트 작업 공간으로 가져오시겠습니까?",
@@ -2398,6 +2432,12 @@ export const ko: TranslationMap = {
     local: "Local Vault",
     cloud: "Cloud Vault",
     readOnly: "not writable",
+  },
+  projects: {
+    label: "Project",
+    defaultTitle: "General",
+    new: "New project…",
+    newPrompt: "Name this project",
   },
   psyntientAccount: {
     unpair: "Unpair this Node",

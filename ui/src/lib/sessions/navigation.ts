@@ -228,7 +228,21 @@ type VisibleSessionRowOptions = {
   filterByAgent?: boolean;
   showCron?: boolean;
   archivedFilter?: SessionArchivedFilter;
+  /** Psyntient: scope the list to one Project. Undefined shows every thread. */
+  projectId?: string;
 };
+
+/**
+ * The Project a thread belongs to.
+ *
+ * A row with no category RESOLVES to the Default Project rather than being
+ * migrated into it, so threads that predate Projects stay reachable with no
+ * rewrite, and a thread never has to be filed to be visible.
+ */
+export const DEFAULT_PROJECT_ID = "default";
+export function resolveRowProjectId(row: GatewaySessionRow): string {
+  return row.category?.trim() || DEFAULT_PROJECT_ID;
+}
 
 export function sessionMatchesArchivedFilter(
   row: GatewaySessionRow,
@@ -261,7 +275,8 @@ export function filterVisibleSessionRows(
       !isSubagentSessionKey(row.key) &&
       !row.spawnedBy &&
       (!options.filterByAgent ||
-        isSessionKeyTiedToAgent(row.key, options.agentId, options.defaultAgentId))
+        isSessionKeyTiedToAgent(row.key, options.agentId, options.defaultAgentId)) &&
+      (!options.projectId || resolveRowProjectId(row) === options.projectId)
     );
   });
 }

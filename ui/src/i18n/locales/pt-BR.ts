@@ -2046,6 +2046,40 @@ export const pt_BR: TranslationMap = {
       "Visualize os conflitos novamente e preserve os backups dos itens antes da substituição.",
   },
   onboarding: {
+    progress: "Setup progress",
+    checking: "Checking your setup…",
+    step: {
+      welcome: "Welcome",
+      key: "Model",
+      pairing: "Account",
+      vault: "Vault",
+      install: "Ready",
+    },
+    welcomeTitle: "Welcome to Psyntient Node",
+    welcomeBody:
+      "Your Node runs entirely on this machine. Your research, your memory, and your Vault never leave it.",
+    initialize: "Initialize Node",
+    keyTitle: "Connect a model",
+    keyBody:
+      "Psyntient uses your own provider key. It is stored on this Node and never sent to psyntient.io.",
+    provider: "Provider",
+    keyPlaceholder: "Paste your API key",
+    testing: "Testing the connection…",
+    keySaveFailed: "The key could not be saved.",
+    keyTestFailed: "The key was saved, but the connection test failed.",
+    pairingTitle: "Link your Psyntient account",
+    pairingBody:
+      "This links the Node to your psyntient.io account. Your Vault and conversations stay on this machine.",
+    pairNow: "Link account",
+    pairingWaiting: "Waiting for you to approve in the browser…",
+    pairingFailed: "Pairing did not complete.",
+    tryAgain: "Try again",
+    vaultTitle: "Your Neural Vault",
+    vaultBody: "This is where your research is kept. It lives on this machine.",
+    readyTitle: "Your Node is ready",
+    readyBody: "Cortex is set up and waiting.",
+    enter: "Enter Psyntient Node",
+    continue: "Continue",
     memoryImport: {
       title: "Leve a memória do seu assistente com você",
       body: "O OpenClaw encontrou memórias de outros assistentes de programação. Deseja importá-las para o espaço de trabalho do seu agente?",
@@ -2426,6 +2460,12 @@ export const pt_BR: TranslationMap = {
     local: "Local Vault",
     cloud: "Cloud Vault",
     readOnly: "not writable",
+  },
+  projects: {
+    label: "Project",
+    defaultTitle: "General",
+    new: "New project…",
+    newPrompt: "Name this project",
   },
   psyntientAccount: {
     unpair: "Unpair this Node",

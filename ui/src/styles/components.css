@@ -5802,3 +5802,199 @@ td.data-table-key-col {
 @media (prefers-reduced-motion: reduce) {
   .psy-aura { animation: none; opacity: 0.7; }
 }
+
+/* ---------------------------------------------------------------------------
+   Psyntient onboarding wizard.
+
+   Type is deliberately large: this is a first-run, full-screen, one-decision-
+   per-screen flow for a non-developer, not a dense settings page. Body copy is
+   1.0625rem and the title 2rem, well above the app's usual scale.
+--------------------------------------------------------------------------- */
+.psy-onb {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.psy-onb__mark {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.psy-onb__title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 400;
+  color: var(--text-strong);
+}
+
+.psy-onb__hint {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+
+.psy-onb__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: min(30rem, 100%);
+}
+
+.psy-onb__select,
+.psy-onb__input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1.0625rem;
+  color: var(--text-strong);
+  background: var(--bg-elevated);
+  border: 1px solid var(--input);
+  border-radius: 10px;
+}
+.psy-onb__select:focus-visible,
+.psy-onb__input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.psy-onb__primary {
+  padding: 0.85rem 2rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.psy-onb__primary:hover:not(:disabled) { background: var(--accent-hover); }
+.psy-onb__primary:disabled { opacity: 0.55; cursor: default; }
+
+.psy-onb__path {
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  word-break: break-all;
+}
+
+.psy-onb__error {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 1rem;
+  color: var(--destructive);
+}
+
+/* Stepper: every step is shown, with its label. The gold fill uses psy-morph
+   (BRANDING.md section 7) -- the "psychedelic" progress bar from the WebClaw
+   build, carried over at the user's explicit request. */
+.psy-onb__stepper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.psy-onb__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 5.5rem;
+}
+.psy-onb__pip {
+  width: 100%;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: background-color 300ms ease;
+}
+.psy-onb__step-label {
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.psy-onb__step--active .psy-onb__pip,
+.psy-onb__step--done .psy-onb__pip {
+  background: var(--accent);
+  animation: psy-morph 4s linear infinite;
+}
+.psy-onb__step--done .psy-onb__pip { opacity: 0.6; }
+.psy-onb__step--active .psy-onb__step-label { color: var(--text-strong); }
+
+@keyframes psy-morph {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psy-onb__pip { animation: none !important; }
+}
+
+/* Project selector — the Slack-style scope switcher at the sidebar top. */
+.psy-project-select { position: relative; width: 100%; }
+.psy-project-select__trigger {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-strong);
+}
+.psy-project-select__trigger:hover { background: var(--bg-hover); }
+.psy-project-select__label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.psy-project-select__name { font-size: 0.9375rem; font-weight: 600; }
+.psy-project-select__chevron { margin-left: auto; color: var(--muted); }
+.psy-project-select__menu {
+  position: absolute;
+  z-index: 60;
+  left: 0.4rem;
+  right: 0.4rem;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+}
+.psy-project-select__option {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 0.9375rem;
+  color: var(--text);
+  cursor: pointer;
+}
+.psy-project-select__option:hover { background: var(--bg-hover); }
+.psy-project-select__option.is-selected { color: var(--accent); font-weight: 600; }
+.psy-project-select__option--new { color: var(--muted); border-top: 1px solid var(--border); margin-top: 0.25rem; }

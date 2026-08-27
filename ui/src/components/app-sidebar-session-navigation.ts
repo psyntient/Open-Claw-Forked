@@ -4,6 +4,7 @@ import type { GatewaySessionRow, SessionsListResult } from "../api/types.ts";
 import { serializeSidebarEntry } from "../app-navigation.ts";
 import { t } from "../i18n/index.ts";
 import { listSelectableAgents } from "../lib/agents/display.ts";
+import { readSelectedProjectId } from "../lib/psyntient-projects.ts";
 import { isCronSessionKey, resolveSessionDisplayName } from "../lib/session-display.ts";
 import type { SidebarSessionsGrouping } from "../lib/sessions/grouping.ts";
 import {
@@ -541,6 +542,10 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
               hello: this.context?.gateway.snapshot.hello,
             }),
             filterByAgent: true,
+            // Psyntient: scope the sidebar to the selected Project. Threads
+            // with no category resolve to the Default Project, so nothing is
+            // hidden by a filter the user did not set.
+            projectId: readSelectedProjectId(),
             showCron: this.sessionsShowCron,
             archivedFilter: this.sessionsStatusFilter,
           }).toSorted(this.compareSidebarSessionRows);

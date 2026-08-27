@@ -1985,6 +1985,40 @@ export const zh_CN: TranslationMap = {
     replaceHint: "再次预览冲突，并在替换前保留各项备份。",
   },
   onboarding: {
+    progress: "Setup progress",
+    checking: "Checking your setup…",
+    step: {
+      welcome: "Welcome",
+      key: "Model",
+      pairing: "Account",
+      vault: "Vault",
+      install: "Ready",
+    },
+    welcomeTitle: "Welcome to Psyntient Node",
+    welcomeBody:
+      "Your Node runs entirely on this machine. Your research, your memory, and your Vault never leave it.",
+    initialize: "Initialize Node",
+    keyTitle: "Connect a model",
+    keyBody:
+      "Psyntient uses your own provider key. It is stored on this Node and never sent to psyntient.io.",
+    provider: "Provider",
+    keyPlaceholder: "Paste your API key",
+    testing: "Testing the connection…",
+    keySaveFailed: "The key could not be saved.",
+    keyTestFailed: "The key was saved, but the connection test failed.",
+    pairingTitle: "Link your Psyntient account",
+    pairingBody:
+      "This links the Node to your psyntient.io account. Your Vault and conversations stay on this machine.",
+    pairNow: "Link account",
+    pairingWaiting: "Waiting for you to approve in the browser…",
+    pairingFailed: "Pairing did not complete.",
+    tryAgain: "Try again",
+    vaultTitle: "Your Neural Vault",
+    vaultBody: "This is where your research is kept. It lives on this machine.",
+    readyTitle: "Your Node is ready",
+    readyBody: "Cortex is set up and waiting.",
+    enter: "Enter Psyntient Node",
+    continue: "Continue",
     memoryImport: {
       title: "随身带上您的助手记忆",
       body: "OpenClaw 发现了其他编程助手的记忆。要将其导入您的智能体工作区吗？",
@@ -2343,6 +2377,12 @@ export const zh_CN: TranslationMap = {
     local: "Local Vault",
     cloud: "Cloud Vault",
     readOnly: "not writable",
+  },
+  projects: {
+    label: "Project",
+    defaultTitle: "General",
+    new: "New project…",
+    newPrompt: "Name this project",
   },
   psyntientAccount: {
     unpair: "Unpair this Node",
