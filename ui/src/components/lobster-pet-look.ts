@@ -320,6 +320,29 @@ export function renderLobsterSvg(
     sailorCap?: boolean;
   } = {},
 ) {
+  // Psyntient: the sidebar pet is Cortex, not Clawd. Typed as boolean so TS
+  // does not narrow it away and flag the original sprite body as unreachable
+  // -- that body is deliberately left intact so this is a one-line revert.
+  //
+  // The wrapper svg, class and viewBox are preserved, so every bit of
+  // lobster-pet.css positioning and animation keeps working. The elf uses
+  // xMidYMid meet rather than the sprite's preserveAspectRatio="none": the
+  // original is a vector built to stretch, a photo of the mascot is not.
+  const PSYNTIENT_ELF_PET: boolean = true;
+  if (PSYNTIENT_ELF_PET) {
+    return svg`
+      <svg class="lobster-pet__svg" viewBox="0 0 120 105" aria-hidden="true">
+        <image
+          href="/brand/elf/elf-chat-idle-128.png"
+          x="0"
+          y="0"
+          width="120"
+          height="105"
+          preserveAspectRatio="xMidYMid meet"
+        />
+      </svg>
+    `;
+  }
   return svg`
     <svg
       class="lobster-pet__svg"

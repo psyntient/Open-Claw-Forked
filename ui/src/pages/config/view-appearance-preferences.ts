@@ -270,41 +270,10 @@ export function renderLobsterPetSection(props: ConfigProps) {
             }
           },
         })}
-        ${renderSettingsRow({
-          title: t("quickSettings.appearance.lobsterdex"),
-          description: t("quickSettings.appearance.lobsterdexSeen", {
-            seen: String(LOBSTER_PET_PALETTES.filter((p) => getLobsterdex().has(p.id)).length),
-            total: String(LOBSTER_PET_PALETTES.length),
-          }),
-          stacked: true,
-          control: html`<div class="lobsterdex">
-            ${LOBSTER_PET_PALETTES.map((palette) => {
-              const entry = getLobsterdexEntries().get(palette.id);
-              const seen = entry !== undefined;
-              const shinySeen = entry?.shinySeenAt != null;
-              const title = !seen
-                ? "?"
-                : entry.firstSeenAt !== null
-                  ? t("quickSettings.appearance.lobsterdexFirstVisited", {
-                      name: entry.name ?? palette.id,
-                      date: new Date(entry.firstSeenAt).toLocaleDateString(),
-                    })
-                  : (entry.name ?? palette.id);
-              return html`<span
-                class="lobsterdex__mini lobster-pet--palette-${palette.id} ${seen
-                  ? ""
-                  : "lobsterdex__mini--unseen"}"
-                style="--lob-shell:${palette.shell};--lob-claw:${palette.claw}"
-                title=${shinySeen ? `${title} ✦` : title}
-              >
-                ${renderLobsterSvg(canonicalLobsterLook(palette), { standalone: true })}
-                ${shinySeen
-                  ? html`<span class="lobsterdex__mini-star" aria-hidden="true">✦</span>`
-                  : nothing}
-              </span>`;
-            })}
-          </div>`,
-        })}
+        <!-- The lobsterdex collectible gallery is removed: it is an OpenClaw
+             easter egg, and with the pet sprite swapped to Cortex every entry
+             would render identically anyway. The pet visit/sound toggles above
+             are kept so the companion can still be turned off. -->
       </div>
     </section>
   `;
