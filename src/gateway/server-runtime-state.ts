@@ -31,6 +31,7 @@ import type { HooksConfigResolved } from "./hooks.js";
 import type { AuthorizedGatewayHttpRequest } from "./http-auth-utils.js";
 import { createSandboxHostHttpServer } from "./mcp-app-sandbox-http.js";
 import { isLoopbackHost, resolveGatewayListenHosts } from "./net.js";
+import { ensurePsyntientRoutes } from "./psyntient-routes.js";
 import type {
   GatewayBroadcastFn,
   GatewayBroadcastToConnIdsFn,
@@ -223,6 +224,9 @@ export async function createGatewayRuntimeState(params: {
       dispatchContext,
     ) => {
       const registry = resolvePluginRouteRegistry();
+      // Mount the Noetic Interface routes before the empty-registry short
+      // circuit below, so they work even if no other plugin registers one.
+      await ensurePsyntientRoutes(registry, (message) => params.logPlugins.info(message));
       if ((registry.httpRoutes ?? []).length === 0) {
         return false;
       }
