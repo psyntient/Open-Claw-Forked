@@ -538,12 +538,10 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
     const inSelectedProject = (row: GatewaySessionRow) => resolveRowProjectId(row) === projectId;
     const rootRows =
       selected === routeAgentId && selected === loadedAgentId
-        ? navigationState.visibleSessions
-            .flatMap((session) => {
-              const row = rowsByKey.get(session.key);
-              return row ? [row] : [];
-            })
-            .filter(inSelectedProject)
+        ? navigationState.visibleSessions.flatMap((session) => {
+            const row = rowsByKey.get(session.key);
+            return row ? [row] : [];
+          })
         : filterVisibleSessionRows(rows, {
             agentId: selected,
             defaultAgentId: resolveUiDefaultAgentId({
@@ -631,7 +629,22 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
       rows === this.sessionData.sessionsResult?.sessions
         ? this.sessionData.sessionsResult.creators
         : undefined;
-    return this.applySessionCreatorFilter(projected, rows, creatorFacet);
+    // Psyntient: apply the Project scope ONCE, at the exit.
+    //
+    // Filtering rootRows alone was not enough: the lineage root is pushed in
+    // afterwards, and promotedRows is rebuilt from the unfiltered `rows` plus
+    // child rows, so out-of-project threads leaked back in by two separate
+    // paths. Scoping the final list is the only place that catches every
+    // contributor, present and future.
+    //
+    // The active thread is never hidden -- scoping away the conversation the
+    // user is looking at would be worse than showing one out-of-project row.
+    const scoped = this.applySessionCreatorFilter(projected, rows, creatorFacet);
+    return scoped.filter(
+      (row) =>
+        inSelectedProject(row) ||
+        areUiSessionKeysEquivalent(row.key, navigationState.routeSessionKey),
+    );
   }
 
   /** Canonical main-session key for the selected (or given) agent. */
