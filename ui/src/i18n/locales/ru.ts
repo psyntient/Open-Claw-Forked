@@ -4147,10 +4147,10 @@ export const ru: TranslationMap = {
       hintAfterShortcut: "для команд",
       recentSessions: "Недавние чаты",
       suggestions: {
-        whatCanYouDo: "Что вы умеете?",
-        summarizeRecentSessions: "Суммируйте мои недавние сеансы",
-        configureChannel: "Помогите мне настроить канал",
-        checkSystemHealth: "Проверить состояние системы",
+        startResearchProject: "Start a research project",
+        searchPastWork: "Search what we've discussed before",
+        readVault: "What's in my Vault?",
+        thinkAloud: "Just think something through",
       },
     },
     runControls: {

@@ -4125,10 +4125,10 @@ export const uk: TranslationMap = {
       hintAfterShortcut: "for commands",
       recentSessions: "Нещодавні чати",
       suggestions: {
-        whatCanYouDo: "What can you do?",
-        summarizeRecentSessions: "Summarize my recent sessions",
-        configureChannel: "Help me configure a channel",
-        checkSystemHealth: "Check system health",
+        startResearchProject: "Start a research project",
+        searchPastWork: "Search what we've discussed before",
+        readVault: "What's in my Vault?",
+        thinkAloud: "Just think something through",
       },
     },
     runControls: {

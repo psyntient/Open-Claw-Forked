@@ -4001,10 +4001,10 @@ export const zh_CN: TranslationMap = {
       hintAfterShortcut: "查看命令",
       recentSessions: "最近聊天",
       suggestions: {
-        whatCanYouDo: "你能做什么？",
-        summarizeRecentSessions: "总结我最近的会话",
-        configureChannel: "帮我配置一个频道",
-        checkSystemHealth: "检查系统健康状况",
+        startResearchProject: "Start a research project",
+        searchPastWork: "Search what we've discussed before",
+        readVault: "What's in my Vault?",
+        thinkAloud: "Just think something through",
       },
     },
     runControls: {

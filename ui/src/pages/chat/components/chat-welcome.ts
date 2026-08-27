@@ -36,11 +36,17 @@ type ChatWelcomeProps = {
 
 type WelcomeMascot = HTMLElement & { tease: boolean; catchOnce: () => void };
 
+// Psyntient starter prompts. Each maps to a capability that is genuinely
+// built and documented in Cortex_Agent/CAPABILITIES.md -- research agent,
+// memory_search, Vault read, plain chat. Nothing aspirational: a chip that
+// suggests something the agent cannot do is worse than no chip.
+// Upstream's defaults were operator tasks (configure a channel, check system
+// health) for surfaces this product drops.
 const WELCOME_SUGGESTION_KEYS = [
-  "chat.welcome.suggestions.whatCanYouDo",
-  "chat.welcome.suggestions.summarizeRecentSessions",
-  "chat.welcome.suggestions.configureChannel",
-  "chat.welcome.suggestions.checkSystemHealth",
+  "chat.welcome.suggestions.startResearchProject",
+  "chat.welcome.suggestions.searchPastWork",
+  "chat.welcome.suggestions.readVault",
+  "chat.welcome.suggestions.thinkAloud",
 ];
 
 const WELCOME_RECENT_SESSION_LIMIT = 5;

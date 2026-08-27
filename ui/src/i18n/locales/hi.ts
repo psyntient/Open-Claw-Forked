@@ -4063,10 +4063,10 @@ export const hi: TranslationMap = {
       hintAfterShortcut: "कमांड के लिए",
       recentSessions: "हाल की चैट्स",
       suggestions: {
-        whatCanYouDo: "आप क्या कर सकते हैं?",
-        summarizeRecentSessions: "मेरे हाल के सेशन का सारांश दें",
-        configureChannel: "चैनल कॉन्फ़िगर करने में मेरी मदद करें",
-        checkSystemHealth: "सिस्टम स्वास्थ्य जाँचें",
+        startResearchProject: "Start a research project",
+        searchPastWork: "Search what we've discussed before",
+        readVault: "What's in my Vault?",
+        thinkAloud: "Just think something through",
       },
     },
     runControls: {

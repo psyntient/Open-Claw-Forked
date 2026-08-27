@@ -4112,10 +4112,10 @@ export const id: TranslationMap = {
       hintAfterShortcut: "for commands",
       recentSessions: "Chat terbaru",
       suggestions: {
-        whatCanYouDo: "What can you do?",
-        summarizeRecentSessions: "Summarize my recent sessions",
-        configureChannel: "Help me configure a channel",
-        checkSystemHealth: "Check system health",
+        startResearchProject: "Start a research project",
+        searchPastWork: "Search what we've discussed before",
+        readVault: "What's in my Vault?",
+        thinkAloud: "Just think something through",
       },
     },
     runControls: {
