@@ -178,7 +178,7 @@ export function renderSidebarSessionMenuForController(controller: SidebarMenusCo
           context &&
           isGatewayMethodAdvertised(context.gateway.snapshot, "sessions.reclaim") === true,
         )}
-        .groups=${host.knownSessionGroups()}
+        .groups=${host.knownProjectGroups()}
         .canOpenChat=${true}
         .work=${batchRows ? null : controller.sessionMenuWork}
         .workboard=${null}

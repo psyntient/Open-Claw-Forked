@@ -35,6 +35,8 @@ export interface SessionOrganizerControllerHost extends ReactiveControllerHost {
   clearSessionSelection(): void;
   findSidebarSessionByKey(sessionKey: string): SidebarRecentSession | undefined;
   knownSessionGroups(): string[];
+  /** Psyntient: Project ids offered as move targets in the session menu. */
+  knownProjectGroups(): string[];
   pruneSidebarSessionEntry(key: string): void;
   reconciledSidebarZone(): { sidebarEntries: readonly string[] };
   replaceCurrentSession(sessionKey: string): void;

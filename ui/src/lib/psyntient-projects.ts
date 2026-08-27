@@ -15,6 +15,16 @@ export const DEFAULT_PROJECT_ID = "default";
 /** Persisted per browser: which Project the sidebar is scoped to. */
 const SELECTED_KEY = "psyntient.selectedProject";
 
+/**
+ * Project ids cached from the last load.
+ *
+ * The sidebar's move-to-group menu is built synchronously while rendering, so
+ * it cannot await the projects route. The selector refreshes this cache on
+ * load; without it a newly created, still-empty Project would not appear as a
+ * move target until a thread already lived in it.
+ */
+const CACHE_KEY = "psyntient.projectIds";
+
 export type PsyntientProject = {
   projectId: string;
   title: string;
@@ -40,7 +50,13 @@ export async function loadProjects(token: string | null): Promise<PsyntientProje
       return [];
     }
     const body = (await res.json()) as { projects?: PsyntientProject[] };
-    return body.projects ?? [];
+    const projects = body.projects ?? [];
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(projects.map((p) => p.projectId)));
+    } catch {
+      // Cache is an optimisation for the synchronous menu; never block on it.
+    }
+    return projects;
   } catch {
     return [];
   }
@@ -103,5 +119,15 @@ export function writeSelectedProjectId(projectId: string): void {
     localStorage.setItem(SELECTED_KEY, projectId);
   } catch {
     // Scope selection is a convenience; never block on storage.
+  }
+}
+
+export function readCachedProjectIds(): string[] {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [];
+  } catch {
+    return [];
   }
 }

@@ -1,3 +1,4 @@
+import { DEFAULT_PROJECT_ID, readSelectedProjectId } from "../../lib/psyntient-projects.ts";
 import { ChatPaneBoard } from "./chat-pane-board.ts";
 import {
   areUiSessionKeysEquivalent,
@@ -172,6 +173,28 @@ export abstract class ChatPaneReset extends ChatPaneBoard {
         scopedAgentParamsForSession(state, previousSessionKey).agentId ??
         resolveAgentIdFromSessionKey(previousSessionKey),
     });
+    // Psyntient: a thread started while a Project is selected belongs to that
+    // Project. Without this every new thread has category=null, resolves to
+    // the Default Project, and vanishes from the Project the user created it
+    // in -- which reads as "only one thread is allowed".
+    //
+    // Fire-and-forget: failing to file a thread must never block creating it.
+    if (nextSessionKey) {
+      const projectId = readSelectedProjectId();
+      if (projectId && projectId !== DEFAULT_PROJECT_ID) {
+        void sessions
+          .patch(
+            nextSessionKey,
+            { category: projectId },
+            {
+              agentId: resolveAgentIdFromSessionKey(nextSessionKey),
+            },
+          )
+          .catch(() => {
+            // The thread still exists; it just lands in the Default Project.
+          });
+      }
+    }
     if (!isCurrent()) {
       return false;
     }

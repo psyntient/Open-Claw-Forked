@@ -4,7 +4,7 @@ import type { GatewaySessionRow, SessionsListResult } from "../api/types.ts";
 import { serializeSidebarEntry } from "../app-navigation.ts";
 import { t } from "../i18n/index.ts";
 import { listSelectableAgents } from "../lib/agents/display.ts";
-import { readSelectedProjectId } from "../lib/psyntient-projects.ts";
+import { readCachedProjectIds, readSelectedProjectId } from "../lib/psyntient-projects.ts";
 import { isCronSessionKey, resolveSessionDisplayName } from "../lib/session-display.ts";
 import type { SidebarSessionsGrouping } from "../lib/sessions/grouping.ts";
 import {
@@ -506,6 +506,21 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
       this.context?.sessions.state.groups ?? [],
       this.sessionData.sessionsResult?.sessions ?? [],
     );
+  }
+
+  /**
+   * Move-target list for the session menu: the Projects.
+   *
+   * Deliberately separate from knownSessionGroups(), which also drives the
+   * sidebar's category SECTIONS. Feeding Project ids into that rendered an
+   * empty header per Project on top of the selector that already scopes the
+   * list -- two competing groupings for the same thing.
+   *
+   * Reads the cache rather than the route because the menu is built
+   * synchronously during render and cannot await.
+   */
+  knownProjectGroups(): string[] {
+    return [...new Set([...readCachedProjectIds(), ...this.knownSessionGroups()])];
   }
 
   findSidebarSessionByKey(sessionKey: string): SidebarRecentSession | undefined {
