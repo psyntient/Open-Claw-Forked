@@ -47,6 +47,11 @@ import {
   renderProfileInsights,
   renderProfileStats,
 } from "./profile-stat-sections.ts";
+import {
+  loadPsyntientAccount,
+  renderPsyntientAccountSection,
+  type PsyntientAccountState,
+} from "./psyntient-account-section.ts";
 import { buildInsights, firstActiveDate, formatTokenScale, type ProfileInsights } from "./stats.ts";
 
 function formatMonthYear(date: string): string {
@@ -80,6 +85,8 @@ export class ProfilePage extends OpenClawLightDomElement {
   @consume({ context: applicationContext, subscribe: false })
   private context!: ApplicationContext;
 
+  @state() private psyntientAccount: PsyntientAccountState = { status: "loading" };
+
   @state() private loading = false;
   @state() private error: string | null = null;
   @state() private costSummary: CostUsageSummary | null = null;
@@ -108,6 +115,9 @@ export class ProfilePage extends OpenClawLightDomElement {
   };
 
   override connectedCallback() {
+    void loadPsyntientAccount().then((next) => {
+      this.psyntientAccount = next;
+    });
     super.connectedCallback();
     this.subscriptions = [
       this.context.gateway.subscribe((snapshot) => this.applyGatewaySnapshot(snapshot)),
@@ -579,9 +589,10 @@ export class ProfilePage extends OpenClawLightDomElement {
     return renderSettingsPage(
       hasActivity
         ? html`${this.renderHero(insights)} ${renderProfileStats(this.costSummary, insights)}
-          ${this.renderIdentity()} ${renderProfileHeatmap(this.costSummary)}
-          ${renderProfileInsights(insights)}`
-        : html`${this.renderHero(insights)} ${this.renderIdentity()} ${emptyState}`,
+          ${renderPsyntientAccountSection(this.psyntientAccount)} ${this.renderIdentity()}
+          ${renderProfileHeatmap(this.costSummary)} ${renderProfileInsights(insights)}`
+        : html`${this.renderHero(insights)} ${renderPsyntientAccountSection(this.psyntientAccount)}
+          ${this.renderIdentity()} ${emptyState}`,
     );
   }
 
