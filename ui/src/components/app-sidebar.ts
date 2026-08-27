@@ -408,7 +408,9 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
                   </div>
                 </openclaw-tooltip>`
               : nothing}
-            <psyntient-vault-badge></psyntient-vault-badge>
+            <psyntient-vault-badge
+              .authToken=${this.context?.gateway.connection?.token ?? null}
+            ></psyntient-vault-badge>
             ${renderAppSidebarFooterBar(this)}
           </div>
         </div>

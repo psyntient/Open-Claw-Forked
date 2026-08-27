@@ -104,11 +104,19 @@ export abstract class ChatPaneHeaderRender extends ChatPaneHeader {
       canRename:
         this.state?.connected === true &&
         hasOperatorWriteAccess(this.context.gateway.snapshot.hello?.auth ?? null),
-      terminalAction: renderCatalogTerminalButton(this.state, this.catalogSession),
+      // Psyntient Node hides the coding-agent header actions. These are the
+      // icons in the chat header: terminal, git diff, background tasks, and
+      // the thread workspace file browser. A research Node exposes none of
+      // them. Set any back to its render* call to restore it.
+      //
+      // NOTE: the workspace toggle is separate from canRevealSessionWorkspace
+      // (reveal-in-Finder) in chat-pane-header.ts -- hiding one does not hide
+      // the other, which is why "Show thread files" survived the first pass.
+      terminalAction: nothing,
       discussionAction: this.renderSessionDiscussionAction(),
-      diffAction: renderSessionDiffToggle(sessionWorkspace),
-      backgroundTasksAction: renderBackgroundTasksToggle(backgroundTasks),
-      workspaceAction: renderSessionWorkspaceToggle(sessionWorkspace),
+      diffAction: nothing,
+      backgroundTasksAction: nothing,
+      workspaceAction: nothing,
       presence:
         !catalog &&
         hasSessionPresenceViewers(

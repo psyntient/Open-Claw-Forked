@@ -9,7 +9,7 @@
 // daemon/vault.mjs getStatus(): { storageMode, path, writable } for local, or
 // { storageMode, cloud } otherwise.
 import { LitElement, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
 
 type VaultStatus = {
@@ -31,6 +31,12 @@ export class PsyntientVaultBadge extends LitElement {
     return this;
   }
 
+  /**
+   * Gateway bearer token. The plugin route is registered with auth "gateway",
+   * so an unauthenticated fetch gets 401 -- cookies are not the mechanism here.
+   */
+  @property({ attribute: false }) authToken: string | null = null;
+
   @state() private status: VaultStatus | null = null;
   @state() private failed = false;
 
@@ -39,10 +45,22 @@ export class PsyntientVaultBadge extends LitElement {
     void this.load();
   }
 
+  override updated(changed: Map<string, unknown>) {
+    // The token is not available on first connect; retry once it arrives.
+    if (changed.has("authToken") && this.authToken && !this.status) {
+      this.failed = false;
+      void this.load();
+    }
+  }
+
   /** Never throws: an unreachable Vault must not break the top bar. */
   private async load() {
     try {
-      const res = await fetch(VAULT_ROUTE, { credentials: "same-origin" });
+      const headers: Record<string, string> = { Accept: "application/json" };
+      if (this.authToken) {
+        headers.Authorization = `Bearer ${this.authToken}`;
+      }
+      const res = await fetch(VAULT_ROUTE, { headers, credentials: "same-origin" });
       if (!res.ok) {
         this.failed = true;
         return;
