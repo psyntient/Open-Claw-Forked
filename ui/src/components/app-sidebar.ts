@@ -1,4 +1,5 @@
 import { html, nothing, type PropertyValues, type TemplateResult } from "lit";
+import "./psyntient-vault-badge.ts";
 import { state } from "lit/decorators.js";
 import type { SessionObserverDigest } from "../../../packages/gateway-protocol/src/schema/sessions.js";
 import { beginNativeWindowDragFromTopInset } from "../app/native-window-drag.ts";
@@ -407,6 +408,7 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
                   </div>
                 </openclaw-tooltip>`
               : nothing}
+            <psyntient-vault-badge></psyntient-vault-badge>
             ${renderAppSidebarFooterBar(this)}
           </div>
         </div>

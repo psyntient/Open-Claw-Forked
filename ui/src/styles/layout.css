@@ -4002,3 +4002,13 @@ html:not(.openclaw-native-macos):not(.openclaw-native-nav):not(.openclaw-native-
   color: var(--text-strong);
   font-style: italic;
 }
+
+/* Vault badge sits in the sidebar footer, beside the branch chip. It lives
+   here and not in .topbar because .topbar is display:none on desktop
+   (mobile-only chrome) -- the sidebar footer is the persistent desktop slot. */
+.sidebar-footer-bar ~ .psy-vault-badge,
+.psy-vault-badge {
+  margin: 0 8px 6px;
+  align-self: stretch;
+  justify-content: center;
+}

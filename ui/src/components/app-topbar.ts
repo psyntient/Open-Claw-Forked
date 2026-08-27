@@ -5,7 +5,6 @@ import { controlUiPublicAssetPath } from "../app/public-assets.ts";
 import { t } from "../i18n/index.ts";
 import { OpenClawLightDomContentsElement } from "../lit/openclaw-element.ts";
 import { icons } from "./icons.ts";
-import "./psyntient-vault-badge.ts";
 import "./tooltip.ts";
 
 /** Narrow-viewport header: drawer toggle, brand, and command-palette search.
@@ -53,7 +52,6 @@ class AppTopbar extends OpenClawLightDomContentsElement {
             </div>
           </div>
           <div class="topnav-shell__actions">
-            <psyntient-vault-badge></psyntient-vault-badge>
             <openclaw-tooltip .content=${t("chat.commandPaletteTitle")}>
               <button
                 class="topbar-search"
