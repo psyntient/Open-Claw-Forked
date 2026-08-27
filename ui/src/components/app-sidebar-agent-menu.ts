@@ -448,16 +448,9 @@ export function renderSidebarIdentityMenu(params: SidebarIdentityMenuParams) {
           <span slot="icon" class="nav-item__icon" aria-hidden="true">${icons.smartphone}</span>
           <span class="sidebar-customize-menu__text">${t("nodes.pairing.button")}</span>
         </wa-dropdown-item>
-        <wa-dropdown-item
-          class="sidebar-customize-menu__item sidebar-identity-menu__help"
-          value="command:help"
-        >
-          <span slot="icon" class="nav-item__icon" aria-hidden="true"
-            >${icons.circleQuestionMark}</span
-          >
-          <span class="sidebar-customize-menu__text">${t("agentChip.help")}</span>
-          ${renderIdentityMenuHelpSubmenu()}
-        </wa-dropdown-item>
+        <!-- Help entry removed with its links: the submenu pointed at
+             OpenClaw docs/Discord/changelog and is empty until Psyntient
+             equivalents exist. An entry opening nothing is worse than none. -->
         ${params.offline
           ? html`<div class="sidebar-customize-menu__separator" role="separator"></div>
               <wa-dropdown-item

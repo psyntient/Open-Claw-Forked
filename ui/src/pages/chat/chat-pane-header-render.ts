@@ -92,11 +92,11 @@ export abstract class ChatPaneHeaderRender extends ChatPaneHeader {
       renameValue: this.headerRenameValue,
       workspaceRoot: workspace.root,
       workspaceLabel: workspace.label,
-      branch,
-      branches:
-        this.state && this.state.chatBranchesSessionKey === this.state.sessionKey
-          ? (this.state.chatBranches ?? [])
-          : [],
+      // Git branch switching is a coding-agent feature: it switches the
+      // session worktree's git branch. A research Node has no worktrees, so
+      // the control is suppressed by reporting no branch and no candidates.
+      branch: null,
+      branches: [],
       branchSwitchDisabledReason,
       platform: this.headerPlatform,
       canReveal,
