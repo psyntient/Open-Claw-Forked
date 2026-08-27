@@ -1329,6 +1329,10 @@ export const fa: TranslationMap = {
       wizard: "دستیار راه‌اندازی",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "خانواده Chroma",
@@ -3721,7 +3725,7 @@ export const fa: TranslationMap = {
     },
   },
   login: {
-    subtitle: "داشبورد Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "این مرورگر پس از به‌روزرسانی همچنان به تأیید یک‌باره دستگاه نیاز دارد.",
       action: "ایمن‌سازی این مرورگر",

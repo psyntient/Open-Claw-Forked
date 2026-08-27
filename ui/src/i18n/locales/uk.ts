@@ -1340,6 +1340,10 @@ export const uk: TranslationMap = {
       wizard: "Майстер налаштування",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Родина Chroma",
@@ -3743,7 +3747,7 @@ export const uk: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Панель Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "Цей браузер усе ще потребує одноразового схвалення пристрою після оновлення.",
       action: "Захистити цей браузер",

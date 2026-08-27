@@ -33,6 +33,11 @@ type ThemeOption = {
 
 const BUILTIN_THEME_OPTIONS: ThemeOption[] = [
   {
+    id: "psyntient",
+    labelKey: "configView.themes.psyntient.label",
+    descriptionKey: "configView.themes.psyntient.description",
+  },
+  {
     id: "claw",
     labelKey: "configView.themes.claw.label",
     descriptionKey: "configView.themes.claw.description",

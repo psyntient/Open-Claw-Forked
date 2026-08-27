@@ -1329,6 +1329,10 @@ export const id: TranslationMap = {
       wizard: "Wizard Penyiapan",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Keluarga Chroma",
@@ -3730,7 +3734,7 @@ export const id: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Dasbor Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "Browser ini masih memerlukan persetujuan perangkat sekali pakai setelah pembaruan.",
       action: "Amankan browser ini",

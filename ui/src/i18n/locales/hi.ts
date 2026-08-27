@@ -1322,6 +1322,10 @@ export const hi: TranslationMap = {
       wizard: "सेटअप विज़ार्ड",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma परिवार",
@@ -3689,7 +3693,7 @@ export const hi: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway Dashboard",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "अपडेट के बाद इस ब्राउज़र को एक बार डिवाइस अनुमोदन की आवश्यकता है।",
       action: "इस ब्राउज़र को सुरक्षित करें",

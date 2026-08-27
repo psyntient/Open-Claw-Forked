@@ -1343,6 +1343,10 @@ export const de: TranslationMap = {
       wizard: "Einrichtungsassistent",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma-Familie",
@@ -3777,7 +3781,7 @@ export const de: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway-Dashboard",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "Dieser Browser benötigt nach dem Update noch eine einmalige Gerätefreigabe.",
       action: "Diesen Browser absichern",

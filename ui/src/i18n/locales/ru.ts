@@ -1343,6 +1343,10 @@ export const ru: TranslationMap = {
       wizard: "Мастер настройки",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Семейство Chroma",
@@ -3760,7 +3764,7 @@ export const ru: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Панель управления Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner:
         "Для этого браузера всё ещё требуется однократное подтверждение устройства после обновления.",

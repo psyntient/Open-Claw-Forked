@@ -1320,6 +1320,10 @@ export const ar: TranslationMap = {
       wizard: "معالج الإعداد",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "مخلب",
         description: "عائلة كروما",
@@ -3693,7 +3697,7 @@ export const ar: TranslationMap = {
     },
   },
   login: {
-    subtitle: "لوحة معلومات Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "لا يزال هذا المتصفح بحاجة إلى موافقة الجهاز لمرة واحدة بعد التحديث.",
       action: "تأمين هذا المتصفح",

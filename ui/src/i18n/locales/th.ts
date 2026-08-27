@@ -1311,6 +1311,10 @@ export const th: TranslationMap = {
       wizard: "ตัวช่วยติดตั้ง",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "ตระกูล Chroma",
@@ -3668,7 +3672,7 @@ export const th: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway Dashboard",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "เบราว์เซอร์นี้ยังต้องการการอนุมัติอุปกรณ์ครั้งเดียวหลังการอัปเดต",
       action: "ทำให้เบราว์เซอร์นี้ปลอดภัย",

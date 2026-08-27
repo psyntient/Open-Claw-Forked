@@ -1,11 +1,11 @@
 {
-  "name": "OpenClaw Control",
-  "short_name": "OpenClaw",
+  "name": "Psyntient — Noetic Interface",
+  "short_name": "Psyntient",
   "description": "Multi-channel AI gateway control panel",
   "start_url": "./",
   "display": "standalone",
-  "theme_color": "#0a0a0a",
-  "background_color": "#0a0a0a",
+  "theme_color": "#0C0A1D",
+  "background_color": "#0C0A1D",
   "icons": [
     {
       "src": "./favicon.svg",

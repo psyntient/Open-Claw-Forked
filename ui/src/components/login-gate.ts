@@ -314,7 +314,7 @@ function renderLoginFailure(feedback: LoginFailureFeedback) {
 
 function renderLoginGate(props: LoginGateProps) {
   const basePath = normalizeBasePath(props.basePath);
-  const faviconSrc = controlUiPublicAssetPath("favicon.svg", basePath);
+  const faviconSrc = controlUiPublicAssetPath("psyntient-mark.png", basePath);
   const failure = resolveLoginFailureFeedback({
     connected: props.connected,
     lastError: props.lastError,
@@ -327,8 +327,8 @@ function renderLoginGate(props: LoginGateProps) {
     <div class="login-gate">
       <div class="login-gate__card">
         <div class="login-gate__header">
-          <img class="login-gate__logo" src=${faviconSrc} alt="OpenClaw" />
-          <div class="login-gate__title">OpenClaw</div>
+          <img class="login-gate__logo" src=${faviconSrc} alt="Psyntient" />
+          <div class="login-gate__title">Psyntient</div>
           <div class="login-gate__sub">${t("login.subtitle")}</div>
         </div>
         <div class="login-gate__form">

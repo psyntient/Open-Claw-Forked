@@ -1340,6 +1340,10 @@ export const ja_JP: TranslationMap = {
       wizard: "セットアップウィザード",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma ファミリー",
@@ -3747,7 +3751,7 @@ export const ja_JP: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway ダッシュボード",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "このブラウザーは、更新後に一度だけデバイスの承認が必要です。",
       action: "このブラウザーを保護",

@@ -1325,6 +1325,10 @@ export const ko: TranslationMap = {
       wizard: "설정 마법사",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma 계열",
@@ -3707,7 +3711,7 @@ export const ko: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway 대시보드",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "이 브라우저는 업데이트 후에도 일회성 기기 승인이 필요합니다.",
       action: "이 브라우저 보안 설정",

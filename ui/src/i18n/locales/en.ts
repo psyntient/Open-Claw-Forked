@@ -1292,6 +1292,10 @@ export const en: TranslationMap = {
       wizard: "Setup Wizard",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma family",
@@ -3669,7 +3673,7 @@ export const en: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway Dashboard",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "This browser still needs one-time device approval after the update.",
       action: "Secure this browser",

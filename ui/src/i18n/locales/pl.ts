@@ -1341,6 +1341,10 @@ export const pl: TranslationMap = {
       wizard: "Kreator konfiguracji",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Rodzina Chroma",
@@ -3762,7 +3766,7 @@ export const pl: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Panel Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner:
         "Ta przeglądarka nadal wymaga jednorazowego zatwierdzenia urządzenia po aktualizacji.",

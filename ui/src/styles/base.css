@@ -584,6 +584,97 @@
   --grid-line: rgba(80, 50, 20, 0.04);
 }
 
+/*
+ * Psyntient — Ink & Gold v1.0  (Noetic Interface product theme)
+ *
+ * Source of truth: Noetic_Interface/branding/BRANDING.md + theme.json.
+ * Dark-only by design; the Node never ships a light/purple-on-white look.
+ *
+ * WCAG 2.1 AA audit (bg = #0c0a1d, relative luminance ~ 0.0094) — computed,
+ * not estimated:
+ *   --accent #eebc4a        11.08:1 on bg   AA text ✓  (also >3:1 non-text ✓)
+ *   --accent-hover #f7dc9a  14.54:1 on bg   ✓
+ *   --accent-2 #e38f00       7.61:1 on bg   ✓
+ *   --text-strong #fef4e3   17.89:1 on bg   ✓
+ *   --text #e3d6be          13.59:1 on bg   ✓   (12.71:1 on --card ✓)
+ *   --primary-foreground #0c0a1d on gold button   11.08:1 ✓
+ *   --primary-foreground #0c0a1d on gold hover    14.54:1 ✓
+ *   --destructive #db1f25 with #fef4e3 text        4.55:1 ✓
+ *   --destructive-hover #c91d22 with #fef4e3 text  5.23:1 ✓
+ *   focus-ring gold at 80% opacity vs bg          ~11:1 ✓ (needs 3:1)
+ *
+ * Two deliberate calls, both documented rather than silently made:
+ *  1. Brand destructive is #e5484d (4.98:1 on bg, fine for text/icons), but
+ *     #fef4e3 ON that fill is only 3.59:1 — fails AA. So the text-bearing
+ *     fill is deepened to #db1f25 while danger *accents* stay vivid. Same
+ *     approach the `dash` family takes above.
+ *  2. --border #302f4b is 1.52:1 against bg. That is a decorative panel
+ *     separator, not a control boundary, and every shipped family here
+ *     (dash: #302418 on #1a1210) sits in the same range. Controls get their
+ *     affordance from --border-strong/--border-hover and the focus ring.
+ */
+:root[data-theme="psyntient"] {
+  --ring: #eebc4a;
+  --accent: #eebc4a;
+  --accent-hover: #f7dc9a;
+  --accent-muted: #eebc4a;
+  --accent-subtle: rgba(238, 188, 74, 0.16);
+  --accent-glow: rgba(238, 188, 74, 0.24);
+  --primary: #eebc4a;
+  --primary-foreground: #0c0a1d;
+
+  /* Deepen only the text-bearing destructive fill; keep danger accents vivid. */
+  --destructive: #db1f25;
+  --destructive-hover: #c91d22;
+
+  --focus: rgba(238, 188, 74, 0.2);
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 3px color-mix(in srgb, var(--ring) 80%, transparent);
+  --focus-glow: 0 0 0 2px var(--bg), 0 0 0 3px var(--ring), 0 0 16px var(--accent-glow);
+
+  --bg: #0c0a1d;
+  --bg-accent: #14122b;
+  --bg-elevated: #191731;
+  --bg-hover: #241737;
+  --bg-muted: #191731;
+
+  --card: #14122b;
+  --card-foreground: #fef4e3;
+  --card-highlight: rgba(254, 244, 227, 0.04);
+  --popover: #14122b;
+  --popover-foreground: #fef4e3;
+
+  --panel: #0c0a1d;
+  --panel-strong: #191731;
+  --panel-hover: #241737;
+  --chrome: rgba(12, 10, 29, 0.96);
+  --chrome-strong: rgba(12, 10, 29, 0.98);
+
+  --text: #e3d6be;
+  --text-strong: #fef4e3;
+  --chat-text: #e3d6be;
+  --muted: #9c92ad;
+  --muted-strong: #8a8099;
+  --muted-foreground: #e3d6be;
+
+  --border: #302f4b;
+  --border-strong: #3f3d5e;
+  --border-hover: #565377;
+  --input: #302f4b;
+
+  --secondary: #191731;
+  --secondary-foreground: #fef4e3;
+
+  --accent-2: #e38f00;
+  --accent-2-muted: rgba(227, 143, 0, 0.7);
+  --accent-2-subtle: rgba(227, 143, 0, 0.12);
+
+  --shadow-sm: 0 1px 2px rgba(4, 3, 10, 0.35);
+  --shadow-md: 0 4px 16px rgba(4, 3, 10, 0.45);
+  --shadow-lg: 0 12px 32px rgba(4, 3, 10, 0.55);
+  --grid-line: rgba(254, 244, 227, 0.03);
+}
+
+
 * {
   box-sizing: border-box;
 }

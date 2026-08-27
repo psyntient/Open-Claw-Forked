@@ -1303,6 +1303,10 @@ export const zh_TW: TranslationMap = {
       wizard: "設定精靈",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma 系列",
@@ -3649,7 +3653,7 @@ export const zh_TW: TranslationMap = {
     },
   },
   login: {
-    subtitle: "閘道儀表板",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "更新後，此瀏覽器仍需要一次性裝置核准。",
       action: "保護此瀏覽器",

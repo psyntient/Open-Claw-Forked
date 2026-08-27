@@ -1299,6 +1299,10 @@ export const zh_CN: TranslationMap = {
       wizard: "设置向导",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma 系列",
@@ -3641,7 +3645,7 @@ export const zh_CN: TranslationMap = {
     },
   },
   login: {
-    subtitle: "网关仪表盘",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "此浏览器在更新后仍需要一次性设备批准。",
       action: "保护此浏览器",

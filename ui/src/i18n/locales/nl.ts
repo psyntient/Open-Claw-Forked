@@ -1340,6 +1340,10 @@ export const nl: TranslationMap = {
       wizard: "Installatiewizard",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma-familie",
@@ -3748,7 +3752,7 @@ export const nl: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway-dashboard",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "Deze browser heeft na de update nog eenmalige apparaatgoedkeuring nodig.",
       action: "Beveilig deze browser",

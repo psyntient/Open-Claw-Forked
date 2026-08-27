@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
-    <title>OpenClaw Control</title>
+    <title>Psyntient — Noetic Interface</title>
     <meta name="color-scheme" content="dark light" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
@@ -18,7 +18,7 @@
       globalThis.__zod_globalConfig.jitless = true;
 
       (function () {
-        var THEMES = { claw: 1, knot: 1, dash: 1 };
+        var THEMES = { psyntient: 1, claw: 1, knot: 1, dash: 1 };
         var MODES = { system: 1, light: 1, dark: 1 };
         var LEGACY = {
           dark: "claw:dark",
@@ -37,20 +37,32 @@
               if (raw) break;
             }
           }
-          if (!raw) return;
+          // No stored settings = fresh install. Upstream returned here, which
+          // left no data-theme at all and fell through to the bare :root block
+          // (the Claw palette). For this fork that IS the first-run path, so
+          // paint the product theme instead of returning.
+          if (!raw) {
+            document.documentElement.setAttribute("data-theme", "psyntient");
+            document.documentElement.setAttribute("data-theme-mode", "dark");
+            document.documentElement.setAttribute("data-theme-resolved", "dark");
+            return;
+          }
           var s = JSON.parse(raw);
           var t = s && s.theme;
           var m = s && s.themeMode;
           if (typeof t !== "string") t = "";
           if (typeof m !== "string") m = "";
           var legacy = LEGACY[t];
-          var theme = THEMES[t] ? t : legacy ? legacy.split(":")[0] : "claw";
+          var theme = THEMES[t] ? t : legacy ? legacy.split(":")[0] : "psyntient";
           var mode = MODES[m] ? m : legacy ? legacy.split(":")[1] : "system";
           if (mode === "system") {
             mode = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
           }
+          // Psyntient is dark-only; resolve before mode is consulted at all.
           var resolved =
-            theme === "knot"
+            theme === "psyntient"
+              ? "psyntient"
+              : theme === "knot"
               ? mode === "light"
                 ? "openknot-light"
                 : "openknot"
@@ -78,8 +90,12 @@
       }
 
       html {
-        background: #0e1015;
+        background: #0c0a1d;
         color-scheme: dark;
+      }
+
+      html[data-theme="psyntient"] {
+        background: #0c0a1d;
       }
 
       html[data-theme-mode="light"] {

@@ -1332,6 +1332,10 @@ export const vi: TranslationMap = {
       wizard: "Trình hướng dẫn thiết lập",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Họ Chroma",
@@ -3734,7 +3738,7 @@ export const vi: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Bảng điều khiển Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "Trình duyệt này vẫn cần phê duyệt thiết bị một lần sau khi cập nhật.",
       action: "Bảo mật trình duyệt này",

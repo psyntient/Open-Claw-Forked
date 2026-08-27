@@ -1335,6 +1335,10 @@ export const tr: TranslationMap = {
       wizard: "Kurulum Sihirbazı",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Chroma ailesi",
@@ -3748,7 +3752,7 @@ export const tr: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Gateway Kontrol Paneli",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner: "Bu tarayıcı güncellemeden sonra hâlâ tek seferlik cihaz onayı gerektiriyor.",
       action: "Bu tarayıcıyı güvence altına al",

@@ -401,6 +401,12 @@
   background: var(--theme-chip-accent-2);
 }
 
+.settings-theme-card--psyntient {
+  --theme-chip-bg: #0c0a1d;
+  --theme-chip-accent: #eebc4a;
+  --theme-chip-accent-2: #e38f00;
+}
+
 .settings-theme-card--claw {
   --theme-chip-bg: #0e1015;
   --theme-chip-accent: #ff5c5c;

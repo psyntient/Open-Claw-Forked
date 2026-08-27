@@ -19,7 +19,8 @@ describe("resolveTheme", () => {
 describe("parseThemeSelection", () => {
   it("falls back to defaults for unknown stored values", () => {
     expect(parseThemeSelection("fieldmanual", "invalid-mode")).toEqual({
-      theme: "claw",
+      // Product default is Psyntient, not upstream's Claw.
+      theme: "psyntient",
       mode: "system",
     });
     expect(parseThemeSelection("dash", "light")).toEqual({

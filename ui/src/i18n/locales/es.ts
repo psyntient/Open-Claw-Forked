@@ -1344,6 +1344,10 @@ export const es: TranslationMap = {
       wizard: "Asistente de configuración",
     },
     themes: {
+      psyntient: {
+        label: "Psyntient",
+        description: "Ink & gold",
+      },
       claw: {
         label: "Claw",
         description: "Familia Chroma",
@@ -3772,7 +3776,7 @@ export const es: TranslationMap = {
     },
   },
   login: {
-    subtitle: "Panel de Gateway",
+    subtitle: "Noetic Interface",
     deviceAuthMigration: {
       banner:
         "Este navegador aún necesita la aprobación única del dispositivo tras la actualización.",
