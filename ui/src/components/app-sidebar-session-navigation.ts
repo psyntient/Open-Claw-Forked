@@ -652,14 +652,12 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
     // paths. Scoping the final list is the only place that catches every
     // contributor, present and future.
     //
-    // The active thread is never hidden -- scoping away the conversation the
-    // user is looking at would be worse than showing one out-of-project row.
-    const scoped = this.applySessionCreatorFilter(projected, rows, creatorFacet);
-    return scoped.filter(
-      (row) =>
-        inSelectedProject(row) ||
-        areUiSessionKeysEquivalent(row.key, navigationState.routeSessionKey),
-    );
+    // No exemption for the active thread. Keeping it visible in every Project
+    // made a moved thread look COPIED: move the thread you are reading, switch
+    // Project, and it followed you. Slack does not keep an open message in
+    // another channel's list either -- the chat pane still shows the open
+    // conversation, the sidebar just stops listing it out of scope.
+    return this.applySessionCreatorFilter(projected, rows, creatorFacet).filter(inSelectedProject);
   }
 
   /** Canonical main-session key for the selected (or given) agent. */
