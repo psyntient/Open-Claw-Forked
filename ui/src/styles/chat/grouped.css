@@ -1189,3 +1189,28 @@ details.msg-meta:not([open]) .msg-meta__details {
   }
   .psy-elf__sparks { opacity: 0 !important; }
 }
+
+/* Elf in the working indicator: this is where the persona is actually seen
+   during a run, so the talk/spark animation is driven from the indicator's own
+   presence rather than an ancestor :has() selector. */
+.psy-elf--indicator {
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+}
+.psy-elf--indicator .psy-elf__talk {
+  animation: psy-elf-talk 280ms steps(1, end) infinite;
+}
+.psy-elf--indicator .psy-elf__blink { animation: none; opacity: 0; }
+.psy-elf--indicator .psy-elf__sparks { opacity: 1; }
+
+.psy-elf-static {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+}
+.psy-elf-static img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

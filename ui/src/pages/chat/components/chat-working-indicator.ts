@@ -69,7 +69,12 @@ export function renderChatWorkingIndicator(
   return html`
     <div class="chat-working-indicator" role="status" aria-live="off">
       <div class="chat-bubble chat-reading-indicator ${stanceClass(part.key)}" aria-hidden="true">
-        ${icons.claw}
+        <span class="psy-elf psy-elf--indicator">
+          <img class="psy-elf__idle" src="/brand/elf/elf-chat-idle-64.png" alt="" />
+          <span class="psy-elf__blink"></span>
+          <span class="psy-elf__talk"></span>
+          <span class="psy-elf__sparks"><i></i><i></i><i></i><i></i></span>
+        </span>
       </div>
       <span class="chat-working-indicator__status">
         ${waitingApproval
@@ -117,7 +122,9 @@ export function renderTurnRecapRow(recap: TurnRecap) {
       : null;
   return html`
     <div class="chat-tasks-status chat-turn-recap" role="status">
-      <span class="chat-tasks-status__claw" aria-hidden="true">${icons.claw}</span>
+      <span class="chat-tasks-status__claw psy-elf-static" aria-hidden="true">
+        <img src="/brand/elf/elf-chat-idle-64.png" alt="" />
+      </span>
       <span>${t("chat.turnRecap.doneIn", { duration })}</span>
       ${tokens === null
         ? nothing
