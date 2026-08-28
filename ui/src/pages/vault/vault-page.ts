@@ -160,10 +160,35 @@ export class PsyntientVaultPage extends LitElement {
   @state() private detailLoading = false;
 
   private progressTimer: ReturnType<typeof setInterval> | null = null;
+  /**
+   * Generation counter for loads, so a superseded response cannot overwrite a
+   * newer one. Without it the tokenless first attempt and the retry race, and
+   * whichever resolves last wins -- which showed a 401 error over a Vault that
+   * had already loaded correctly.
+   */
+  private loadSeq = 0;
 
   override connectedCallback() {
     super.connectedCallback();
-    void this.load();
+    // Only worth attempting if the token is already committed; when it is not,
+    // `updated()` fires the load as soon as it arrives. Firing regardless just
+    // guarantees one unauthenticated request per visit.
+    if (this.authToken) void this.load();
+  }
+
+  /**
+   * Re-run the first load once the token actually arrives.
+   *
+   * `connectedCallback` fires before Lit commits `authToken`, so the very
+   * first fetch goes out with no Authorization header and comes back 401 --
+   * which rendered as "the Vault is unreachable" on a Vault that was fine. The
+   * `!this.ledger` guard keeps this to a genuine retry rather than a refetch
+   * on every token change.
+   */
+  override updated(changed: Map<string, unknown>) {
+    if (changed.has("authToken") && this.authToken && !this.ledger) {
+      void this.load();
+    }
   }
 
   override disconnectedCallback() {
@@ -177,24 +202,29 @@ export class PsyntientVaultPage extends LitElement {
   }
 
   private async load() {
+    const seq = ++this.loadSeq;
+    const current = () => seq === this.loadSeq;
+
     this.loading = true;
     this.errorText = null;
     try {
       const res = await fetch(LEDGER_ROUTE, { headers: this.headers() });
+      if (!current()) return;
       if (!res.ok) {
         this.errorText = t("vault.requestFailed", { status: String(res.status) });
         return;
       }
       const body = (await res.json()) as Ledger;
+      if (!current()) return;
       if (!body.ok) {
         this.errorText = body.error ?? t("vault.requestFailed", { status: "?" });
         return;
       }
       this.ledger = body;
     } catch (err) {
-      this.errorText = err instanceof Error ? err.message : String(err);
+      if (current()) this.errorText = err instanceof Error ? err.message : String(err);
     } finally {
-      this.loading = false;
+      if (current()) this.loading = false;
     }
   }
 
