@@ -278,6 +278,7 @@ const SETTINGS_NAVIGATION_ROUTES: ReadonlySet<NavigationRouteId> = new Set([
 
 const NAVIGATION_ICONS: NavigationItem = {
   archive: "archive",
+  vault: "database",
   agents: "bot",
   activity: "activity",
   apps: "layoutGrid",
@@ -376,6 +377,7 @@ export function cancelRoutePreload(
 
 const NAVIGATION_COPY: Record<NavigationRouteId, { titleKey: string; subtitleKey: string }> = {
   archive: { titleKey: "tabs.archive", subtitleKey: "subtitles.archive" },
+  vault: { titleKey: "tabs.vault", subtitleKey: "subtitles.vault" },
   agents: { titleKey: "tabs.agents", subtitleKey: "subtitles.agents" },
   activity: { titleKey: "tabs.activity", subtitleKey: "subtitles.activity" },
   apps: { titleKey: "tabs.apps", subtitleKey: "subtitles.apps" },

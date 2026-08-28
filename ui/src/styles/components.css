@@ -6514,3 +6514,247 @@ td.data-table-key-col {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* --- Vault viewer -------------------------------------------------------
+   Browse-first, where the Archive viewer is search-first: the Vault is the
+   user's own material, and the question it has to answer is not "find X" but
+   "show me everything, so I can be sure nothing is leaving that should not".
+   So the inventory is always the ground state and search narrows it.
+
+   Cards share a spine and diverge in the body. Title, device, eligibility and
+   sync state align across every card because those are what you compare and
+   what governs consent; the body renders what the project actually is, since
+   a three-year EEG capture and a folder of notes are not the same object and
+   a uniform row would hide exactly that difference. */
+.psy-vault { max-width: 72rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+.psy-vault__head { margin-bottom: 1.5rem; }
+.psy-vault__head h1 { margin: 0 0 0.35rem; font-size: 1.75rem; font-weight: 600; }
+.psy-vault__subtitle { margin: 0 0 1.25rem; color: var(--muted); }
+.psy-vault__totals { display: flex; flex-wrap: wrap; gap: 2.5rem; margin-bottom: 0.75rem; }
+.psy-vault__stat { display: flex; flex-direction: column; gap: 0.15rem; }
+.psy-vault__stat-value { font-size: 1.4rem; font-weight: 600; color: var(--accent); }
+.psy-vault__stat-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.psy-vault__root {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.psy-vault__error { color: var(--danger, #d9534f); }
+.psy-vault__loading { text-align: center; color: var(--muted); }
+
+.psy-vault__search { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.psy-vault__search input {
+  flex: 1 1 auto;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font: inherit;
+}
+.psy-vault__search button {
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.psy-vault__search button[disabled] { opacity: 0.55; cursor: default; }
+.psy-vault__clear { color: var(--muted); }
+
+/* The match step is one opaque model call that cannot report from inside
+   itself, so the fill eases toward a ceiling and only completes when the
+   result actually lands. The stage labels underneath are real. */
+.psy-vault__progress { margin: 0 0 1rem; }
+.psy-vault__progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  overflow: hidden;
+}
+.psy-vault__progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 320ms ease;
+}
+.psy-vault__progress-label {
+  margin: 0.4rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.psy-vault__result-count { margin: 0 0 0.85rem; font-size: 0.875rem; color: var(--muted); }
+
+.psy-vault__body { display: flex; gap: 1.25rem; align-items: flex-start; }
+.psy-vault__grid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.85rem;
+}
+.psy-vault__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.95rem 1rem 0.9rem;
+  text-align: left;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease;
+}
+.psy-vault__card:hover { transform: translateY(-2px); border-color: var(--accent); }
+/* A project holding no data is still shown rather than hidden -- an inventory
+   that silently omits empties cannot answer "is that everything?". It just
+   sits back. */
+.psy-vault__card--empty { opacity: 0.72; }
+.psy-vault__card-head { display: flex; flex-direction: column; gap: 0.15rem; }
+.psy-vault__card-title { margin: 0; font-size: 0.9375rem; font-weight: 600; }
+.psy-vault__device { font-size: 0.75rem; color: var(--muted); }
+
+.psy-vault__strip { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+.psy-vault__strip .psy-vault__stat-value { font-size: 1.05rem; }
+.psy-vault__formats { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0; }
+.psy-vault__format {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.psy-vault__span, .psy-vault__desc, .psy-vault__empty-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.psy-vault__desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.psy-vault__card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+.psy-vault__badge {
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+/* Contribution readiness is the one thing on a card that governs whether data
+   can leave the machine, so it is the only state given colour. */
+.psy-vault__badge--ready {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+.psy-vault__badge--quiet { opacity: 0.7; }
+.psy-vault__synced, .psy-vault__submissions { font-size: 0.7rem; color: var(--muted); }
+
+.psy-vault__detail {
+  flex: 0 0 24rem;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1rem 1.1rem 1.25rem;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.psy-vault__detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.psy-vault__stepper { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--muted); }
+.psy-vault__stepper button,
+.psy-vault__close {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.psy-vault__detail-title { margin: 0 0 0.2rem; font-size: 1.1rem; }
+.psy-vault__detail-path { margin: 0 0 0.6rem; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+.psy-vault__types { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0 0 0.9rem; }
+.psy-vault__type {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+.psy-vault__area { margin-bottom: 1.1rem; }
+.psy-vault__area h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.psy-vault__area-count { color: var(--accent); font-weight: 600; }
+.psy-vault__entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+.psy-vault__entry { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.8125rem; }
+.psy-vault__entry-path { overflow-wrap: anywhere; }
+.psy-vault__entry-meta { font-size: 0.75rem; color: var(--muted); }
+/* Packets are summarised to their identifying fields rather than dumped: the
+   useful question about a capture in a list is when it ran and under what
+   consent, never its sample array. */
+.psy-vault__entry--packet .psy-vault__entry-path { color: var(--accent); }
+.psy-vault__text {
+  margin: 0.2rem 0 0;
+  padding: 0.5rem 0.6rem;
+  max-height: 12rem;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.psy-vault__more { font-size: 0.7rem; color: var(--muted); }
+.psy-vault__ask {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.psy-vault__ask:hover { border-color: var(--accent); color: var(--accent); }
+
+@media (max-width: 60rem) {
+  /* `align-items: flex-start` is right in row direction -- it stops the sticky
+     detail panel stretching to the grid's full height -- but once the axis
+     flips it shrink-wraps children horizontally instead, collapsing the grid
+     to a single column's intrinsic width. Stretch is the correct cross-axis
+     behaviour here. */
+  .psy-vault__body { flex-direction: column; align-items: stretch; }
+  .psy-vault__detail { flex: 1 1 auto; width: 100%; position: static; max-height: none; }
+}

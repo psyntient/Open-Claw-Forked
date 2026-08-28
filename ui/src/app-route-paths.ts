@@ -35,6 +35,7 @@ const APP_ROUTE_DEFINITIONS = {
   sessions: { path: "/sessions", aliases: ["/settings/sessions"] },
   usage: { path: "/usage" },
   archive: { path: "/archive" },
+  vault: { path: "/vault" },
   debug: { path: "/debug" },
   logs: { path: "/logs" },
   "skill-workshop": { path: "/skills/workshop" },

@@ -77,6 +77,7 @@ const ANALYSIS_TOOLS_SECTION = "psyntient:analysis-tools";
 
 const TOOLS = [
   { routeId: "archive" as const, icon: "archive" as const, labelKey: "nav.archiveViewer" },
+  { routeId: "vault" as const, icon: "database" as const, labelKey: "nav.vaultViewer" },
 ];
 
 export function renderAppSidebarViewers(host: AppSidebarRenderHost) {

@@ -229,6 +229,13 @@ export const icons = {
       <path d="m16 8-3-3 3-3" />
     </svg>
   `,
+  database: html`
+    <svg viewBox="0 0 24 24">
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5" />
+      <path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3" />
+    </svg>
+  `,
   archive: html`
     <svg viewBox="0 0 24 24">
       <rect width="20" height="5" x="2" y="3" rx="1" />
