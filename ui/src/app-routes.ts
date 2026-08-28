@@ -12,6 +12,7 @@ import { page as activityPage } from "./pages/activity/route.ts";
 import { page as agentsPage } from "./pages/agents/route.ts";
 import { page as approvalsPage } from "./pages/approvals/route.ts";
 import { page as appsPage } from "./pages/apps/route.ts";
+import { page as archivePage } from "./pages/archive/route.ts";
 import { page as channelsPage } from "./pages/channels/route.ts";
 import { page as chatPage } from "./pages/chat/route.ts";
 import { pages as configPages } from "./pages/config/route.ts";
@@ -70,6 +71,7 @@ const APP_ROUTE_TREE = [
   worktreesPage,
   sessionsPage,
   usagePage,
+  archivePage,
   debugPage,
   logsPage,
   skillWorkshopPage,

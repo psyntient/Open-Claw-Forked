@@ -34,6 +34,7 @@ const APP_ROUTE_DEFINITIONS = {
   worktrees: { path: "/worktrees", aliases: ["/settings/worktrees"] },
   sessions: { path: "/sessions", aliases: ["/settings/sessions"] },
   usage: { path: "/usage" },
+  archive: { path: "/archive" },
   debug: { path: "/debug" },
   logs: { path: "/logs" },
   "skill-workshop": { path: "/skills/workshop" },

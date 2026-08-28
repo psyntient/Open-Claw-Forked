@@ -37,8 +37,6 @@ export class PsyntientProjectSelect extends LitElement {
   @state() private removing: PsyntientProject | null = null;
   @state() private creating = false;
   @state() private dataTypes: PsyntientDataType[] = [];
-  @state() private creating = false;
-  @state() private dataTypes: PsyntientDataType[] = [];
 
   override connectedCallback() {
     super.connectedCallback();

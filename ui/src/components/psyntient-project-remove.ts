@@ -29,12 +29,6 @@ import {
   startSync,
   type SyncProject,
 } from "../lib/psyntient-sync.ts";
-import {
-  loadSyncState,
-  setProjectAutoSync,
-  startSync,
-  type SyncProject,
-} from "../lib/psyntient-sync.ts";
 import "./modal-dialog.ts";
 
 @customElement("psyntient-project-remove")
@@ -54,27 +48,6 @@ export class PsyntientProjectRemove extends LitElement {
   /** Set when the backend refuses an erase because nothing has been synced. */
   @state() private needsSync = false;
   @state() private confirmText = "";
-  @state() private sync: SyncProject | null = null;
-
-  override connectedCallback() {
-    super.connectedCallback();
-    void this.refreshSync();
-  }
-
-  private async refreshSync() {
-    const state = await loadSyncState(this.authToken);
-    this.sync = state.projects.find((p) => p.projectId === this.projectId) ?? null;
-  }
-
-  /**
-   * Toggling writes an EXPLICIT choice; it never clears back to inherit.
-   * Someone reaching for this switch is deciding about this project, and an
-   * explicit "off" is what survives the global default being turned on later.
-   */
-  private async toggleAutoSync(enabled: boolean) {
-    await setProjectAutoSync(this.authToken, this.projectId, enabled);
-    await this.refreshSync();
-  }
   @state() private sync: SyncProject | null = null;
 
   override connectedCallback() {
