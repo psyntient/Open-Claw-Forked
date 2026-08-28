@@ -6,21 +6,14 @@ import {
   type NavigationRouteId,
   type SidebarZoneEntry,
 } from "../app-navigation.ts";
-import { pathForRoute } from "../app-route-paths.ts";
-import { sessionHasPendingApproval } from "../app/approval-presentation.ts";
 import { readPresenceEntries, resolveCurrentSelfUser } from "../app/user-profile.ts";
 import { t } from "../i18n/index.ts";
-import { sessionHasBoard } from "../lib/board/provider.ts";
-import { searchForSession } from "../lib/sessions/index.ts";
-import { areUiSessionKeysEquivalent } from "../lib/sessions/session-key.ts";
 import { pluginTabKey } from "../pages/plugin/route.ts";
-import { renderSidebarPluginTab, shouldHandleNavigationClick } from "./app-sidebar-nav-menus.ts";
+import { renderSidebarPluginTab } from "./app-sidebar-nav-menus.ts";
 import type { AppSidebarSessionNavigationElement } from "./app-sidebar-session-navigation.ts";
 import type { SidebarRecentSession } from "./app-sidebar-session-types.ts";
 import type { SidebarWorkboardBoard } from "./app-sidebar-workboard.ts";
 import { icons } from "./icons.ts";
-import { renderSessionGlyph, renderSessionUnreadBadge } from "./session-glyph.ts";
-import { renderSessionRowBadges } from "./session-row-badges.ts";
 
 type AppSidebarRenderHost = AppSidebarSessionNavigationElement & {
   activePluginTabId: string;
@@ -62,94 +55,6 @@ export function renderAppSidebarBrand(host: AppSidebarRenderHost, authToken: str
           </button>
         </openclaw-tooltip>
       </div>
-    </div>
-  `;
-}
-
-/** Home: the first page. Opens the rolling main session on its saved face. */
-export function renderAppSidebarHomeRow(host: AppSidebarRenderHost) {
-  const agentId = host.activeChipAgent().activeId;
-  const mainKey = host.selectedAgentMainSessionKey(agentId);
-  const mainRow = host.mainSessionRow(agentId);
-  const approvalNeeded = sessionHasPendingApproval(
-    host.sessionData.approvalBadgeSnapshot(),
-    mainKey,
-  );
-  const outboxCount = host.outboxCountForSessionKey(mainKey);
-  const active =
-    host.activeRouteId === "chat" && areUiSessionKeysEquivalent(host.getRouteSessionKey(), mainKey);
-  const running = mainRow?.hasActiveRun === true;
-  const unread = mainRow?.unread === true && !active;
-  // Home shares the sidebar's leading-slot contract: run state rings its icon
-  // instead of drifting to the row edge, which stays reserved for counts.
-  const homeGlyph = renderSessionGlyph({
-    content: html`<span class="nav-item__icon" aria-hidden="true">${icons.home}</span>`,
-    running,
-    badge: unread ? renderSessionUnreadBadge() : nothing,
-  });
-  return html`
-    <a
-      href=${`${pathForRoute("chat", host.basePath)}${searchForSession(mainKey)}`}
-      class="nav-item nav-item--home ${active ? "nav-item--active" : ""}"
-      aria-current=${active ? "page" : nothing}
-      @click=${(event: MouseEvent) => {
-        if (!shouldHandleNavigationClick(event)) {
-          return;
-        }
-        event.preventDefault();
-        host.openMainSession(agentId);
-      }}
-    >
-      ${running
-        ? html`<openclaw-tooltip .content=${t("sessionsView.activeRun")}
-            >${homeGlyph}</openclaw-tooltip
-          >`
-        : homeGlyph}
-      <span class="nav-item__text">${t("nav.home")}</span>
-      ${sessionHasBoard(mainKey)
-        ? html`<openclaw-tooltip .content=${t("sessionsView.dashboardAvailable")}>
-            <span
-              class="sidebar-board-glyph"
-              role="img"
-              aria-label=${t("sessionsView.dashboardAvailable")}
-              >${icons.layoutDashboard}</span
-            >
-          </openclaw-tooltip>`
-        : nothing}
-      ${approvalNeeded || outboxCount > 0
-        ? html`<span class="nav-item__state sidebar-home-session-states">
-            ${approvalNeeded
-              ? html`<openclaw-tooltip .content=${t("sessionsView.approvalNeeded")}>
-                  <span
-                    class="session-approval-badge"
-                    role="img"
-                    aria-label=${t("sessionsView.approvalNeeded")}
-                    >${icons.alertTriangle}</span
-                  >
-                </openclaw-tooltip>`
-              : nothing}
-            ${renderSessionRowBadges({ hasAutomation: false, outboxCount })}
-          </span>`
-        : nothing}
-    </a>
-  `;
-}
-
-export function renderAppSidebarPagesHead(host: AppSidebarRenderHost) {
-  return html`
-    <div class="sidebar-nav__head">
-      <span class="sidebar-recent-sessions__label-text">${t("nav.pages")}</span>
-      <button
-        type="button"
-        class="sidebar-nav__head-action"
-        aria-haspopup="menu"
-        aria-expanded=${String(host.sidebarMenus.moreMenuPosition !== null)}
-        aria-label=${t("nav.customize")}
-        @click=${(event: MouseEvent) =>
-          host.sidebarMenus.toggleMoreMenu(event.currentTarget as HTMLElement)}
-      >
-        ${icons.penLine}
-      </button>
     </div>
   `;
 }

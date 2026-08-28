@@ -115,7 +115,16 @@ function renderWelcomeClawd() {
   // in renderWelcomeState keep resolving.
   return html`
     <div class="agent-chat__welcome-clawd psy-elf-hero" aria-hidden="true">
-      <img src="/brand/elf/elf-chat-idle-256.png" alt="" width="112" height="112" />
+      <span class="psy-elf psy-elf--hero">
+        <img
+          class="psy-elf__idle"
+          src="/brand/elf/elf-chat-idle-256.png"
+          alt=""
+          width="112"
+          height="112"
+        />
+        <span class="psy-elf__blink"></span>
+      </span>
     </div>
   `;
 }

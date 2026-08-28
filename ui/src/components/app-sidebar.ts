@@ -20,8 +20,6 @@ import {
   renderAppSidebarAttention,
   renderAppSidebarBrand,
   renderAppSidebarFooterBar,
-  renderAppSidebarHomeRow,
-  renderAppSidebarPagesHead,
   renderAppSidebarPluginTabEntry,
   renderAppSidebarZoneEntry,
 } from "./app-sidebar-render.ts";
@@ -354,7 +352,6 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
               this.sessionData.updateSessionsScrollState(event.currentTarget as HTMLElement)}
           >
             <nav class="sidebar-nav" @contextmenu=${this.sidebarMenus.openCustomizeMenuFromContext}>
-              ${renderAppSidebarPagesHead(this)}
               <div
                 class="nav-section__items"
                 @dragover=${(event: DragEvent) =>
@@ -363,7 +360,13 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
                   this.sessionOrganizer.handleSidebarZoneDragLeave(event)}
                 @drop=${(event: DragEvent) => this.sessionOrganizer.handleSidebarZoneDrop(event)}
               >
-                ${renderAppSidebarHomeRow(this)}
+                <!-- The PAGES header and its Home row are removed: Home opened the
+                     rolling main session, which under Projects is just a thread in
+                     General and already listed there. A one-item section labelled
+                     "Pages" above a Projects selector was a second, competing
+                     navigation model for the same destination. The zone container
+                     stays: it is the drop target for pinned threads and the mount
+                     point for plugin tabs, and renders nothing while empty. -->
                 ${sidebarZone.entries.map((entry) =>
                   renderAppSidebarZoneEntry(
                     this,

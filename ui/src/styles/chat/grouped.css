@@ -1115,13 +1115,13 @@ details.msg-meta:not([open]) .msg-meta__details {
 }
 
 .psy-elf__blink {
-  background-image: url("/brand/elf/elf-chat-blink-128.png");
+  background-image: var(--psy-elf-blink, url("/brand/elf/elf-chat-blink-128.png"));
   opacity: 0;
   animation: psy-elf-blink 6s steps(1, end) infinite;
 }
 
 .psy-elf__talk {
-  background-image: url("/brand/elf/elf-chat-talk-128.png");
+  background-image: var(--psy-elf-talk, url("/brand/elf/elf-chat-talk-128.png"));
   opacity: 0;
 }
 
@@ -1215,10 +1215,24 @@ details.msg-meta:not([open]) .msg-meta__details {
   object-fit: contain;
 }
 
-/* Welcome hero: Cortex, sized to match the mascot it replaces. */
+/* Welcome hero: Cortex, sized to match the mascot it replaces.
+   Blinks but never talks -- the welcome screen has no run in flight, and the
+   talk layer is driven by the working indicator's presence. At 112px the 128px
+   frame is soft on retina, so the hero points the blink layer at the 256 asset. */
 .psy-elf-hero img {
   width: 112px;
   height: 112px;
   object-fit: contain;
   display: block;
+}
+
+.psy-elf--hero {
+  --psy-elf-blink: url("/brand/elf/elf-chat-blink-256.png");
+  width: 112px;
+  height: 112px;
+}
+
+.psy-elf--hero .psy-elf__blink {
+  background-size: contain;
+  background-repeat: no-repeat;
 }
