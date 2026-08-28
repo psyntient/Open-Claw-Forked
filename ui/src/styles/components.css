@@ -6375,3 +6375,21 @@ td.data-table-key-col {
   border-top: 1px solid var(--border);
 }
 .psy-arch__detail-actions .psy-arch__detail-id { margin: 0; }
+
+/* Genus line: taxonomy layer 3. Present as a link, absent as a plain
+   statement -- never a disabled control, because "no family yet" is the
+   normal state of every archetype in this Edition, not an error. */
+.psy-arch__genus {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0 0 1.1rem;
+  font-size: 0.875rem;
+}
+.psy-arch__genus-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.psy-arch__genus--none { color: var(--muted); font-size: 0.8125rem; }

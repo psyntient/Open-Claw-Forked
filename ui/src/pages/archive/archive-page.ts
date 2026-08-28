@@ -24,6 +24,7 @@
 import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
+import { handOffPrompt } from "../../lib/psyntient-prompt-handoff.ts";
 
 type Archetype = {
   id: string;
@@ -140,10 +141,22 @@ export class PsyntientArchivePage extends LitElement {
     }
   }
 
-  /** Hand the question to Cortex rather than answering it here. */
+  /**
+   * Hand the question to Cortex rather than answering it here.
+   *
+   * The prompt names the genus explicitly when the archetype has one, and
+   * otherwise asks Cortex to offer the family as a follow-up. Either way the
+   * conversation can go up a taxonomic level, which is the move a researcher
+   * wants next and which a single archetype page cannot answer.
+   */
   private askCortex(a: Archetype) {
-    const prompt = `Tell me about the "${a.name}" archetype in the Noetic Archive, and what the evidence behind it looks like.`;
-    location.href = `/new?prompt=${encodeURIComponent(prompt)}`;
+    const raw = (this.detail?.archetype_json ?? {}) as Record<string, unknown>;
+    const genus = typeof raw.parent_archetype === "string" ? raw.parent_archetype : null;
+    const prompt = genus
+      ? `Tell me about the "${a.name}" archetype in the Noetic Archive and the evidence behind it. It belongs to the genus ${genus} — afterwards, ask me whether I want to hear about that whole family and how its species relate.`
+      : `Tell me about the "${a.name}" archetype in the Noetic Archive and the evidence behind it. Afterwards, ask me whether I want to explore the archetype family it would sit in — and say plainly if this Edition has not grouped it into a genus yet.`;
+    handOffPrompt(prompt);
+    location.href = "/new";
   }
 
   private renderStat(label: string, value: string | number) {
@@ -274,6 +287,11 @@ export class PsyntientArchivePage extends LitElement {
     const modality = (raw.modality_coverage ?? {}) as Record<string, number>;
     const relatedIds = Object.keys(related);
     const modalityKeys = Object.keys(modality);
+    const isGenus = raw.taxonomic_rank === "genus";
+    const genusKind = typeof raw.genus_kind_label === "string" ? raw.genus_kind_label : null;
+    const members = Array.isArray(raw.members)
+      ? raw.members.filter((m): m is string => typeof m === "string")
+      : [];
 
     return html`
       <div class="psy-arch__detail" role="dialog" aria-modal="true">
@@ -294,14 +312,65 @@ export class PsyntientArchivePage extends LitElement {
           <p class="psy-arch__detail-desc">${a.description}</p>
 
           <div class="psy-arch__facts">
-            <span>${t("archive.exemplarMany", { count: String(exemplarsOf(a)) })}</span>
+            ${isGenus
+              ? html`<span class="psy-arch__chip"
+                  >${t("archive.genusRank")}${genusKind ? ` · ${genusKind}` : ""}</span
+                >`
+              : html`<span>${t("archive.exemplarMany", { count: String(exemplarsOf(a)) })}</span>`}
             ${modalityKeys.map(
               (m) => html`<span class="psy-arch__chip">${m} · ${modality[m]}</span>`,
             )}
           </div>
 
+          <!-- Layer 3 of the taxonomy (whitepaper 2.3): species archetypes may
+               belong to a genus, itself an archetype record, via
+               parent_archetype. Rendered as a real link when present and stated
+               plainly when not -- Edition 002 ships zero genera (its only one
+               was a smoke test the Architect deliberately dissolved), so a
+               silent button here would do nothing for every archetype in the
+               Archive. -->
+          ${this.detail && !isGenus
+            ? typeof raw.parent_archetype === "string" && raw.parent_archetype
+              ? html`<p class="psy-arch__genus">
+                  <span class="psy-arch__genus-label">${t("archive.family")}</span>
+                  <button
+                    type="button"
+                    class="psy-arch__related-link"
+                    @click=${() => this.openById(String(raw.parent_archetype))}
+                  >
+                    ${String(raw.parent_archetype)
+                      .replace(/^NA-\d+-/, "")
+                      .replace(/-/g, " ")}
+                  </button>
+                </p>`
+              : html`<p class="psy-arch__genus psy-arch__genus--none">${t("archive.noFamily")}</p>`
+            : nothing}
           ${this.detail
             ? html`
+                <!-- The species in this family, first: "which archetypes are
+                     in here" is the question that made someone click through,
+                     and it is the one thing a genus record has that a species
+                     record does not. -->
+                ${this.renderSection(
+                  t("archive.members", { count: String(members.length) }),
+                  members.length
+                    ? html`<ul class="psy-arch__related">
+                        ${members.map(
+                          (id) => html`
+                            <li>
+                              <button
+                                type="button"
+                                class="psy-arch__related-link"
+                                @click=${() => this.openById(id)}
+                              >
+                                ${id.replace(/^NA-\d+-/, "").replace(/-/g, " ")}
+                              </button>
+                            </li>
+                          `,
+                        )}
+                      </ul>`
+                    : null,
+                )}
                 ${this.renderSection(t("archive.invariants"), this.renderList(phenom.invariants))}
                 ${this.renderSection(
                   t("archive.variants"),

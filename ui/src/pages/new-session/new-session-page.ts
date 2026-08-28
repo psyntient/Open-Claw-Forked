@@ -14,6 +14,7 @@ import "../../components/tooltip.ts";
 import "../../components/web-awesome-popover.ts";
 import { listSelectableAgents } from "../../lib/agents/display.ts";
 import { DEFAULT_PROJECT_ID, readSelectedProjectId } from "../../lib/psyntient-projects.ts";
+import { PSYNTIENT_PROMPT_HANDOFF_KEY } from "../../lib/psyntient-prompt-handoff.ts";
 import { searchForSession } from "../../lib/sessions/index.ts";
 import { buildAgentMainSessionKey, normalizeAgentId } from "../../lib/sessions/session-key.ts";
 import { normalizeOptionalString } from "../../lib/string-coerce.ts";
@@ -332,6 +333,31 @@ class NewSessionPage extends OpenClawLightDomElement {
     document.addEventListener("pointerdown", this, true);
   }
 
+  /**
+   * Take a question handed over from a reading surface, once.
+   *
+   * The Archive viewer's "Ask Cortex about this" writes it before navigating.
+   * sessionStorage rather than `?prompt=`: the router normalizes search params
+   * off /new before this element connects, so a query param never survives.
+   *
+   * Read-once and cleared, so a later visit or a reload does not silently
+   * refill a composer the user had cleared. Prefilled rather than auto-sent --
+   * the question should be visible and editable before it costs a model call.
+   */
+  private takeHandedOffPrompt(): string | null {
+    try {
+      const handoff = sessionStorage.getItem(PSYNTIENT_PROMPT_HANDOFF_KEY);
+      if (!handoff) {
+        return null;
+      }
+      sessionStorage.removeItem(PSYNTIENT_PROMPT_HANDOFF_KEY);
+      return handoff;
+    } catch {
+      // Private browsing or blocked storage: no prefill, composer still works.
+      return null;
+    }
+  }
+
   override disconnectedCallback() {
     document.removeEventListener("keydown", this, true);
     document.removeEventListener("pointerdown", this, true);
@@ -495,7 +521,10 @@ class NewSessionPage extends OpenClawLightDomElement {
       this.attachmentDraft.replace(restoreChatApiAttachments(this.pendingCloud.attachments));
     } else {
       this.clearPendingCloudRecovery();
-      this.message = "";
+      // A handed-off question survives the reset. resetDraft() runs AFTER
+      // connectedCallback, so adopting the handoff any earlier just gets
+      // cleared here -- which is exactly what happened first time round.
+      this.message = this.takeHandedOffPrompt() ?? "";
     }
     this.error = null;
     this.placePopoverHiding = false;
