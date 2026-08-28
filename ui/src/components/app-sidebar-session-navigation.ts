@@ -550,11 +550,13 @@ export class AppSidebarSessionNavigationElement extends AppSidebarBase {
     // filterVisibleSessionRows, so passing projectId only to the slow path
     // left the sidebar unfiltered in the common case.
     const projectId = readSelectedProjectId();
+    // Read once per pass, not per row: this runs over every session.
+    const knownProjectIds = readCachedProjectIds();
     // Typed on the row shape the sidebar actually holds. SidebarRecentSession
     // is not assignable to GatewaySessionRow (its `incognito` widens to
     // boolean), and resolveRowProjectId only needs `category`.
     const inSelectedProject = (row: { category?: string | null }) =>
-      resolveRowProjectId(row) === projectId;
+      resolveRowProjectId(row, knownProjectIds) === projectId;
     const rootRows =
       selected === routeAgentId && selected === loadedAgentId
         ? navigationState.visibleSessions.flatMap((session) => {

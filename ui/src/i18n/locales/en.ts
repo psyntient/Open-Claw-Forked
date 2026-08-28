@@ -2401,6 +2401,23 @@ export const en: TranslationMap = {
     defaultTitle: "General",
     new: "New project…",
     newPrompt: "Name this project",
+    manage: "Manage project",
+    removeTitle: "Remove {project}",
+    removeIntro:
+      "Its chats move back to General — they are not deleted unless you choose to delete everything.",
+    archive: "Archive project",
+    archiveHint:
+      "Saves everything to your Vault, then clears the working copy. You can reopen it later.",
+    remove: "Remove from this device",
+    removeHint: "Clears the working copy. The Vault copy is kept, so this can be undone.",
+    delete: "Delete permanently",
+    deleteHint: "Erases the working copy and the Vault copy. This cannot be undone.",
+    deleteConfirmLabel: "Type {project} to confirm",
+    needsSync:
+      "This project has never been saved to your Vault, so removing it now would lose work.",
+    syncThenArchive: "Save to Vault, then archive",
+    cancel: "Cancel",
+    working: "Working…",
   },
   psyntient: {
     assistantName: "Cortex",

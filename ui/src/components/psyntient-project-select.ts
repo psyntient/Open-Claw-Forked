@@ -12,12 +12,14 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
 import {
+  DEFAULT_PROJECT_ID,
   createProject,
   loadProjects,
   readSelectedProjectId,
   writeSelectedProjectId,
   type PsyntientProject,
 } from "../lib/psyntient-projects.ts";
+import "./psyntient-project-remove.ts";
 
 @customElement("psyntient-project-select")
 export class PsyntientProjectSelect extends LitElement {
@@ -30,6 +32,8 @@ export class PsyntientProjectSelect extends LitElement {
   @state() private projects: PsyntientProject[] = [];
   @state() private selectedId = readSelectedProjectId();
   @state() private open = false;
+  /** The Project whose removal dialog is open, if any. */
+  @state() private removing: PsyntientProject | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -45,6 +49,20 @@ export class PsyntientProjectSelect extends LitElement {
 
   private async refresh() {
     this.projects = await loadProjects(this.authToken);
+  }
+
+  /**
+   * After a removal, reload so the id cache drops the removed Project -- that
+   * cache is what makes its orphaned threads resolve back to General.
+   * Selecting Default also navigates, which reloads the sidebar; doing it in
+   * the other order would leave the user scoped to a Project that is gone.
+   */
+  private async finishRemoval(removedId: string) {
+    this.removing = null;
+    await this.refresh();
+    if (this.selectedId === removedId) {
+      this.select(DEFAULT_PROJECT_ID);
+    }
   }
 
   private select(projectId: string) {
@@ -103,7 +121,7 @@ export class PsyntientProjectSelect extends LitElement {
               <ul class="psy-project-select__menu" role="listbox">
                 ${this.projects.map(
                   (p) => html`
-                    <li>
+                    <li class="psy-project-select__row">
                       <button
                         type="button"
                         role="option"
@@ -115,6 +133,25 @@ export class PsyntientProjectSelect extends LitElement {
                       >
                         ${p.title}
                       </button>
+                      ${p.projectId === DEFAULT_PROJECT_ID
+                        ? nothing
+                        : html`
+                            <button
+                              type="button"
+                              class="psy-project-select__manage"
+                              aria-label=${t("projects.manage")}
+                              title=${t("projects.manage")}
+                              @click=${(event: MouseEvent) => {
+                                // Without this the row's select() fires too and
+                                // navigates away from the dialog being opened.
+                                event.stopPropagation();
+                                this.open = false;
+                                this.removing = p;
+                              }}
+                            >
+                              ⋯
+                            </button>
+                          `}
                     </li>
                   `,
                 )}
@@ -128,6 +165,17 @@ export class PsyntientProjectSelect extends LitElement {
                   </button>
                 </li>
               </ul>
+            `
+          : nothing}
+        ${this.removing
+          ? html`
+              <psyntient-project-remove
+                .authToken=${this.authToken}
+                .projectId=${this.removing.projectId}
+                .projectTitle=${this.removing.title}
+                .onDone=${() => void this.finishRemoval(this.removing?.projectId ?? "")}
+                .onCancel=${() => (this.removing = null)}
+              ></psyntient-project-remove>
             `
           : nothing}
       </div>

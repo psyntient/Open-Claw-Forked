@@ -240,8 +240,33 @@ type VisibleSessionRowOptions = {
  * rewrite, and a thread never has to be filed to be visible.
  */
 export const DEFAULT_PROJECT_ID = "default";
-export function resolveRowProjectId(row: { category?: string | null }): string {
-  return row.category?.trim() || DEFAULT_PROJECT_ID;
+
+/**
+ * Resolve a row's Project.
+ *
+ * `knownProjectIds` makes removal safe: a thread keeps its `category` after its
+ * Project is gone, and without this it would resolve to a Project no selector
+ * offers -- reachable from no scope at all. Threads of a removed Project fall
+ * back to the Default one instead, which is what PROJECTS_DESIGN.md asks for
+ * ("threads are unfiled to the Default Project, never deleted") and gets there
+ * without bulk-patching every affected session.
+ *
+ * Passing an empty list means "not loaded yet", not "no Projects exist" -- the
+ * fallback is skipped in that case so a slow/failed load cannot sweep every
+ * thread into the Default Project.
+ */
+export function resolveRowProjectId(
+  row: { category?: string | null },
+  knownProjectIds?: readonly string[],
+): string {
+  const category = row.category?.trim();
+  if (!category) {
+    return DEFAULT_PROJECT_ID;
+  }
+  if (knownProjectIds?.length && !knownProjectIds.includes(category)) {
+    return DEFAULT_PROJECT_ID;
+  }
+  return category;
 }
 
 export function sessionMatchesArchivedFilter(
