@@ -2437,6 +2437,23 @@ export const en: TranslationMap = {
     cancel: "Cancel",
     working: "Working…",
   },
+  sync: {
+    inProgress: "Sending to the Archive… {done} of {total}",
+    queued: "{count} sent for review",
+    autoLabel: "Send new recordings to the Archive automatically",
+    autoHint:
+      "Off by default. Contributions are reviewed by the Archive and cannot be taken back once published.",
+    autoGlobalLabel: "Auto-send from every eligible project",
+    autoGlobalHint:
+      "Applies to projects that record instrument data and have not set their own preference.",
+    inheriting: "Following your default ({state})",
+    on: "on",
+    off: "off",
+    notEligible:
+      "This project records no instrument data, so there is nothing the Archive accepts.",
+    syncNow: "Send now",
+    nothingToSend: "No recordings ready to send.",
+  },
   psyntient: {
     assistantName: "Cortex",
   },

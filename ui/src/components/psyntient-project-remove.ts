@@ -23,6 +23,18 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
 import { removeProject, type ProjectRemoval } from "../lib/psyntient-projects.ts";
+import {
+  loadSyncState,
+  setProjectAutoSync,
+  startSync,
+  type SyncProject,
+} from "../lib/psyntient-sync.ts";
+import {
+  loadSyncState,
+  setProjectAutoSync,
+  startSync,
+  type SyncProject,
+} from "../lib/psyntient-sync.ts";
 import "./modal-dialog.ts";
 
 @customElement("psyntient-project-remove")
@@ -42,6 +54,48 @@ export class PsyntientProjectRemove extends LitElement {
   /** Set when the backend refuses an erase because nothing has been synced. */
   @state() private needsSync = false;
   @state() private confirmText = "";
+  @state() private sync: SyncProject | null = null;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    void this.refreshSync();
+  }
+
+  private async refreshSync() {
+    const state = await loadSyncState(this.authToken);
+    this.sync = state.projects.find((p) => p.projectId === this.projectId) ?? null;
+  }
+
+  /**
+   * Toggling writes an EXPLICIT choice; it never clears back to inherit.
+   * Someone reaching for this switch is deciding about this project, and an
+   * explicit "off" is what survives the global default being turned on later.
+   */
+  private async toggleAutoSync(enabled: boolean) {
+    await setProjectAutoSync(this.authToken, this.projectId, enabled);
+    await this.refreshSync();
+  }
+  @state() private sync: SyncProject | null = null;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    void this.refreshSync();
+  }
+
+  private async refreshSync() {
+    const state = await loadSyncState(this.authToken);
+    this.sync = state.projects.find((p) => p.projectId === this.projectId) ?? null;
+  }
+
+  /**
+   * Toggling writes an EXPLICIT choice; it never clears back to inherit.
+   * Someone reaching for this switch is deciding about this project, and an
+   * explicit "off" is what survives the global default being turned on later.
+   */
+  private async toggleAutoSync(enabled: boolean) {
+    await setProjectAutoSync(this.authToken, this.projectId, enabled);
+    await this.refreshSync();
+  }
 
   private async run(action: ProjectRemoval) {
     this.busy = true;
@@ -100,6 +154,95 @@ export class PsyntientProjectRemove extends LitElement {
           </h2>
           <p class="psy-project-remove__intro">${t("projects.removeIntro")}</p>
 
+          <!-- Auto-send is shown only for projects the Archive could actually
+               accept. For a planning or reading project the control is absent
+               rather than present-and-disabled: there is no decision to make,
+               and a greyed switch invites the user to hunt for why. -->
+          ${this.sync?.eligible
+            ? html`
+                <div class="psy-project-remove__sync">
+                  <label class="psy-project-remove__toggle">
+                    <input
+                      type="checkbox"
+                      .checked=${this.sync.autoSyncEffective}
+                      @change=${(e: Event) =>
+                        this.toggleAutoSync((e.target as HTMLInputElement).checked)}
+                    />
+                    <span>${t("sync.autoLabel")}</span>
+                  </label>
+                  <p class="psy-project-remove__note">
+                    ${this.sync.autoSync === null
+                      ? t("sync.inheriting", {
+                          state: this.sync.autoSyncEffective ? t("sync.on") : t("sync.off"),
+                        })
+                      : t("sync.autoHint")}
+                  </p>
+                  <button
+                    type="button"
+                    class="psy-project-remove__choice psy-project-remove__choice--safe"
+                    ?disabled=${!this.sync.contributable || this.busy}
+                    @click=${async () => {
+                      await startSync(this.authToken, this.projectId);
+                      this.onCancel?.();
+                    }}
+                  >
+                    <span class="psy-project-remove__choice-label">${t("sync.syncNow")}</span>
+                    <span class="psy-project-remove__choice-hint">
+                      ${this.sync.contributable
+                        ? t("sync.queued", { count: String(this.sync.packets) })
+                        : t("sync.nothingToSend")}
+                    </span>
+                  </button>
+                </div>
+              `
+            : this.sync
+              ? html`<p class="psy-project-remove__note">${t("sync.notEligible")}</p>`
+              : nothing}
+
+          <!-- Auto-send is shown only for projects the Archive could actually
+               accept. For a planning or reading project the control is absent
+               rather than present-and-disabled: there is no decision to make,
+               and a greyed switch invites the user to hunt for why. -->
+          ${this.sync?.eligible
+            ? html`
+                <div class="psy-project-remove__sync">
+                  <label class="psy-project-remove__toggle">
+                    <input
+                      type="checkbox"
+                      .checked=${this.sync.autoSyncEffective}
+                      @change=${(e: Event) =>
+                        this.toggleAutoSync((e.target as HTMLInputElement).checked)}
+                    />
+                    <span>${t("sync.autoLabel")}</span>
+                  </label>
+                  <p class="psy-project-remove__note">
+                    ${this.sync.autoSync === null
+                      ? t("sync.inheriting", {
+                          state: this.sync.autoSyncEffective ? t("sync.on") : t("sync.off"),
+                        })
+                      : t("sync.autoHint")}
+                  </p>
+                  <button
+                    type="button"
+                    class="psy-project-remove__choice psy-project-remove__choice--safe"
+                    ?disabled=${!this.sync.contributable || this.busy}
+                    @click=${async () => {
+                      await startSync(this.authToken, this.projectId);
+                      this.onCancel?.();
+                    }}
+                  >
+                    <span class="psy-project-remove__choice-label">${t("sync.syncNow")}</span>
+                    <span class="psy-project-remove__choice-hint">
+                      ${this.sync.contributable
+                        ? t("sync.queued", { count: String(this.sync.packets) })
+                        : t("sync.nothingToSend")}
+                    </span>
+                  </button>
+                </div>
+              `
+            : this.sync
+              ? html`<p class="psy-project-remove__note">${t("sync.notEligible")}</p>`
+              : nothing}
           ${this.needsSync
             ? html`
                 <p class="psy-project-remove__warning" role="alert">${t("projects.needsSync")}</p>

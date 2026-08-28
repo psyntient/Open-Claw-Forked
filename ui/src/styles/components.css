@@ -6089,3 +6089,53 @@ td.data-table-key-col {
   cursor: pointer;
 }
 .psy-project-remove__cancel:hover:not(:disabled) { background: var(--bg-hover); color: var(--text); }
+
+
+/* --- Archive sync ------------------------------------------------------
+   Lives in the sidebar footer beside the Vault badge: both answer "what is
+   happening to my data", and contributing is the one irreversible outward
+   action in the product. Renders nothing when idle -- permanent ambient
+   chrome stops being seen. */
+.psy-sync {
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 0.75rem;
+  color: var(--text);
+}
+.psy-sync--error { background: color-mix(in srgb, var(--danger, #d9534f) 14%, transparent); }
+.psy-sync__row { display: flex; align-items: center; gap: 0.4rem; }
+.psy-sync__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: psy-aura 7s ease-in-out infinite;
+}
+.psy-sync__label { flex: 1 1 auto; min-width: 0; }
+.psy-sync__track {
+  margin-top: 0.35rem;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text) 14%, transparent);
+  overflow: hidden;
+}
+.psy-sync__fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 240ms ease-out;
+}
+
+.psy-project-remove__sync {
+  margin: 0 0 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+.psy-project-remove__toggle { display: flex; align-items: flex-start; gap: 0.5rem; }
+.psy-project-remove__toggle input { margin-top: 0.2rem; }
+.psy-project-remove__note { margin: 0.35rem 0 0; font-size: 0.8125rem; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .psy-sync__dot { animation: none; }
+  .psy-sync__fill { transition: none; }
+}
