@@ -6782,4 +6782,12 @@ td.data-table-key-col {
      behaviour here. */
   .psy-vault__body { flex-direction: column; align-items: stretch; }
   .psy-vault__detail { flex: 1 1 auto; width: 100%; position: static; max-height: none; }
+
+  /* Narrow layouts drill down rather than append. Side by side, opening a
+     project puts the panel next to the grid; stacked, it puts it BELOW the
+     whole grid -- off the bottom of the screen, so clicking a card looked like
+     it did nothing and left the user staring at the same list. At this width
+     the correct interaction is master/detail: the grid steps aside, and the
+     stepper and Close are the way back. */
+  .psy-vault__body--detail .psy-vault__grid { display: none; }
 }

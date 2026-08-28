@@ -9,6 +9,7 @@ import {
 import { pathForRoute } from "../app-route-paths.ts";
 import { readPresenceEntries, resolveCurrentSelfUser } from "../app/user-profile.ts";
 import { t } from "../i18n/index.ts";
+import { readSelectedProjectId } from "../lib/psyntient-projects.ts";
 import { pluginTabKey } from "../pages/plugin/route.ts";
 import { renderSidebarPluginTab, shouldHandleNavigationClick } from "./app-sidebar-nav-menus.ts";
 import type { AppSidebarSessionNavigationElement } from "./app-sidebar-session-navigation.ts";
@@ -42,6 +43,24 @@ export function renderAppSidebarBrand(host: AppSidebarRenderHost, authToken: str
            a Project selector offered two competing mental models, and "New agent"
            opened the identity editor this product deliberately avoids. -->
       <div class="sidebar-brand__actions">
+        <!-- Closes the loop between the two halves of a Project. The selector
+             above chooses which Project you talk to Cortex in; this opens that
+             same Project's files in the viewer. Placed here rather than in the
+             topbar because the topbar is narrow-viewport only (layout.css hides
+             it on desktop), and this has to sit next to the selector it acts
+             on. -->
+        <openclaw-tooltip .content=${t("nav.openProjectFiles")}>
+          <button
+            class="sidebar-brand__icon"
+            type="button"
+            aria-label=${t("nav.openProjectFiles")}
+            @click=${() => {
+              window.location.href = `/vault?project=${encodeURIComponent(readSelectedProjectId())}`;
+            }}
+          >
+            ${icons.folder}
+          </button>
+        </openclaw-tooltip>
         <openclaw-tooltip
           .content=${host.connected
             ? t("chat.runControls.newSession")

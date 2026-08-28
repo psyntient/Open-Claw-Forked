@@ -30,6 +30,7 @@
 import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
+import { writeSelectedProjectId } from "../../lib/psyntient-projects.ts";
 import { handOffPrompt } from "../../lib/psyntient-prompt-handoff.ts";
 
 type Sessions = {
@@ -221,11 +222,28 @@ export class PsyntientVaultPage extends LitElement {
         return;
       }
       this.ledger = body;
+      this.openRequestedProject();
     } catch (err) {
       if (current()) this.errorText = err instanceof Error ? err.message : String(err);
     } finally {
       if (current()) this.loading = false;
     }
+  }
+
+  /**
+   * Honour `?project=<id>`, so the sidebar's project-files button lands on the
+   * project you were working in rather than on the full inventory.
+   *
+   * Runs once per load and only when nothing is open yet: a later ledger
+   * refresh must not yank the panel back to the URL's project after the user
+   * has clicked elsewhere.
+   */
+  private openRequestedProject() {
+    if (this.selected) return;
+    const wanted = new URLSearchParams(window.location.search).get("project");
+    if (!wanted) return;
+    const match = (this.ledger?.projects ?? []).find((p) => p.projectId === wanted);
+    if (match) void this.open(match);
   }
 
   /**
@@ -331,6 +349,11 @@ export class PsyntientVaultPage extends LitElement {
 
   private async open(p: Project) {
     this.selected = p;
+    // Stacked layouts swap the grid for the panel, so the page must return to
+    // the top or the reader lands mid-panel with no idea what changed.
+    if (window.matchMedia("(max-width: 60rem)").matches) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     this.detail = null;
     this.detailLoading = true;
     try {
@@ -347,6 +370,21 @@ export class PsyntientVaultPage extends LitElement {
   private close() {
     this.selected = null;
     this.detail = null;
+  }
+
+  /**
+   * Hand off to the chat side of this Project, using the Project selector's own
+   * plumbing so the two cannot drift: write the selection, then land on "/new".
+   *
+   * "/new" rather than "/" or "/sessions" for the reason the selector already
+   * documents -- Home opens the main session, which belongs to the Default
+   * Project, so any other Project would land on a General thread. The new-thread
+   * draft belongs to no Project until sent, which also gives a Project with no
+   * threads yet somewhere to start.
+   */
+  private openInApp(p: Project) {
+    writeSelectedProjectId(p.projectId);
+    window.location.href = "/new";
   }
 
   /** One-click stepping through the visible set, same as the Archive viewer. */
@@ -547,14 +585,19 @@ export class PsyntientVaultPage extends LitElement {
                   `,
                 )}
 
-        <button
-          type="button"
-          class="psy-vault__ask"
-          @click=${() =>
-            handOffPrompt(t("vault.askCortexPrompt", { title: p.title, id: p.projectId }))}
-        >
-          ${t("vault.askCortex")}
-        </button>
+        <div class="psy-vault__actions">
+          <button type="button" class="psy-vault__open" @click=${() => this.openInApp(p)}>
+            ${t("vault.openInApp")}
+          </button>
+          <button
+            type="button"
+            class="psy-vault__ask"
+            @click=${() =>
+              handOffPrompt(t("vault.askCortexPrompt", { title: p.title, id: p.projectId }))}
+          >
+            ${t("vault.askCortex")}
+          </button>
+        </div>
       </aside>
     `;
   }
@@ -636,7 +679,7 @@ export class PsyntientVaultPage extends LitElement {
             </p>`
           : nothing}
 
-        <div class="psy-vault__body">
+        <div class="psy-vault__body ${this.selected ? "psy-vault__body--detail" : ""}">
           <div class="psy-vault__grid">
             ${projects.length === 0 && !this.matchedIds
               ? html`<p class="psy-vault__empty-note">${t("vault.vaultEmpty")}</p>`

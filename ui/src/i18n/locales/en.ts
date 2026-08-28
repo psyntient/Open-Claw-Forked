@@ -1668,6 +1668,7 @@ export const en: TranslationMap = {
     analysisTools: "Analysis Tools",
     archiveViewer: "Archive Viewer",
     vaultViewer: "Vault Viewer",
+    openProjectFiles: "Open this project\u2019s files",
     back: "Back",
     forward: "Forward",
     chat: "Chat",
@@ -2482,6 +2483,9 @@ export const en: TranslationMap = {
     next: "Next project",
     position: "{index} of {total}",
     close: "Close",
+    chats: "chats",
+    noChats: "No chat threads in this project yet.",
+    openInApp: "Open project",
     askCortex: "Ask Cortex about this project",
     askCortexPrompt:
       "Tell me about my Vault project \u201c{title}\u201d (id: {id}) \u2014 what\u2019s in it and what stands out?",
