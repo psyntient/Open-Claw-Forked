@@ -240,7 +240,7 @@ type VisibleSessionRowOptions = {
  * rewrite, and a thread never has to be filed to be visible.
  */
 export const DEFAULT_PROJECT_ID = "default";
-export function resolveRowProjectId(row: GatewaySessionRow): string {
+export function resolveRowProjectId(row: { category?: string | null }): string {
   return row.category?.trim() || DEFAULT_PROJECT_ID;
 }
 

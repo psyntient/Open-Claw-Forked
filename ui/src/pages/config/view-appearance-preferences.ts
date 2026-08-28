@@ -5,13 +5,7 @@ import {
   normalizeChatSendShortcut,
 } from "../../app/settings.ts";
 import { icons } from "../../components/icons.ts";
-import { getLobsterdex, getLobsterdexEntries } from "../../components/lobster-dex.ts";
 import { previewLobsterChirp } from "../../components/lobster-pet-audio.ts";
-import {
-  LOBSTER_PET_PALETTES,
-  canonicalLobsterLook,
-  renderLobsterSvg,
-} from "../../components/lobster-pet.ts";
 import { renderSettingsRow, renderSettingsToggleRow } from "../../components/settings-ui.ts";
 import { t } from "../../i18n/index.ts";
 import { renderSessionObserverSettings } from "./session-observer-settings.ts";

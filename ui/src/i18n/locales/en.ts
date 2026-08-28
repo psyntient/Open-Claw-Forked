@@ -3855,7 +3855,7 @@ export const en: TranslationMap = {
     startupStatus: {
       preparingWorkspace: "Getting ready…",
       provisioningEnvironment: "Getting ready…",
-      preparingContext: "Gathering your context…",
+      preparingContext: "Catching up…",
       startingModel: "Thinking…",
     },
     outputTokens: "{count} output tokens",

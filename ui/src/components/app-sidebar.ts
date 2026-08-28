@@ -1,4 +1,4 @@
-import { html, nothing, type PropertyValues, type TemplateResult } from "lit";
+import { html, type PropertyValues, type TemplateResult } from "lit";
 import "./psyntient-vault-badge.ts";
 import { state } from "lit/decorators.js";
 import type { SessionObserverDigest } from "../../../packages/gateway-protocol/src/schema/sessions.js";
@@ -42,7 +42,6 @@ import {
   storeSidebarCatalogGrouping,
   type SidebarRecentSession,
 } from "./app-sidebar-session-types.ts";
-import { icons } from "./icons.ts";
 import {
   lobsterPetSeed,
   resolveLobsterPetMode,
@@ -347,7 +346,7 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
     return html`
       <aside class="sidebar">
         <div class="sidebar-shell" @mousedown=${beginNativeWindowDragFromTopInset}>
-          ${renderAppSidebarBrand(this)}
+          ${renderAppSidebarBrand(this, this.context?.gateway.connection?.token ?? null)}
           <div
             class="sidebar-shell__body sidebar-shell__body--scroll-${this.sessionData
               .sessionsScrollState}"

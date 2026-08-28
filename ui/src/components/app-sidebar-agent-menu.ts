@@ -7,31 +7,16 @@ import type { ApplicationNavigationOptions } from "../app/context.ts";
 import type { ThemeMode } from "../app/theme.ts";
 import { t } from "../i18n/index.ts";
 import { normalizeAgentLabel } from "../lib/agents/display.ts";
-import { buildExternalLinkRel, EXTERNAL_LINK_TARGET } from "../lib/external-link.ts";
 import { openExternalUrlSafe } from "../lib/open-external-url.ts";
 import { normalizeAgentId } from "../lib/sessions/session-key.ts";
 import { renderAgentSelectAvatar, renderAgentSelectCopy } from "./agent-select.ts";
-import { icons, type IconName } from "./icons.ts";
+import { icons } from "./icons.ts";
 import "./sidebar-build-chip.ts";
 import {
   consumeDropdownKeyboardDismissal,
   syncDropdownItemRadio,
   trackDropdownKeyboardDismissal,
 } from "./web-awesome.ts";
-
-// External rows of the footer identity menu. Docs-first: public docs pages over
-// raw GitHub, matching the ClawSweeper docs-link policy for user-facing copy.
-const IDENTITY_MENU_LINKS: ReadonlyArray<{
-  href: string;
-  icon: IconName;
-  label: () => string;
-}> = [
-  // Empty on purpose. Upstream pointed at docs.openclaw.ai, the OpenClaw
-  // Discord and its changelog -- sending Psyntient users to another product's
-  // community. Psyntient equivalents are not published yet, and inventing URLs
-  // that 404 is worse than showing nothing, so the submenu renders empty until
-  // there are real destinations to link.
-];
 
 /** Above this roster size the chip menu switches to pinned agents + filter. */
 const QUICK_SWITCH_AGENT_LIMIT = 10;
@@ -183,35 +168,6 @@ function renderAgentRow(agent: AgentMenuAgent, params: SidebarAgentMenuParams) {
           ></span>`
         : nothing}
     </wa-dropdown-item>
-  `;
-}
-
-function renderIdentityMenuHelpSubmenu() {
-  return html`
-    ${IDENTITY_MENU_LINKS.map(
-      (link) => html`
-        <wa-dropdown-item
-          slot="submenu"
-          class="sidebar-customize-menu__item"
-          value=${`${LINK_VALUE_PREFIX}${encodeURIComponent(link.href)}`}
-          @click=${(event: MouseEvent) => {
-            if (event.target instanceof Element && event.target.closest("a")) {
-              (event.currentTarget as HTMLElement).dataset.nativeNavigation = "true";
-            }
-          }}
-        >
-          <a
-            href=${link.href}
-            target=${EXTERNAL_LINK_TARGET}
-            rel=${buildExternalLinkRel()}
-            tabindex="-1"
-          >
-            <span slot="icon" class="nav-item__icon" aria-hidden="true">${icons[link.icon]}</span>
-            <span class="sidebar-customize-menu__text">${link.label()}</span>
-          </a>
-        </wa-dropdown-item>
-      `,
-    )}
   `;
 }
 

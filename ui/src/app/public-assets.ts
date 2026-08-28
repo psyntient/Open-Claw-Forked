@@ -3,6 +3,11 @@ import { inferBasePathFromPathname, normalizeBasePath } from "../app-route-paths
 import { resolveControlUiBasePath } from "./browser.ts";
 
 type ControlUiPublicAsset =
+  // Psyntient brand assets. The union is the allowlist for
+  // controlUiPublicAssetPath, so a new public file must be declared here or
+  // it fails typecheck (and, under a base path, would resolve wrongly).
+  | "psyntient-mark.png"
+  | "brand/elf/elf-chat-idle-128.png"
   | "apple-touch-icon.png"
   | "favicon-32.png"
   | "favicon.ico"

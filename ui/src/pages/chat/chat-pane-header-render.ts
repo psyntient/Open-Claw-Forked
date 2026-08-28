@@ -10,14 +10,10 @@ import {
   isGatewayMethodAdvertised,
   listSessionCreators,
   nothing,
-  renderBackgroundTasksToggle,
   renderBoardDockMenu,
   renderBoardFaceToggle,
-  renderCatalogTerminalButton,
   renderChatPaneHeader,
   renderChatSessionSharing,
-  renderSessionDiffToggle,
-  renderSessionWorkspaceToggle,
   resolveChatPaneWorkspace,
   t,
   type BackgroundTasksProps,
@@ -28,8 +24,8 @@ import { ChatPaneHeader } from "./chat-pane-header.ts";
 
 export abstract class ChatPaneHeaderRender extends ChatPaneHeader {
   protected renderPaneHeader(
-    sessionWorkspace: SessionWorkspaceProps,
-    backgroundTasks: BackgroundTasksProps,
+    _sessionWorkspace: SessionWorkspaceProps,
+    _backgroundTasks: BackgroundTasksProps,
     row: GatewaySessionRow | undefined,
     catalog: boolean,
     agentWorkspace: string | undefined,

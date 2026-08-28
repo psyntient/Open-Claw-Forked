@@ -1,6 +1,5 @@
 import { html, nothing, type TemplateResult } from "lit";
 import "../../../components/elapsed-time.ts";
-import { icons } from "../../../components/icons.ts";
 import "../../../components/tooltip.ts";
 import { t } from "../../../i18n/index.ts";
 import { formatRelativeTimestamp } from "../../../lib/format.ts";

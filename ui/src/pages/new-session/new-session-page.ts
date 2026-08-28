@@ -884,7 +884,7 @@ class NewSessionPage extends OpenClawLightDomElement {
         const projectId = readSelectedProjectId();
         if (projectId && projectId !== DEFAULT_PROJECT_ID) {
           void context.sessions
-            .patch(result.key, { category: projectId }, { agentId: draft.agentId })
+            .patch(result.key, { category: projectId }, { agentId: submissionAgentId })
             .catch(() => {
               // The thread exists; it just lands in the Default Project.
             });

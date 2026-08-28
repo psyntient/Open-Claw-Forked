@@ -10,11 +10,9 @@ import { pathForRoute } from "../app-route-paths.ts";
 import { sessionHasPendingApproval } from "../app/approval-presentation.ts";
 import { readPresenceEntries, resolveCurrentSelfUser } from "../app/user-profile.ts";
 import { t } from "../i18n/index.ts";
-import { normalizeAgentLabel, resolveAgentTextAvatar } from "../lib/agents/display.ts";
-import { resolveAgentAvatarUrl } from "../lib/avatar.ts";
 import { sessionHasBoard } from "../lib/board/provider.ts";
 import { searchForSession } from "../lib/sessions/index.ts";
-import { areUiSessionKeysEquivalent, normalizeAgentId } from "../lib/sessions/session-key.ts";
+import { areUiSessionKeysEquivalent } from "../lib/sessions/session-key.ts";
 import { pluginTabKey } from "../pages/plugin/route.ts";
 import { renderSidebarPluginTab, shouldHandleNavigationClick } from "./app-sidebar-nav-menus.ts";
 import type { AppSidebarSessionNavigationElement } from "./app-sidebar-session-navigation.ts";
@@ -33,24 +31,15 @@ type AppSidebarRenderHost = AppSidebarSessionNavigationElement & {
   renderPinnedSidebarSession(session: SidebarRecentSession): unknown;
 };
 
-export function renderAppSidebarBrand(host: AppSidebarRenderHost) {
-  const { activeId: cardAgentId, agent: cardAgent, agents: cardAgents } = host.activeChipAgent();
-  const menuUnread = cardAgents.some((entry) => {
-    const agentId = normalizeAgentId(entry.id);
-    return agentId !== cardAgentId && host.agentUnreadCount(agentId) > 0;
-  });
-  const cardName = cardAgent ? normalizeAgentLabel(cardAgent) : cardAgentId;
-  const approvalCount = host.sessionData.approvalBadgeSnapshot().agentCounts.get(cardAgentId) ?? 0;
-  const cardAvatarText =
-    (cardAgent ? resolveAgentTextAvatar(cardAgent) : null) ??
-    (cardName || cardAgentId).slice(0, 1).toUpperCase();
+// `authToken` is passed in rather than read off the host: the sidebar's
+// `context` is protected, and the Project selector needs a bearer token for the
+// gateway plugin route (cookies alone get a 401 there).
+export function renderAppSidebarBrand(host: AppSidebarRenderHost, authToken: string | null) {
   // The sidebar action follows gateway availability; collapsed native chrome
   // keeps its separate offline-tolerant ⌘N mirror.
   return html`
     <div class="sidebar-brand">
-      <psyntient-project-select
-        .authToken=${host.context?.gateway.connection?.token ?? null}
-      ></psyntient-project-select>
+      <psyntient-project-select .authToken=${authToken}></psyntient-project-select>
       <!-- The agent card and its menu (New agent / What can main do? / Agent
            settings) are removed: Psyntient Node runs exactly one Cortex, and
            Projects are the organising concept. Exposing an agent switcher beside
