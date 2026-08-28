@@ -30,6 +30,21 @@ export type PsyntientProject = {
   title: string;
   createdAt?: string | null;
   lastSyncedAt?: string | null;
+  dataTypes?: string[];
+  archiveEligible?: boolean;
+};
+
+/**
+ * One entry of the closed data-type vocabulary, served by the projects route.
+ *
+ * Fetched rather than hardcoded: `daemon/working-memory.mjs`'s DATA_TYPES is
+ * the single definition, and it also decides eligibility. A copy here would be
+ * a second source of truth for what the Archive accepts.
+ */
+export type PsyntientDataType = {
+  id: string;
+  label: string;
+  archiveEligible: boolean;
 };
 
 const ROUTE = "/__openclaw__/psyntient/projects";
@@ -44,38 +59,63 @@ function headers(token: string | null): Record<string, string> {
 
 /** Never throws: a Node without the plugin routes still shows its threads. */
 export async function loadProjects(token: string | null): Promise<PsyntientProject[]> {
+  return (await loadProjectsAndTypes(token)).projects;
+}
+
+/** Projects plus the data-type vocabulary, in one round trip. */
+export async function loadProjectsAndTypes(
+  token: string | null,
+): Promise<{ projects: PsyntientProject[]; dataTypes: PsyntientDataType[] }> {
   try {
     const res = await fetch(ROUTE, { headers: headers(token) });
     if (!res.ok) {
-      return [];
+      return { projects: [], dataTypes: [] };
     }
-    const body = (await res.json()) as { projects?: PsyntientProject[] };
+    const body = (await res.json()) as {
+      projects?: PsyntientProject[];
+      dataTypes?: PsyntientDataType[];
+    };
     const projects = body.projects ?? [];
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(projects.map((p) => p.projectId)));
     } catch {
       // Cache is an optimisation for the synchronous menu; never block on it.
     }
-    return projects;
+    return { projects, dataTypes: body.dataTypes ?? [] };
   } catch {
-    return [];
+    return { projects: [], dataTypes: [] };
   }
 }
 
+/**
+ * Create a Project. `dataTypes` is required by the route, not optional here.
+ *
+ * Declaring them at creation IS the Archive-eligibility decision, so there is
+ * deliberately no path that creates a Project without it -- an unset project
+ * would be silently uncontributable forever, which is what every Project made
+ * before this change actually was.
+ */
 export async function createProject(
   token: string | null,
   title: string,
-): Promise<PsyntientProject | null> {
+  dataTypes: string[],
+): Promise<{ project: PsyntientProject | null; error?: string }> {
   try {
     const res = await fetch(ROUTE, {
       method: "POST",
       headers: headers(token),
-      body: JSON.stringify({ title }),
+      body: JSON.stringify({ title, dataTypes }),
     });
-    const body = (await res.json()) as { ok?: boolean; project?: PsyntientProject };
-    return body.ok && body.project ? body.project : null;
-  } catch {
-    return null;
+    const body = (await res.json()) as {
+      ok?: boolean;
+      project?: PsyntientProject;
+      error?: string;
+    };
+    return body.ok && body.project
+      ? { project: body.project }
+      : { project: null, error: body.error };
+  } catch (err) {
+    return { project: null, error: err instanceof Error ? err.message : String(err) };
   }
 }
 

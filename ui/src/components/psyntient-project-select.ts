@@ -13,12 +13,13 @@ import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
 import {
   DEFAULT_PROJECT_ID,
-  createProject,
-  loadProjects,
+  loadProjectsAndTypes,
   readSelectedProjectId,
   writeSelectedProjectId,
+  type PsyntientDataType,
   type PsyntientProject,
 } from "../lib/psyntient-projects.ts";
+import "./psyntient-project-create.ts";
 import "./psyntient-project-remove.ts";
 
 @customElement("psyntient-project-select")
@@ -34,6 +35,10 @@ export class PsyntientProjectSelect extends LitElement {
   @state() private open = false;
   /** The Project whose removal dialog is open, if any. */
   @state() private removing: PsyntientProject | null = null;
+  @state() private creating = false;
+  @state() private dataTypes: PsyntientDataType[] = [];
+  @state() private creating = false;
+  @state() private dataTypes: PsyntientDataType[] = [];
 
   override connectedCallback() {
     super.connectedCallback();
@@ -48,7 +53,9 @@ export class PsyntientProjectSelect extends LitElement {
   }
 
   private async refresh() {
-    this.projects = await loadProjects(this.authToken);
+    const { projects, dataTypes } = await loadProjectsAndTypes(this.authToken);
+    this.projects = projects;
+    this.dataTypes = dataTypes;
   }
 
   /**
@@ -84,15 +91,11 @@ export class PsyntientProjectSelect extends LitElement {
     location.href = "/new";
   }
 
-  private async promptNewProject() {
-    const title = globalThis.prompt(t("projects.newPrompt"))?.trim();
-    if (!title) {
-      return;
-    }
-    const created = await createProject(this.authToken, title);
-    if (created) {
-      this.select(created.projectId);
-    }
+  // Was a globalThis.prompt() asking only for a name. A name is no longer
+  // enough: data types are required, and they are a multi-select.
+  private openCreate() {
+    this.open = false;
+    this.creating = true;
   }
 
   private activeTitle(): string {
@@ -159,12 +162,40 @@ export class PsyntientProjectSelect extends LitElement {
                   <button
                     type="button"
                     class="psy-project-select__option psy-project-select__option--new"
-                    @click=${() => this.promptNewProject()}
+                    @click=${() => this.openCreate()}
                   >
                     ${t("projects.new")}
                   </button>
                 </li>
               </ul>
+            `
+          : nothing}
+        ${this.creating
+          ? html`
+              <psyntient-project-create
+                .authToken=${this.authToken}
+                .dataTypes=${this.dataTypes}
+                .onCreated=${(projectId: string) => {
+                  this.creating = false;
+                  void this.refresh();
+                  this.select(projectId);
+                }}
+                .onCancel=${() => (this.creating = false)}
+              ></psyntient-project-create>
+            `
+          : nothing}
+        ${this.creating
+          ? html`
+              <psyntient-project-create
+                .authToken=${this.authToken}
+                .dataTypes=${this.dataTypes}
+                .onCreated=${(projectId: string) => {
+                  this.creating = false;
+                  void this.refresh();
+                  this.select(projectId);
+                }}
+                .onCancel=${() => (this.creating = false)}
+              ></psyntient-project-create>
             `
           : nothing}
         ${this.removing

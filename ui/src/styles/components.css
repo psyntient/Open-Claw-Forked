@@ -6020,25 +6020,12 @@ td.data-table-key-col {
 .psy-project-select__manage:hover { background: var(--bg-hover); color: var(--text); }
 
 /* --- Project removal dialog ------------------------------------------- */
-.psy-project-remove {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
-  backdrop-filter: blur(2px);
-}
-.psy-project-remove__panel {
-  width: min(30rem, 100%);
-  max-height: 100%;
-  overflow-y: auto;
+/* openclaw-modal-dialog owns the backdrop, centring, sizing, focus return and
+   escape handling. These rules style only what goes inside its slot -- an
+   overlay here would be a second one stacked on the component's own. */
+.psy-project-remove,
+.psy-project-create {
   padding: 1.25rem;
-  background: var(--popover);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow-lg);
 }
 .psy-project-remove__title { margin: 0 0 0.35rem; font-size: 1.0625rem; font-weight: 600; }
 .psy-project-remove__intro { margin: 0 0 1rem; font-size: 0.875rem; color: var(--muted); }

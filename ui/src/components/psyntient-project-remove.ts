@@ -23,6 +23,7 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
 import { removeProject, type ProjectRemoval } from "../lib/psyntient-projects.ts";
+import "./modal-dialog.ts";
 
 @customElement("psyntient-project-remove")
 export class PsyntientProjectRemove extends LitElement {
@@ -88,8 +89,12 @@ export class PsyntientProjectRemove extends LitElement {
     // other choice here is recoverable from the Vault.
     const deleteArmed = this.confirmText.trim() === this.projectTitle.trim();
     return html`
-      <div class="psy-project-remove" role="dialog" aria-modal="true">
-        <div class="psy-project-remove__panel">
+      <openclaw-modal-dialog
+        label=${t("projects.removeTitle", { project: this.projectTitle })}
+        description=${t("projects.removeIntro")}
+        @wa-hide=${() => this.onCancel?.()}
+      >
+        <div class="psy-project-remove">
           <h2 class="psy-project-remove__title">
             ${t("projects.removeTitle", { project: this.projectTitle })}
           </h2>
@@ -157,7 +162,7 @@ export class PsyntientProjectRemove extends LitElement {
             ${this.busy ? t("projects.working") : t("projects.cancel")}
           </button>
         </div>
-      </div>
+      </openclaw-modal-dialog>
     `;
   }
 }
