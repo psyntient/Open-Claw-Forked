@@ -51,9 +51,19 @@ export class PsyntientProjectSelect extends LitElement {
     this.selectedId = projectId;
     writeSelectedProjectId(projectId);
     this.open = false;
-    // The sidebar reads the selection synchronously while filtering rows, so a
-    // reload is the honest way to re-scope every dependent view at once.
-    location.reload();
+    // Leave the current thread behind.
+    //
+    // Reloading in place kept the open conversation on screen while the
+    // sidebar switched Projects, so the user was looking at (and sending
+    // into) a thread that does not belong to the selected Project -- it then
+    // vanished from the list, which reads as "I cannot submit anything".
+    //
+    // "/" is not neutral: Home opens the main session, which belongs to the
+    // Default Project, so switching to any other Project still landed on a
+    // General thread. The new-thread draft belongs to no Project until it is
+    // sent, and it gives the user somewhere to type immediately -- which
+    // matters most for a Project that has no threads yet.
+    location.href = "/new";
   }
 
   private async promptNewProject() {
