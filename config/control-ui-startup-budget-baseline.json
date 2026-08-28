@@ -1,5 +1,5 @@
 {
-  "startupJsGzipBytes": 318587,
-  "reason": "move presentation preferences to browser-local state",
-  "updatedAt": "2026-07-23"
+  "startupJsGzipBytes": 327781,
+  "reason": "Psyntient v2 surfaces: Archive viewer (page, route, detail panel), Archive sync badge and per-project auto-send controls, project create/manage modals, and the Projects selector. +9.2 KiB gzip startup JS for features that ship in the default bundle.",
+  "updatedAt": "2026-08-28"
 }

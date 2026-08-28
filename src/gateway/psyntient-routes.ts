@@ -32,8 +32,18 @@ type MinimalRouteInput = {
   handler: unknown;
 };
 
-/** Only what the shim needs to file a tool; the registry holds the rest. */
-type MinimalToolInput = { name: string };
+/**
+ * The shape the plugin hands us. Structural rather than imported: this file is
+ * the only Psyntient code inside the OpenClaw tree and stays deliberately thin,
+ * and the registry validates the real contract when the tool is used.
+ */
+type MinimalToolInput = {
+  name: string;
+  label?: string;
+  description: string;
+  parameters: unknown;
+  execute: (...args: never[]) => unknown;
+};
 
 // Mounted per REGISTRY, not once per process. `resolvePluginRouteRegistry()`
 // can be re-pinned after bootstrap (see server-runtime-state.ts), and a single

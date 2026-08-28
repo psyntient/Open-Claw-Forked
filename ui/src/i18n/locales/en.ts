@@ -2433,6 +2433,17 @@ export const en: TranslationMap = {
     working: "Working…",
   },
   archive: {
+    searchPlaceholderSemantic: "Describe an experience in your own words…",
+    stageStarting: "Waking the Archive…",
+    // Nested, not dotted keys: t() resolves "archive.stage.matching" by walking
+    // the object, so a flat "stage.matching" key never matches and the raw key
+    // renders instead.
+    stage: {
+      "reading-index": "Reading the archetype index…",
+      matching: "Matching against {detail}…",
+      fetching: "Pulling {detail}…",
+    },
+    searchFailed: "The search could not complete.",
     noResults: "Nothing in this Edition matches \u201c{query}\u201d.",
     showAll: "Show all archetypes",
     resultCount: "{count} matching",
@@ -2451,6 +2462,9 @@ export const en: TranslationMap = {
     exemplarMany: "{count} exemplars",
     askCortex: "Ask Cortex about this",
     close: "Close",
+    previous: "Previous archetype",
+    next: "Next archetype",
+    position: "{index} of {total}",
     requestFailed: "The Archive request failed ({status}).",
     invariants: "Always present",
     variants: "Common variations",

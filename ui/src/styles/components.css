@@ -6432,3 +6432,85 @@ td.data-table-key-col {
   cursor: pointer;
   padding: 0;
 }
+
+/* --- Search progress ---------------------------------------------------
+   The match step is one opaque model call of ~35s that cannot report from
+   inside itself, so the fill eases toward a ceiling on elapsed time and only
+   reaches 100% when the result lands. To stop that reading as a stall, the
+   fill also carries a continuous shimmer: motion is always present even when
+   the width barely moves, so "slow" never looks like "frozen". */
+/* Sits below the search field with breathing room, and thick enough to read as
+   a deliberate element rather than a hairline. */
+.psy-arch__progress { margin: 1.1rem 0 1.75rem; }
+.psy-arch__progress-track {
+  height: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  overflow: hidden;
+}
+.psy-arch__progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  /* Wide gradient so the shimmer has somewhere to travel. */
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 55%, transparent),
+    var(--accent),
+    color-mix(in srgb, var(--accent) 40%, #b98cff),
+    var(--accent),
+    color-mix(in srgb, var(--accent) 55%, transparent)
+  );
+  background-size: 300% 100%;
+  animation: psy-arch-shimmer 2.4s linear infinite;
+  transition: width 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+@keyframes psy-arch-shimmer {
+  from { background-position: 0% 50%; }
+  to { background-position: 300% 50%; }
+}
+.psy-arch__progress-label {
+  margin: 0.6rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  animation: psy-arch-breathe 2.8s ease-in-out infinite;
+}
+@keyframes psy-arch-breathe {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psy-arch__progress-fill { animation: none; transition: none; }
+  .psy-arch__progress-label { animation: none; opacity: 1; }
+}
+
+/* Detail-panel navigation: flip between archetypes without closing. Sits with
+   the close button so the whole panel-chrome cluster reads as one control. */
+.psy-arch__detail-nav {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+.psy-arch__step {
+  min-width: 1.75rem;
+  padding: 0.1rem 0.35rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.psy-arch__step:hover { background: var(--bg-hover); color: var(--accent); }
+.psy-arch__step-count {
+  min-width: 3.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
