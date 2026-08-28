@@ -1782,6 +1782,7 @@ export const en: TranslationMap = {
     advanced: "Advanced",
   },
   tabs: {
+    archive: "Archive",
     agents: "Agents",
     activity: "Activity",
     apps: "Apps",
@@ -1818,6 +1819,7 @@ export const en: TranslationMap = {
     plugin: "Plugin",
   },
   subtitles: {
+    archive: "What the Noetic Archive knows so far",
     agents: "Workspaces, tools, identities.",
     activity: "Browser-local tool activity summaries.",
     apps: "Companion apps for phone, watch, desktop, and browser.",
@@ -2444,6 +2446,14 @@ export const en: TranslationMap = {
     exemplarMany: "{count} exemplars",
     askCortex: "Ask Cortex about this",
     close: "Close",
+    requestFailed: "The Archive request failed ({status}).",
+    invariants: "Always present",
+    variants: "Common variations",
+    neural: "What the recordings suggest",
+    notThis: "What this is not",
+    nearNeighbours: "Easily confused with",
+    related: "Related shapes",
+    openQuestions: "Still unresolved",
   },
   sync: {
     inProgress: "Sending to the Archive… {done} of {total}",

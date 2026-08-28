@@ -25,7 +25,7 @@ export class PsyntientProjectCreate extends LitElement {
   @property({ attribute: false }) onCreated: ((projectId: string) => void) | null = null;
   @property({ attribute: false }) onCancel: (() => void) | null = null;
 
-  @state() private title = "";
+  @state() private projectTitle = "";
   @state() private selected = new Set<string>();
   @state() private busy = false;
   @state() private errorText: string | null = null;
@@ -46,10 +46,10 @@ export class PsyntientProjectCreate extends LitElement {
   }
 
   private async submit() {
-    if (!this.title.trim() || this.selected.size === 0 || this.busy) return;
+    if (!this.projectTitle.trim() || this.selected.size === 0 || this.busy) return;
     this.busy = true;
     this.errorText = null;
-    const { project, error } = await createProject(this.authToken, this.title.trim(), [
+    const { project, error } = await createProject(this.authToken, this.projectTitle.trim(), [
       ...this.selected,
     ]);
     this.busy = false;
@@ -62,7 +62,7 @@ export class PsyntientProjectCreate extends LitElement {
 
   override render() {
     const eligible = this.dataTypes.some((t) => t.archiveEligible && this.selected.has(t.id));
-    const ready = Boolean(this.title.trim()) && this.selected.size > 0 && !this.busy;
+    const ready = Boolean(this.projectTitle.trim()) && this.selected.size > 0 && !this.busy;
     return html`
       <openclaw-modal-dialog
         label=${t("projects.createTitle")}
@@ -77,8 +77,8 @@ export class PsyntientProjectCreate extends LitElement {
             <input
               type="text"
               autocomplete="off"
-              .value=${this.title}
-              @input=${(e: Event) => (this.title = (e.target as HTMLInputElement).value)}
+              .value=${this.projectTitle}
+              @input=${(e: Event) => (this.projectTitle = (e.target as HTMLInputElement).value)}
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key === "Enter") void this.submit();
               }}

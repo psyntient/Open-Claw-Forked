@@ -6314,3 +6314,64 @@ td.data-table-key-col {
   .psy-arch__card { transition: none; }
   .psy-arch__card:hover { transform: none; }
 }
+
+/* Archive detail: structured record, not a JSON dump. The Architect authors
+   invariants, boundaries and related edges as prose for humans -- rendering it
+   as raw JSON hid the most useful part of the Archive behind a scroll box. */
+.psy-arch__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.psy-arch__chip {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text);
+  font-size: 0.75rem;
+}
+.psy-arch__section { margin-bottom: 1.15rem; }
+.psy-arch__section-title {
+  margin: 0 0 0.4rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.psy-arch__list { margin: 0; padding-left: 1.1rem; font-size: 0.875rem; line-height: 1.55; }
+.psy-arch__list li { margin-bottom: 0.2rem; }
+.psy-arch__prose { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--text); }
+.psy-arch__related { list-style: none; margin: 0; padding: 0; }
+.psy-arch__related li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.6rem;
+}
+.psy-arch__related-link {
+  align-self: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.psy-arch__related-why { font-size: 0.8125rem; color: var(--muted); }
+.psy-arch__detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.psy-arch__detail-actions .psy-arch__detail-id { margin: 0; }

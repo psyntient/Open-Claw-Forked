@@ -9,18 +9,20 @@
 // "which of these are actually well-supported" is a scanning question that a
 // laid-out field answers instantly and a chat reply answers badly.
 //
-// WHAT IT DOES NOT DRAW
-// No relationship graph, no clustering, no similarity layout. The Archive
-// currently exposes 25 archetypes and zero packets or mappings, so any edge
-// drawn between two archetypes would be invented. The visual encodes only what
-// the data actually says: how established an archetype is (tier) and how much
-// evidence stands behind it (exemplars). When mappings exist, this is where
-// they would go.
+// WHAT IT DRAWS, AND WHAT IT DOES NOT
+// The grid encodes only what the data says: how established an archetype is
+// (tier) and how much evidence stands behind it (exemplars).
+//
+// Archetype-to-archetype edges ARE real -- each record carries a `related` map
+// of {id: why}, authored by the Architect. Those are shown as links in the
+// detail panel. What is still missing is packet<->archetype `mappings` (0 in
+// this Edition), which is what a similarity or clustering layout would need,
+// so no such layout is drawn: it would be inventing structure.
 //
 // It is a reading surface. Questions hand off to Cortex rather than growing an
 // analysis tool here.
 import { LitElement, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
 
 type Archetype = {
@@ -60,6 +62,9 @@ export class PsyntientArchivePage extends LitElement {
     return this;
   }
 
+  /** Supplied by the route loader from the live gateway connection. */
+  @property({ attribute: false }) authToken: string | null = null;
+
   @state() private edition: Edition | null = null;
   @state() private archetypes: Archetype[] = [];
   @state() private selected: Archetype | null = null;
@@ -68,16 +73,18 @@ export class PsyntientArchivePage extends LitElement {
   @state() private loading = true;
   @state() private errorText: string | null = null;
 
-  private authToken(): string | null {
-    return new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
-  }
-
   private async get(params = ""): Promise<Record<string, unknown> | null> {
-    const token = this.authToken();
     try {
       const res = await fetch(`${ROUTE}${params}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {},
       });
+      if (!res.ok) {
+        // Surfaced rather than swallowed: a 401 here used to fall through and
+        // render an empty page with no explanation, which reads as "the
+        // Archive is empty" instead of "this request was not authorised".
+        this.errorText = t("archive.requestFailed", { status: String(res.status) });
+        return null;
+      }
       return (await res.json()) as Record<string, unknown>;
     } catch (err) {
       this.errorText = err instanceof Error ? err.message : String(err);
@@ -88,6 +95,13 @@ export class PsyntientArchivePage extends LitElement {
   override connectedCallback() {
     super.connectedCallback();
     void this.load();
+  }
+
+  override updated(changed: Map<string, unknown>) {
+    // The loader resolves after first paint, so the token can arrive late.
+    if (changed.has("authToken") && this.authToken && !this.edition) {
+      void this.load();
+    }
   }
 
   private async load() {
@@ -231,7 +245,36 @@ export class PsyntientArchivePage extends LitElement {
     `;
   }
 
+  /** A titled block, rendered only when the Archive actually has that field. */
+  private renderSection(title: string, body: unknown) {
+    if (body === null || body === undefined) return nothing;
+    if (Array.isArray(body) && body.length === 0) return nothing;
+    return html`
+      <section class="psy-arch__section">
+        <h3 class="psy-arch__section-title">${title}</h3>
+        ${body}
+      </section>
+    `;
+  }
+
+  private renderList(items: unknown): unknown {
+    const list = Array.isArray(items) ? items.filter((v) => typeof v === "string") : [];
+    if (list.length === 0) return null;
+    return html`<ul class="psy-arch__list">
+      ${list.map((v) => html`<li>${v}</li>`)}
+    </ul>`;
+  }
+
   private renderDetail(a: Archetype) {
+    const raw = (this.detail?.archetype_json ?? {}) as Record<string, unknown>;
+    const phenom = (raw.phenomenological_signature ?? {}) as Record<string, unknown>;
+    const neural = (raw.neural_signature ?? {}) as Record<string, unknown>;
+    const bounds = (raw.boundary_conditions ?? {}) as Record<string, unknown>;
+    const related = (raw.related ?? {}) as Record<string, string>;
+    const modality = (raw.modality_coverage ?? {}) as Record<string, number>;
+    const relatedIds = Object.keys(related);
+    const modalityKeys = Object.keys(modality);
+
     return html`
       <div class="psy-arch__detail" role="dialog" aria-modal="true">
         <div class="psy-arch__detail-panel">
@@ -249,15 +292,93 @@ export class PsyntientArchivePage extends LitElement {
           <span class="psy-arch__tier psy-arch__tier--${tierOf(a)}">${tierOf(a)}</span>
           <h2 class="psy-arch__detail-name">${a.name}</h2>
           <p class="psy-arch__detail-desc">${a.description}</p>
-          <p class="psy-arch__detail-id"><code>${a.id}</code></p>
-          <button class="psy-arch__ask" type="button" @click=${() => this.askCortex(a)}>
-            ${t("archive.askCortex")}
-          </button>
+
+          <div class="psy-arch__facts">
+            <span>${t("archive.exemplarMany", { count: String(exemplarsOf(a)) })}</span>
+            ${modalityKeys.map(
+              (m) => html`<span class="psy-arch__chip">${m} · ${modality[m]}</span>`,
+            )}
+          </div>
+
           ${this.detail
-            ? html`<pre class="psy-arch__raw">${JSON.stringify(this.detail, null, 2)}</pre>`
+            ? html`
+                ${this.renderSection(t("archive.invariants"), this.renderList(phenom.invariants))}
+                ${this.renderSection(
+                  t("archive.variants"),
+                  this.renderList(phenom.common_variants),
+                )}
+                ${this.renderSection(
+                  t("archive.neural"),
+                  typeof neural.hypothesized === "string"
+                    ? html`<p class="psy-arch__prose">${neural.hypothesized}</p>`
+                    : null,
+                )}
+                <!-- "What this is not" is as useful as what it is: these
+                     archetypes are deliberately close to one another, and
+                     boundary_conditions is how the Architect keeps them
+                     distinguishable. -->
+                ${this.renderSection(t("archive.notThis"), this.renderList(bounds.not))}
+                ${this.renderSection(
+                  t("archive.nearNeighbours"),
+                  this.renderList(bounds.near_neighbors),
+                )}
+                ${this.renderSection(
+                  t("archive.related"),
+                  relatedIds.length
+                    ? html`<ul class="psy-arch__related">
+                        ${relatedIds.map(
+                          (id) => html`
+                            <li>
+                              <button
+                                type="button"
+                                class="psy-arch__related-link"
+                                @click=${() => this.openById(id)}
+                              >
+                                ${id.replace(/^NA-\d+-/, "").replace(/-/g, " ")}
+                              </button>
+                              <span class="psy-arch__related-why">${related[id]}</span>
+                            </li>
+                          `,
+                        )}
+                      </ul>`
+                    : null,
+                )}
+                ${this.renderSection(
+                  t("archive.openQuestions"),
+                  this.renderList(raw.open_questions),
+                )}
+              `
             : html`<p class="psy-arch__loading">${t("archive.loading")}</p>`}
+
+          <div class="psy-arch__detail-actions">
+            <button class="psy-arch__ask" type="button" @click=${() => this.askCortex(a)}>
+              ${t("archive.askCortex")}
+            </button>
+            <code class="psy-arch__detail-id">${a.id}</code>
+          </div>
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Follow a `related` edge. The target may not be in the current grid (a
+   * search can be filtered), so this fetches by id and synthesises the card
+   * fields from the record rather than assuming a local lookup succeeds.
+   */
+  private async openById(id: string) {
+    this.detail = null;
+    const body = await this.get(`?id=${encodeURIComponent(id)}`);
+    const record = body?.record as Record<string, unknown> | undefined;
+    if (!record) return;
+    this.selected = {
+      id: String(record.id ?? id),
+      slug: String(record.slug ?? ""),
+      name: String(record.name ?? id),
+      description: String(record.description ?? ""),
+      confidence_tier: record.confidence_tier as string | undefined,
+      n_exemplars: record.n_exemplars as number | undefined,
+    };
+    this.detail = record;
   }
 }
