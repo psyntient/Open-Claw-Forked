@@ -2433,6 +2433,9 @@ export const en: TranslationMap = {
     working: "Working…",
   },
   archive: {
+    noResults: "Nothing in this Edition matches \u201c{query}\u201d.",
+    showAll: "Show all archetypes",
+    resultCount: "{count} matching",
     title: "The Noetic Archive",
     subtitle: "The shapes of experience this Archive has found so far.",
     archetypes: "archetypes",

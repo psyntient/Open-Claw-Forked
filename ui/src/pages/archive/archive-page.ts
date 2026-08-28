@@ -71,6 +71,8 @@ export class PsyntientArchivePage extends LitElement {
   @state() private selected: Archetype | null = null;
   @state() private detail: Record<string, unknown> | null = null;
   @state() private query = "";
+  /** True while the grid shows search results rather than the full index. */
+  @state() private searching = false;
   @state() private loading = true;
   @state() private errorText: string | null = null;
 
@@ -122,14 +124,28 @@ export class PsyntientArchivePage extends LitElement {
   private async runSearch() {
     const q = this.query.trim();
     if (!q) {
-      void this.load();
+      void this.clearSearch();
       return;
     }
     this.loading = true;
     const body = await this.get(`?query=${encodeURIComponent(q)}`);
     this.loading = false;
     if (!body || body.ok === false) return;
+    this.searching = true;
     this.archetypes = (body.archetypes as Archetype[]) ?? [];
+  }
+
+  /**
+   * Back to the full index.
+   *
+   * Needed because a search returning nothing was a dead end: the grid went
+   * empty with no control to undo it, so the only way back to the archetypes
+   * was to leave the viewer and come back.
+   */
+  private async clearSearch() {
+    this.query = "";
+    this.searching = false;
+    await this.load();
   }
 
   private async open(a: Archetype) {
@@ -252,7 +268,30 @@ export class PsyntientArchivePage extends LitElement {
 
         ${this.loading
           ? html`<p class="psy-arch__loading">${t("archive.loading")}</p>`
-          : html`<div class="psy-arch__grid">${sorted.map((a) => this.renderCard(a))}</div>`}
+          : sorted.length === 0
+            ? html`
+                <div class="psy-arch__empty">
+                  <p>${t("archive.noResults", { query: this.query })}</p>
+                  <button type="button" class="psy-arch__ask" @click=${() => this.clearSearch()}>
+                    ${t("archive.showAll")}
+                  </button>
+                </div>
+              `
+            : html`
+                ${this.searching
+                  ? html`<div class="psy-arch__result-bar">
+                      <span>${t("archive.resultCount", { count: String(sorted.length) })}</span>
+                      <button
+                        type="button"
+                        class="psy-arch__clear"
+                        @click=${() => this.clearSearch()}
+                      >
+                        ${t("archive.showAll")}
+                      </button>
+                    </div>`
+                  : nothing}
+                <div class="psy-arch__grid">${sorted.map((a) => this.renderCard(a))}</div>
+              `}
         ${this.selected ? this.renderDetail(this.selected) : nothing}
       </div>
     `;

@@ -6410,3 +6410,25 @@ td.data-table-key-col {
    groups below rather than being a second kind of section header. */
 .sidebar-tools { margin-bottom: 0.5rem; }
 .sidebar-tools__items { display: flex; flex-direction: column; gap: 0.1rem; }
+
+/* A search with no hits must never be a dead end: before this, an empty result
+   set left the grid blank with no control to undo it, so the only way back to
+   the archetypes was to leave the viewer entirely. */
+.psy-arch__empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+.psy-arch__empty p { margin: 0 0 1rem; }
+.psy-arch__result-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.psy-arch__clear {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
