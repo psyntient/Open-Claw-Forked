@@ -2508,6 +2508,9 @@ export const fr: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3995,10 +3998,10 @@ export const fr: TranslationMap = {
     },
     waitingForApproval: "En attente d'approbation…",
     startupStatus: {
-      preparingWorkspace: "Préparation de l'espace de travail…",
-      provisioningEnvironment: "Provisionnement de l'environnement…",
-      preparingContext: "Préparation du contexte…",
-      startingModel: "Démarrage du modèle…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "{count} jetons de sortie",
     archivedSessionDisabled: "Restaurez cette session pour envoyer des messages.",

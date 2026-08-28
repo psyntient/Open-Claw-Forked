@@ -2439,6 +2439,9 @@ export const ko: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3889,10 +3892,10 @@ export const ko: TranslationMap = {
     },
     waitingForApproval: "승인 대기 중…",
     startupStatus: {
-      preparingWorkspace: "작업 공간 준비 중…",
-      provisioningEnvironment: "환경 프로비저닝 중…",
-      preparingContext: "컨텍스트 준비 중…",
-      startingModel: "모델 시작 중…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "출력 토큰 {count}개",
     archivedSessionDisabled: "메시지를 보내려면 이 세션을 복원하세요.",

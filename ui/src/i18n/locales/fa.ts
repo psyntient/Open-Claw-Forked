@@ -2444,6 +2444,9 @@ export const fa: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3906,10 +3909,10 @@ export const fa: TranslationMap = {
     },
     waitingForApproval: "در انتظار تأیید…",
     startupStatus: {
-      preparingWorkspace: "در حال آماده‌سازی فضای کاری…",
-      provisioningEnvironment: "در حال آماده‌سازی محیط…",
-      preparingContext: "در حال آماده‌سازی زمینه…",
-      startingModel: "در حال راه‌اندازی مدل…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "{count} توکن خروجی",
     archivedSessionDisabled: "برای ارسال پیام، این نشست را بازیابی کنید.",

@@ -2466,6 +2466,9 @@ export const ja_JP: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3932,10 +3935,10 @@ export const ja_JP: TranslationMap = {
     },
     waitingForApproval: "承認を待機中…",
     startupStatus: {
-      preparingWorkspace: "ワークスペースを準備中…",
-      provisioningEnvironment: "環境をプロビジョニング中…",
-      preparingContext: "コンテキストを準備中…",
-      startingModel: "モデルを起動中…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "{count} 出力トークン",
     archivedSessionDisabled: "メッセージを送信するには、このセッションを復元してください。",

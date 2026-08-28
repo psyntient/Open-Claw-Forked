@@ -2391,6 +2391,9 @@ export const zh_TW: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3814,10 +3817,10 @@ export const zh_TW: TranslationMap = {
     },
     waitingForApproval: "正在等待核准…",
     startupStatus: {
-      preparingWorkspace: "正在準備工作區…",
-      provisioningEnvironment: "正在佈建環境…",
-      preparingContext: "正在準備內容…",
-      startingModel: "正在啟動模型…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "{count} 個輸出 token",
     archivedSessionDisabled: "還原此工作階段以傳送訊息。",

@@ -1449,7 +1449,10 @@ class NewSessionPage extends OpenClawLightDomElement {
     const identity = agent?.identity;
     const gateway = this.context?.gateway.snapshot;
     return renderWelcomeState({
-      assistantName: identity?.name ?? agent?.name ?? agent?.id ?? "",
+      // Falling through to agent?.id showed the raw agent id ("main") as the
+      // hero name. There is exactly one assistant in this product and it is
+      // called Cortex; never surface the internal id to the user.
+      assistantName: identity?.name ?? agent?.name ?? t("psyntient.assistantName"),
       assistantAvatar: identity?.avatar ?? identity?.emoji ?? null,
       assistantAvatarUrl: identity?.avatarUrl ?? null,
       hint: t("newSession.hint"),

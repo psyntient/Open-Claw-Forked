@@ -2452,6 +2452,9 @@ export const id: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3913,10 +3916,10 @@ export const id: TranslationMap = {
     },
     waitingForApproval: "Menunggu persetujuan…",
     startupStatus: {
-      preparingWorkspace: "Menyiapkan ruang kerja…",
-      provisioningEnvironment: "Menyediakan lingkungan…",
-      preparingContext: "Menyiapkan konteks…",
-      startingModel: "Memulai model…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "{count} token output",
     archivedSessionDisabled: "Pulihkan sesi ini untuk mengirim pesan.",

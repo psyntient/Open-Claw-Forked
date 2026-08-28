@@ -1,10 +1,11 @@
 // Control UI chat module implements chat welcome behavior.
 import { html, nothing } from "lit";
 import type { GatewaySessionRow, SessionsListResult } from "../../../api/types.ts";
-import "../../../components/openclaw-mascot.ts";
 import { t } from "../../../i18n/index.ts";
+import "../../../components/openclaw-mascot.ts";
 import { resolveAssistantTextAvatar, resolveChatAvatarRenderUrl } from "../../../lib/avatar.ts";
 import { formatRelativeTimestamp } from "../../../lib/format.ts";
+import { readSelectedProjectId } from "../../../lib/psyntient-projects.ts";
 import {
   resolveChannelSessionInfo,
   resolveSessionDisplayName,
@@ -86,7 +87,15 @@ function selectWelcomeRecentSessions(
   const defaultAgentId = resolveUiSelectedGlobalAgentId(host);
   const agentId = parseAgentSessionKey(props.sessionKey)?.agentId ?? defaultAgentId;
   return (
-    getVisibleSessionRows(props.sessions, { agentId, defaultAgentId, filterByAgent: true })
+    getVisibleSessionRows(props.sessions, {
+      agentId,
+      defaultAgentId,
+      filterByAgent: true,
+      // Recent chats must respect the Project scope like the sidebar does;
+      // otherwise the new-thread page lists threads from every Project while
+      // the selector claims to be scoped to one.
+      projectId: readSelectedProjectId(),
+    })
       .filter(
         (row) =>
           !areUiSessionKeysEquivalent(row.key, props.sessionKey) &&

@@ -2457,6 +2457,9 @@ export const vi: TranslationMap = {
     new: "New project…",
     newPrompt: "Name this project",
   },
+  psyntient: {
+    assistantName: "Cortex",
+  },
   psyntientAccount: {
     unpair: "Unpair this Node",
     unpairDesc: "Disconnect this Node from your psyntient.io account.",
@@ -3912,10 +3915,10 @@ export const vi: TranslationMap = {
     },
     waitingForApproval: "Đang chờ phê duyệt…",
     startupStatus: {
-      preparingWorkspace: "Đang chuẩn bị không gian làm việc…",
-      provisioningEnvironment: "Đang cấp phát môi trường…",
-      preparingContext: "Đang chuẩn bị ngữ cảnh…",
-      startingModel: "Đang khởi động mô hình…",
+      preparingWorkspace: "Getting ready…",
+      provisioningEnvironment: "Getting ready…",
+      preparingContext: "Gathering your context…",
+      startingModel: "Thinking…",
     },
     outputTokens: "{count} token đầu ra",
     archivedSessionDisabled: "Khôi phục phiên này để gửi tin nhắn.",
