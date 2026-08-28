@@ -22,6 +22,7 @@ import {
   renderAppSidebarBrand,
   renderAppSidebarFooterBar,
   renderAppSidebarPluginTabEntry,
+  renderAppSidebarViewers,
   renderAppSidebarZoneEntry,
 } from "./app-sidebar-render.ts";
 import type { CatalogSessionMenuRequest } from "./app-sidebar-session-catalogs.ts";
@@ -361,6 +362,7 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
                   this.sessionOrganizer.handleSidebarZoneDragLeave(event)}
                 @drop=${(event: DragEvent) => this.sessionOrganizer.handleSidebarZoneDrop(event)}
               >
+                ${renderAppSidebarViewers(this)}
                 <!-- The PAGES header and its Home row are removed: Home opened the
                      rolling main session, which under Projects is just a thread in
                      General and already listed there. A one-item section labelled

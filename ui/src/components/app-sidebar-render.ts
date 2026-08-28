@@ -6,16 +6,19 @@ import {
   type NavigationRouteId,
   type SidebarZoneEntry,
 } from "../app-navigation.ts";
+import { pathForRoute } from "../app-route-paths.ts";
 import { readPresenceEntries, resolveCurrentSelfUser } from "../app/user-profile.ts";
 import { t } from "../i18n/index.ts";
 import { pluginTabKey } from "../pages/plugin/route.ts";
-import { renderSidebarPluginTab } from "./app-sidebar-nav-menus.ts";
+import { renderSidebarPluginTab, shouldHandleNavigationClick } from "./app-sidebar-nav-menus.ts";
 import type { AppSidebarSessionNavigationElement } from "./app-sidebar-session-navigation.ts";
 import type { SidebarRecentSession } from "./app-sidebar-session-types.ts";
 import type { SidebarWorkboardBoard } from "./app-sidebar-workboard.ts";
 import { icons } from "./icons.ts";
 
 type AppSidebarRenderHost = AppSidebarSessionNavigationElement & {
+  /** Declared here because it lives on AppSidebar, not the navigation base. */
+  toggleSection(sectionId: string): void;
   activePluginTabId: string;
   activeWorkboardBoardId: string;
   offline: boolean;
@@ -55,6 +58,68 @@ export function renderAppSidebarBrand(host: AppSidebarRenderHost, authToken: str
           </button>
         </openclaw-tooltip>
       </div>
+    </div>
+  `;
+}
+
+/**
+ * Analysis tools: the collapsible section in the slot PAGES used to occupy.
+ *
+ * A section rather than loose buttons because this is a growing set -- Archive
+ * and Vault today, more as features land -- and because these are the only
+ * sidebar destinations that are not a conversation, so they want a boundary
+ * around them rather than sitting loose above Threads.
+ *
+ * Collapse state uses the same toggle plumbing as the session groups below, so
+ * it persists and behaves identically. Adding a tool is one entry in TOOLS.
+ */
+const ANALYSIS_TOOLS_SECTION = "psyntient:analysis-tools";
+
+const TOOLS = [
+  { routeId: "archive" as const, icon: "archive" as const, labelKey: "nav.archiveViewer" },
+];
+
+export function renderAppSidebarViewers(host: AppSidebarRenderHost) {
+  const collapsed = host.collapsedSessionSections.has(ANALYSIS_TOOLS_SECTION);
+  return html`
+    <div class="sidebar-tools">
+      <button
+        type="button"
+        class="sidebar-session-group-toggle"
+        aria-expanded=${String(!collapsed)}
+        @click=${() => host.toggleSection(ANALYSIS_TOOLS_SECTION)}
+      >
+        <span class="sidebar-recent-sessions__label-text">${t("nav.analysisTools")}</span>
+        <span class="sidebar-session-group-toggle__icon" aria-hidden="true"
+          >${collapsed ? icons.chevronRight : icons.chevronDown}</span
+        >
+      </button>
+      ${collapsed
+        ? nothing
+        : html`
+            <div class="sidebar-tools__items">
+              ${TOOLS.map((tool) => {
+                const active = host.activeRouteId === tool.routeId;
+                return html`
+                  <a
+                    href=${pathForRoute(tool.routeId, host.basePath)}
+                    class="nav-item nav-item--viewer ${active ? "nav-item--active" : ""}"
+                    aria-current=${active ? "page" : nothing}
+                    @click=${(event: MouseEvent) => {
+                      if (!shouldHandleNavigationClick(event)) {
+                        return;
+                      }
+                      event.preventDefault();
+                      host.onNavigate?.(tool.routeId, {});
+                    }}
+                  >
+                    <span class="nav-item__icon" aria-hidden="true">${icons[tool.icon]}</span>
+                    <span class="nav-item__text">${t(tool.labelKey)}</span>
+                  </a>
+                `;
+              })}
+            </div>
+          `}
     </div>
   `;
 }

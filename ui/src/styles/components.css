@@ -6393,3 +6393,20 @@ td.data-table-key-col {
   color: var(--accent);
 }
 .psy-arch__genus--none { color: var(--muted); font-size: 0.8125rem; }
+
+/* Viewer links occupy the slot the PAGES section used to. No heading: these
+   are two buttons that open two viewers, and a label over them would be more
+   chrome than content. Spaced from Threads below because they are the only
+   sidebar destinations that are not a conversation. */
+.sidebar-viewers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.35rem;
+}
+
+/* Analysis Tools: collapsible section in the slot PAGES used to occupy. Reuses
+   the session-group toggle so it collapses and persists identically to the
+   groups below rather than being a second kind of section header. */
+.sidebar-tools { margin-bottom: 0.5rem; }
+.sidebar-tools__items { display: flex; flex-direction: column; gap: 0.1rem; }

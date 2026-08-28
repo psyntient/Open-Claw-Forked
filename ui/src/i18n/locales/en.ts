@@ -1665,6 +1665,8 @@ export const en: TranslationMap = {
   },
   nav: {
     account: "Account",
+    analysisTools: "Analysis Tools",
+    archiveViewer: "Archive Viewer",
     back: "Back",
     forward: "Forward",
     chat: "Chat",
