@@ -1,7 +1,6 @@
 // Control UI module implements main behavior.
 import "./styles.css";
 import "./app/app-host.ts";
-import "./pages/onboarding/onboarding-page.ts";
 import { inferControlUiPublicAssetPath } from "./app/public-assets.ts";
 import {
   installMissingStylesheetRecovery,
@@ -108,5 +107,11 @@ async function installPsyntientOnboardingGate() {
     return;
   }
 
+  // Loaded HERE, not at module top level. Onboarding runs once in an
+  // install's life, but a static import puts the whole wizard -- element,
+  // styles and its share of the i18n table -- into the startup bundle that
+  // every launch pays for afterwards. That is what pushed startup JS past its
+  // budget and failed the build.
+  await import("./pages/onboarding/onboarding-page.ts");
   document.body.replaceChildren(document.createElement("psyntient-onboarding"));
 }
