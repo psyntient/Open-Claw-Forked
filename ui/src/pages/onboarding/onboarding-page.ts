@@ -51,7 +51,6 @@ const ROUTES = {
   onboarding: "/__openclaw__/psyntient/onboarding",
   key: "/__openclaw__/psyntient/provider-key",
   pairing: "/__openclaw__/psyntient/pairing",
-  vault: "/__openclaw__/psyntient/vault",
 };
 
 /**
@@ -78,7 +77,6 @@ export class PsyntientOnboarding extends LitElement {
   @state() private apiKey = "";
   @state() private busy = false;
   @state() private errorText: string | null = null;
-  @state() private vaultPath: string | null = null;
   /** True when the installer handed off to this app, so setup continues its
    *  numbering instead of restarting at step one. */
   @state() private viaInstaller = false;
@@ -175,21 +173,10 @@ export class PsyntientOnboarding extends LitElement {
         throw new Error(body.error ?? t("onboarding.pairingFailed"));
       }
       this.step = "handy";
-      void this.loadVault();
     } catch (err) {
       this.errorText = err instanceof Error ? err.message : String(err);
     } finally {
       this.busy = false;
-    }
-  }
-
-  private async loadVault() {
-    try {
-      const res = await fetch(ROUTES.vault, { headers: this.headers() });
-      const body = (await res.json()) as { path?: string };
-      this.vaultPath = body.path ?? null;
-    } catch {
-      this.vaultPath = null;
     }
   }
 
@@ -461,13 +448,7 @@ export class PsyntientOnboarding extends LitElement {
               ? html`${t("onboarding.handyShortcut")}
                 ${t(`onboarding.shortcutWhere.${this.platform}`)}`
               : t("onboarding.handyNoShortcut")}
-            ${this.vaultPath
-              ? html`<span
-                  >${t("onboarding.vaultLivesHere")}<br /><code class="psy-onb__path"
-                    >${this.vaultPath}</code
-                  ></span
-                >`
-              : nothing}
+            ${t("onboarding.vaultBelongsHere")}
           </p>
 
           <!-- When no PWA install is on offer this is the only action on the

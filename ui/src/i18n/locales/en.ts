@@ -2053,7 +2053,8 @@ export const en: TranslationMap = {
     installApp: "Install as an app",
     handyShortcut:
       "The installer also added a Psyntient Node shortcut, which starts your Node if it is not already running.",
-    vaultLivesHere: "Your Vault lives here:",
+    vaultBelongsHere:
+      "Your Vault is part of this Node. Use its Projects Dashboard and AI Agent to interact with your Vault storage.",
     shortcutWhere: {
       mac: "You will find it in your Applications folder.",
       windows: "You will find it on your Desktop.",
