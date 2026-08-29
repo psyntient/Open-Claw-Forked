@@ -314,7 +314,7 @@ function renderLoginFailure(feedback: LoginFailureFeedback) {
 
 function renderLoginGate(props: LoginGateProps) {
   const basePath = normalizeBasePath(props.basePath);
-  const faviconSrc = controlUiPublicAssetPath("psyntient-mark.png", basePath);
+  const faviconSrc = controlUiPublicAssetPath("brand/psyntient-mark-2026.png", basePath);
   const failure = resolveLoginFailureFeedback({
     connected: props.connected,
     lastError: props.lastError,

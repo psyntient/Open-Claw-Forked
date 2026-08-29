@@ -44,7 +44,7 @@ class AppTopbar extends OpenClawLightDomContentsElement {
             <div class="topbar-brand" aria-label="Psyntient Node">
               <img
                 class="topbar-brand__logo"
-                src=${controlUiPublicAssetPath("apple-touch-icon.png", this.basePath)}
+                src=${controlUiPublicAssetPath("brand/psyntient-mark-2026.png", this.basePath)}
                 alt=""
                 aria-hidden="true"
               />

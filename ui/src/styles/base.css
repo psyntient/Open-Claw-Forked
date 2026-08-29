@@ -1,3 +1,16 @@
+/* The 2026 mark's own colours, sampled from the artwork: crimson, pink, purple,
+   blue, cyan, green, amber. The logo's palette, not a theme accent -- gold
+   remains the accent for controls.
+
+   Defined on bare :root ON PURPOSE. It was first written inside
+   [data-theme="psyntient"], which meant that under any other theme the var was
+   undefined, the wordmark's gradient collapsed, and -webkit-text-fill-color:
+   transparent rendered it INVISIBLE rather than merely unstyled. The logo does
+   not change with the theme, so neither should its palette. */
+:root {
+  --psy-spectrum: #df0b56, #e04980, #8c3adf, #0e4bfe, #09bde6, #4dd664, #fab220;
+}
+
 :root {
   /* Background - Deep, rich dark with layered depth */
   --bg: #0e1015;

@@ -7,6 +7,7 @@ type ControlUiPublicAsset =
   // controlUiPublicAssetPath, so a new public file must be declared here or
   // it fails typecheck (and, under a base path, would resolve wrongly).
   | "psyntient-mark.png"
+  | "brand/psyntient-mark-2026.png"
   | "brand/elf/elf-chat-idle-128.png"
   | "apple-touch-icon.png"
   | "favicon-32.png"

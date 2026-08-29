@@ -211,7 +211,7 @@ export class PsyntientOnboarding extends LitElement {
       <div class="psy-onb">
         <img
           class="psy-onb__mark"
-          src="/brand/elf/elf-chat-idle-256.png"
+          src="/brand/psyntient-mark-2026.png"
           alt=""
           width="112"
           height="112"

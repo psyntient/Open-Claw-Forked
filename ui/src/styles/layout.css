@@ -662,20 +662,36 @@ html.openclaw-native-web-chrome .shell-chrome-controls {
 
 .topbar-brand__logo {
   display: block;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-md);
+  width: 26px;
+  height: 26px;
+  /* No radius: the 2026 mark is a brain silhouette on transparency, so a
+     rounded-rect clip would cut its edges. The old icon was a filled tile. */
 }
 
 .topbar-brand__title {
   min-width: 0;
   overflow: hidden;
-  color: var(--text-strong);
   font-size: 14px;
   font-weight: 650;
   letter-spacing: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* The wordmark carries the mark's own spectrum, sampled from the artwork so
+     the two cannot drift apart. */
+  background: linear-gradient(100deg, var(--psy-spectrum));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Without background-clip support the wordmark would render invisible, so it
+   falls back to the ordinary heading colour. */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .topbar-brand__title {
+    color: var(--text-strong);
+    -webkit-text-fill-color: currentColor;
+  }
 }
 
 .topbar .nav-collapse-toggle__icon {
