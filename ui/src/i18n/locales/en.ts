@@ -2011,7 +2011,8 @@ export const en: TranslationMap = {
       welcome: "Welcome",
       key: "Model",
       pairing: "Account",
-      vault: "Vault",
+      handy: "Keep it handy",
+      installed: "Installed",
       install: "Ready",
     },
     welcomeTitle: "Welcome to Psyntient Node",
@@ -2035,6 +2036,21 @@ export const en: TranslationMap = {
     tryAgain: "Try again",
     vaultTitle: "Your Neural Vault",
     vaultBody: "This is where your research is kept. It lives on this machine.",
+    handyTitle: "Keep it handy",
+    handyBody:
+      "Psyntient Node lives on this computer and opens in your browser. Install it as an app so it gets its own window and icon \u2014 or just bookmark it.",
+    installApp: "Install as an app",
+    handyShortcut:
+      "The installer also added a Psyntient Node shortcut, which starts your Node if it is not already running. Your Vault lives here:",
+    handyNoShortcut: "Start your Node any time by running its launcher. Your Vault lives here:",
+    handyManual: {
+      safari: "In Safari, choose File \u2192 Add to Dock to install this as an app.",
+      firefox:
+        "Firefox cannot install web apps on the desktop. Bookmark this page, or open it in Chrome, Edge or Brave to install it.",
+      other:
+        "Bookmark this page to come back to it, or open it in Chrome, Edge or Brave to install it as an app.",
+    },
+    stepCount: "Step {n} of {total}",
     readyTitle: "Your Node is ready",
     readyBody: "Cortex is set up and waiting.",
     enter: "Enter Psyntient Node",

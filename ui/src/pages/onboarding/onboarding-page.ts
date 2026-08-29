@@ -27,12 +27,33 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
 
-export type OnboardingStep = "welcome" | "key" | "pairing" | "vault" | "install";
+export type OnboardingStep = "welcome" | "key" | "pairing" | "handy";
 
-/** All five steps. The stepper shows every one; none are collapsed or hidden. */
-const STEPS: readonly OnboardingStep[] = ["welcome", "key", "pairing", "vault", "install"];
+/** The stepper shows every step; none are collapsed or hidden. */
+/**
+ * The Vault step is gone on purpose. It used to ask where the Vault should
+ * live, or whether to use cloud storage. Vaults are always local now and cloud
+ * is backup, so that step presented a choice that no longer exists -- the Vault
+ * path is a line on the final screen instead.
+ */
+const STEPS: readonly OnboardingStep[] = ["welcome", "key", "pairing", "handy"];
 
-type Status = { hasProvider?: boolean; isPaired?: boolean; completed?: boolean };
+/**
+ * Steps the installer already performed, when setup was reached through it.
+ *
+ * Setup then presents itself as the CONTINUATION of one flow rather than a
+ * second wizard beginning at step one. Somebody who has just watched a long
+ * install should not be welcomed again and told they are at the beginning.
+ */
+const INSTALLER_STEPS = 3;
+
+type Status = {
+  hasProvider?: boolean;
+  isPaired?: boolean;
+  completed?: boolean;
+  /** True when the installer handed off to this app. */
+  viaInstaller?: boolean;
+};
 type Provider = { id: string; label?: string };
 
 const ROUTES = {
@@ -50,7 +71,7 @@ const ROUTES = {
 export function resumeStepFor(status: Status): OnboardingStep {
   if (!status.hasProvider) return "welcome";
   if (!status.isPaired) return "pairing";
-  return "vault";
+  return "handy";
 }
 
 @customElement("psyntient-onboarding")
@@ -67,11 +88,15 @@ export class PsyntientOnboarding extends LitElement {
   @state() private busy = false;
   @state() private errorText: string | null = null;
   @state() private vaultPath: string | null = null;
+  /** True when the installer handed off to this app, so setup continues its
+   *  numbering instead of restarting at step one. */
+  @state() private viaInstaller = false;
 
   private authToken: string | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
+    window.addEventListener("beforeinstallprompt", this.captureInstallPrompt);
     this.authToken = new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
     void this.bootstrap();
   }
@@ -89,10 +114,9 @@ export class PsyntientOnboarding extends LitElement {
     try {
       const res = await fetch(ROUTES.onboarding, { headers: this.headers() });
       const status = (await res.json()) as Status;
+      this.viaInstaller = status.viaInstaller === true;
       this.step =
-        status.completed && status.hasProvider && status.isPaired
-          ? "install"
-          : resumeStepFor(status);
+        status.completed && status.hasProvider && status.isPaired ? "handy" : resumeStepFor(status);
     } catch {
       this.step = "welcome";
     }
@@ -150,7 +174,7 @@ export class PsyntientOnboarding extends LitElement {
       if (!body.ok || !body.isPaired) {
         throw new Error(body.error ?? t("onboarding.pairingFailed"));
       }
-      this.step = "vault";
+      this.step = "handy";
       void this.loadVault();
     } catch (err) {
       this.errorText = err instanceof Error ? err.message : String(err);
@@ -182,11 +206,75 @@ export class PsyntientOnboarding extends LitElement {
     location.reload();
   }
 
+  /**
+   * Chromium fires beforeinstallprompt only when it judges the app installable
+   * AND the user has not already dismissed or installed it. So the button is
+   * shown only once the event has actually arrived -- never on the assumption
+   * that it will. A button that silently does nothing because the event never
+   * fired is the same failure as the folder picker that opened behind the
+   * window: an affordance that lies.
+   */
+  private installEvent: (Event & { prompt: () => Promise<void> }) | null = null;
+  @state() private canInstallPwa = false;
+
+  /** Which manual instructions to show when there is no install prompt. */
+  private get pwaHint(): "safari" | "firefox" | "other" {
+    const ua = navigator.userAgent;
+    if (/Firefox\//.test(ua)) return "firefox";
+    if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) return "safari";
+    return "other";
+  }
+
+  private captureInstallPrompt = (e: Event) => {
+    e.preventDefault();
+    this.installEvent = e as Event & { prompt: () => Promise<void> };
+    this.canInstallPwa = true;
+  };
+
+  private async installPwa() {
+    if (!this.installEvent) return;
+    this.busy = true;
+    try {
+      await this.installEvent.prompt();
+      // Chromium allows one prompt per event; whether they accepted or not,
+      // it cannot be reused.
+      this.installEvent = null;
+      this.canInstallPwa = false;
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener("beforeinstallprompt", this.captureInstallPrompt);
+  }
+
   private renderStepper() {
-    const index = STEPS.indexOf(this.step ?? "welcome");
+    const viaInstaller = this.viaInstaller;
+    // Arriving from the installer, "welcome" is redundant -- the installer
+    // already did that -- so it is dropped rather than shown as a step the
+    // user never sees.
+    const steps = viaInstaller ? STEPS.filter((id) => id !== "welcome") : STEPS;
+    const offset = viaInstaller ? INSTALLER_STEPS : 0;
+    const index = steps.indexOf(this.step ?? steps[0]!);
+    const total = steps.length + offset;
+
     return html`
+      <p class="psy-onb__count">
+        ${t("onboarding.stepCount", {
+          n: String(index + 1 + offset),
+          total: String(total),
+        })}
+      </p>
       <ol class="psy-onb__stepper" aria-label=${t("onboarding.progress")}>
-        ${STEPS.map((id, i) => {
+        ${viaInstaller
+          ? html`<li class="psy-onb__step psy-onb__step--done">
+              <span class="psy-onb__pip" aria-hidden="true"></span>
+              <span class="psy-onb__step-label">${t("onboarding.step.installed")}</span>
+            </li>`
+          : nothing}
+        ${steps.map((id, i) => {
           const state = i < index ? "done" : i === index ? "active" : "upcoming";
           return html`
             <li class="psy-onb__step psy-onb__step--${state}">
@@ -283,20 +371,39 @@ export class PsyntientOnboarding extends LitElement {
                 : t("onboarding.pairNow")}
           </button>
         `;
-      case "vault":
+      case "handy":
+        // The last step does something rather than announcing readiness. An
+        // installed app, a desktop shortcut or a bookmark are the three ways
+        // back in, and which are available depends on the browser -- so the
+        // options are offered in order of how well they work, not as a list of
+        // equals.
         return html`
-          <h1 class="psy-onb__title">${t("onboarding.vaultTitle")}</h1>
-          <p class="psy-onb__hint">${t("onboarding.vaultBody")}</p>
-          ${this.vaultPath ? html`<code class="psy-onb__path">${this.vaultPath}</code>` : nothing}
-          <button class="psy-onb__primary" @click=${() => (this.step = "install")}>
-            ${t("onboarding.continue")}
-          </button>
-        `;
-      case "install":
-        return html`
-          <h1 class="psy-onb__title">${t("onboarding.readyTitle")}</h1>
-          <p class="psy-onb__hint">${t("onboarding.readyBody")}</p>
-          <button class="psy-onb__primary" @click=${() => this.finish()}>
+          <h1 class="psy-onb__title">${t("onboarding.handyTitle")}</h1>
+          <p class="psy-onb__hint">${t("onboarding.handyBody")}</p>
+
+          ${this.canInstallPwa
+            ? html`<button
+                class="psy-onb__primary"
+                ?disabled=${this.busy}
+                @click=${() => void this.installPwa()}
+              >
+                ${t("onboarding.installApp")}
+              </button>`
+            : html`<p class="psy-onb__hint psy-onb__hint--quiet">
+                ${t(`onboarding.handyManual.${this.pwaHint}`)}
+              </p>`}
+
+          <p class="psy-onb__hint psy-onb__hint--quiet">
+            <!-- Only the installer creates a desktop shortcut. Saying so after
+                 a manual checkout would send the user hunting for an icon that
+                 was never written. -->
+            ${this.viaInstaller ? t("onboarding.handyShortcut") : t("onboarding.handyNoShortcut")}
+            ${this.vaultPath
+              ? html`<br /><code class="psy-onb__path">${this.vaultPath}</code>`
+              : nothing}
+          </p>
+
+          <button class="psy-onb__secondary" @click=${() => this.finish()}>
             ${t("onboarding.enter")}
           </button>
         `;
