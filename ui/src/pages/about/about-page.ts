@@ -81,6 +81,7 @@ class AboutPage extends OpenClawLightDomElement {
         : null;
     const body = renderAbout({
       buildInfo: CONTROL_UI_BUILD_INFO,
+      authToken: this.context.gateway.connection?.token ?? null,
       gatewayVersion,
       copyState: this.copyState,
       onCopyCommit: () => void this.copyCommit(),

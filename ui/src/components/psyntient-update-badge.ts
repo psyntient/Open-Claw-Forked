@@ -48,6 +48,17 @@ export class PsyntientUpdateBadge extends LitElement {
   }
 
   @property({ attribute: false }) authToken: string | null = null;
+  /**
+   * "chip" announces a waiting update and is silent otherwise.
+   * "panel" is always visible and is where a user goes to ASK.
+   *
+   * Both exist because they answer different questions. The chip answers
+   * "is something waiting?" and would be noise if it also said "no". The panel
+   * answers "is my Node current, and can I check?", which has no other home --
+   * without it there is no way to reach the updater at all until it decides to
+   * appear on its own.
+   */
+  @property({ attribute: false }) mode: "chip" | "panel" = "chip";
 
   @state() private status: UpdateStatus | null = null;
   @state() private open = false;
@@ -55,10 +66,14 @@ export class PsyntientUpdateBadge extends LitElement {
   @state() private stage: string | null = null;
   @state() private pct = 0;
   @state() private result: { ok: boolean; error?: string } | null = null;
+  @state() private checking = false;
+  /** In-flight guard: connectedCallback and updated() can both fire before the
+   *  first read returns, which sent two identical requests per page load. */
+  private loading = false;
 
   override connectedCallback() {
     super.connectedCallback();
-    if (this.authToken) void this.load();
+    void this.load();
   }
 
   override updated(changed: Map<string, unknown>) {
@@ -74,14 +89,54 @@ export class PsyntientUpdateBadge extends LitElement {
     return h;
   }
 
-  /** Never throws: an offline Node must not break the sidebar. */
+  /**
+   * Read recorded state. Cheap and local -- this never touches the network.
+   *
+   * Checking for updates is something the user asks for, by pressing the
+   * button or by turning auto on. It is not something that happens because a
+   * page rendered.
+   */
   private async load() {
+    if (this.loading) return;
+    this.loading = true;
     try {
       const res = await fetch(ROUTE, { headers: this.headers() });
       if (!res.ok) return;
       this.status = (await res.json()) as UpdateStatus;
+      // Auto-update is the ONLY thing that turns mounting into a network
+      // check, and it is off by default. A control existing on a page must not
+      // cause work -- that mistake made every page load wait 45 seconds on git
+      // fetches, because this sits in the sidebar and the sidebar is
+      // everywhere.
+      if (this.status?.state?.autoUpdate) {
+        void this.check();
+      }
     } catch {
       // Offline, or no remote configured. Both are normal; stay silent.
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  /** Ask the remote what is available. The deliberate, network-touching half. */
+  private async check() {
+    if (this.checking) return;
+    this.checking = true;
+    try {
+      const res = await fetch(ROUTE, {
+        method: "POST",
+        headers: { ...this.headers(), "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "check" }),
+      });
+      if (res.ok) this.status = (await res.json()) as UpdateStatus;
+    } catch (err) {
+      this.status = {
+        ...this.status,
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      };
+    } finally {
+      this.checking = false;
     }
   }
 
@@ -153,48 +208,46 @@ export class PsyntientUpdateBadge extends LitElement {
     }
   }
 
+  private fmtChecked(iso?: string | null) {
+    if (!iso) return t("update.neverChecked");
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime())
+      ? t("update.neverChecked")
+      : t("update.lastChecked", { when: d.toLocaleString() });
+  }
+
+  /** Always-visible surface: version, last check, the button, the toggle. */
   private renderPanel() {
     const s = this.status;
-    if (!s) return nothing;
-    const plan = s.plan;
+    const available = s?.upToDate === false;
     return html`
-      <div class="psy-update__panel" role="dialog" aria-label=${t("update.title")}>
-        <h4>${t("update.available")}</h4>
-        <p class="psy-update__summary">
-          ${t("update.commitCount", {
-            n: String((s.commits?.length ?? 0) + (s.openclawCommits?.length ?? 0)),
-          })}
-          ${s.stat ? html`· ${s.stat}` : nothing}
+      <section class="psy-update__section">
+        <p class="psy-update__line">
+          ${available
+            ? t("update.available")
+            : this.checking
+              ? t("update.checking")
+              : s?.upToDate
+                ? t("update.current")
+                : this.status?.state?.lastCheckAt
+                  ? t("update.pressCheck")
+                  : t("update.unknown")}
         </p>
-        ${(s.commits ?? []).slice(0, 5).map((c) => html`<p class="psy-update__commit">${c}</p>`)}
-        ${plan
-          ? html`<p class="psy-update__plan">
-              ${plan.reasons.join("; ")}${plan.restart ? ` · ${t("update.willRestart")}` : ""}
-              ${plan.buildOpenclaw === "full" ? ` · ${t("update.longBuild")}` : ""}
-            </p>`
-          : nothing}
-        ${s.dirty ? html`<p class="psy-update__warn">${t("update.dirty")}</p>` : nothing}
-        ${s.failedBefore
-          ? html`<p class="psy-update__warn">${t("update.failedBefore")}</p>`
-          : nothing}
-        ${this.applying
-          ? html`<div class="psy-update__progress">
-              <div class="psy-update__track">
-                <div class="psy-update__fill" style=${`width:${this.pct}%`}></div>
-              </div>
-              <p class="psy-update__stage">${this.stage}</p>
-            </div>`
-          : html`<button
-              type="button"
-              class="psy-update__go"
-              ?disabled=${s.dirty === true}
-              @click=${() => void this.applyUpdate()}
-            >
-              ${t("update.install")}
-            </button>`}
-        ${this.result && !this.result.ok
-          ? html`<p class="psy-update__warn">${this.result.error}</p>`
-          : nothing}
+        <p class="psy-update__hint">${this.fmtChecked(s?.state?.lastCheckAt)}</p>
+
+        ${available ? this.renderAvailable(s) : nothing}
+        ${s?.ok === false && s.error ? html`<p class="psy-update__warn">${s.error}</p>` : nothing}
+
+        <div class="psy-update__row">
+          <button
+            type="button"
+            class="psy-update__go"
+            ?disabled=${this.checking || this.applying}
+            @click=${() => void this.check()}
+          >
+            ${this.checking ? t("update.checking") : t("update.checkNow")}
+          </button>
+        </div>
 
         <label class="psy-update__auto">
           <input
@@ -205,34 +258,112 @@ export class PsyntientUpdateBadge extends LitElement {
           <span>${t("update.autoLabel")}</span>
         </label>
         <p class="psy-update__hint">${t("update.autoHint")}</p>
-      </div>
+      </section>
+    `;
+  }
+
+  /** The install affordance, shared by the chip popup and the panel. */
+  private renderAvailable(s: UpdateStatus | null) {
+    if (!s) return nothing;
+    const plan = s.plan;
+    return html`
+      <p class="psy-update__summary">
+        ${t("update.commitCount", {
+          n: String((s.commits?.length ?? 0) + (s.openclawCommits?.length ?? 0)),
+        })}
+        ${s.stat ? html`· ${s.stat}` : nothing}
+      </p>
+      ${(s.commits ?? []).slice(0, 5).map((c) => html`<p class="psy-update__commit">${c}</p>`)}
+      ${plan
+        ? html`<p class="psy-update__plan">
+            ${plan.reasons.join("; ")}${plan.restart ? ` · ${t("update.willRestart")}` : ""}
+            ${plan.buildOpenclaw === "full" ? ` · ${t("update.longBuild")}` : ""}
+          </p>`
+        : nothing}
+      ${s.dirty ? html`<p class="psy-update__warn">${t("update.dirty")}</p>` : nothing}
+      ${s.failedBefore
+        ? html`<p class="psy-update__warn">${t("update.failedBefore")}</p>`
+        : nothing}
+      ${this.applying
+        ? html`<div class="psy-update__progress">
+            <div class="psy-update__track">
+              <div class="psy-update__fill" style=${`width:${this.pct}%`}></div>
+            </div>
+            <p class="psy-update__stage">${this.stage}</p>
+          </div>`
+        : html`<button
+            type="button"
+            class="psy-update__go"
+            ?disabled=${s.dirty === true}
+            @click=${() => void this.applyUpdate()}
+          >
+            ${t("update.install")}
+          </button>`}
+      ${this.result && !this.result.ok
+        ? html`<p class="psy-update__warn">${this.result.error}</p>`
+        : nothing}
     `;
   }
 
   override render() {
-    const s = this.status;
-    // Silent when current, unreachable, or still loading: the chip exists to
-    // announce that something is waiting, not to report routine health.
-    if (!s || s.ok === false || s.upToDate !== false) return nothing;
+    if (this.mode === "panel") return this.renderPanel();
 
+    const available = this.status?.upToDate === false;
+
+    // A small button in the sidebar, and the real surface in a modal. The
+    // sidebar is a navigation rail: a control that lives there permanently has
+    // to be the size of a nav item, not the size of what it opens.
     return html`
       <div class="psy-update">
         <button
           type="button"
-          class="psy-update__chip"
+          class="psy-update__btn ${available ? "psy-update__btn--available" : ""}"
+          aria-haspopup="dialog"
           aria-expanded=${String(this.open)}
-          @click=${() => (this.open = !this.open)}
+          @click=${() => (this.open = true)}
         >
-          <span class="psy-update__dot psy-aura" aria-hidden="true"></span>
-          <span
-            >${this.applying
-              ? t("update.installing")
-              : t("update.chip", {
-                  n: String((s.commits?.length ?? 0) + (s.openclawCommits?.length ?? 0)),
-                })}</span
-          >
+          ${available
+            ? html`<span class="psy-update__dot psy-aura" aria-hidden="true"></span>`
+            : nothing}
+          <span>${this.applying ? t("update.installing") : t("update.button")}</span>
         </button>
-        ${this.open ? this.renderPanel() : nothing}
+        ${this.open ? this.renderModal() : nothing}
+      </div>
+    `;
+  }
+
+  private renderModal() {
+    return html`
+      <div
+        class="psy-update__scrim"
+        @click=${(e: Event) => {
+          // Only a click on the backdrop itself closes; clicks inside the
+          // dialog bubble up here too.
+          if (e.target === e.currentTarget) this.open = false;
+        }}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "Escape") this.open = false;
+        }}
+      >
+        <div
+          class="psy-update__modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label=${t("update.title")}
+        >
+          <header class="psy-update__modal-head">
+            <h3>${t("update.title")}</h3>
+            <button
+              type="button"
+              class="psy-update__close"
+              aria-label=${t("update.close")}
+              @click=${() => (this.open = false)}
+            >
+              ×
+            </button>
+          </header>
+          ${this.renderPanel()}
+        </div>
       </div>
     `;
   }

@@ -6997,29 +6997,81 @@ td.data-table-key-col {
   .psy-vault__tree { flex: 0 0 auto; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
 }
 
-/* --- Update chip ---------------------------------------------------------
-   Absent when the Node is current: an always-visible "up to date" badge is
-   noise, and the only moment this matters is when something is waiting. */
+/* --- Software update -----------------------------------------------------
+   A nav-sized button in the sidebar; the real surface opens as a modal. The
+   sidebar is a navigation rail, so a permanent control there has to be the
+   size of a nav item rather than the size of what it opens. */
 .psy-update { position: relative; }
-.psy-update__chip {
+.psy-update__btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border));
+  gap: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
   border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.psy-update__btn:hover { border-color: var(--accent); color: var(--accent); }
+/* Colour is earned by having something to say, not by existing. */
+.psy-update__btn--available {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
-  font: inherit;
-  font-size: 0.75rem;
-  cursor: pointer;
 }
 .psy-update__dot {
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 999px;
   background: var(--accent);
+  flex: 0 0 auto;
 }
+
+.psy-update__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(2px);
+}
+.psy-update__modal {
+  width: min(28rem, 100%);
+  max-height: min(80vh, 40rem);
+  overflow-y: auto;
+  padding: 1rem 1.15rem 1.25rem;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.5);
+}
+.psy-update__modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.psy-update__modal-head h3 { margin: 0; font-size: 1rem; }
+.psy-update__close {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.psy-update__close:hover { color: var(--accent); border-color: var(--accent); }
+.psy-update__line { margin: 0 0 0.2rem; font-size: 0.8125rem; }
+
 .psy-update__panel {
   position: absolute;
   bottom: calc(100% + 0.5rem);
@@ -7095,3 +7147,13 @@ td.data-table-key-col {
 @media (prefers-reduced-motion: reduce) {
   .psy-update__fill { animation: none; transition: none; }
 }
+
+/* Project Profile content summary. A count per category, not a file listing --
+   browsing is the file browser's job, and the profile's own space belongs to
+   what the project IS and whether its data may leave. */
+.psy-vault__summary-list { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.4rem; }
+.psy-vault__summary-list li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; }
+.psy-vault__summary-icon { display: inline-flex; color: var(--accent); }
+.psy-vault__summary-icon svg { width: 0.95rem; height: 0.95rem; stroke: currentColor; fill: none; stroke-width: 1.75; }
+.psy-vault__summary-label { flex: 1 1 auto; color: var(--muted); }
+.psy-vault__summary-count { font-weight: 600; }

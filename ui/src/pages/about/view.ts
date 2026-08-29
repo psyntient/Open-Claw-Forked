@@ -1,6 +1,7 @@
 import "../../styles/lobster-pet.css";
 import { expectDefined } from "@openclaw/normalization-core";
 import { html, nothing, type TemplateResult } from "lit";
+import "../../components/psyntient-update-badge.ts";
 import type { ControlUiBuildInfo } from "../../build-info.ts";
 import { icons } from "../../components/icons.ts";
 import {
@@ -25,6 +26,8 @@ export type AboutCommitCopyState = "idle" | "copying" | "copied" | "error";
 
 type AboutProps = {
   buildInfo: ControlUiBuildInfo;
+  /** Gateway bearer token: the update route is auth:"gateway". */
+  authToken: string | null;
   gatewayVersion: string | null;
   copyState: AboutCommitCopyState;
   onCopyCommit: () => void;
@@ -191,6 +194,17 @@ function renderHero(props: AboutProps) {
           `,
         )}
       </nav>
+      <!-- Software update lives here because About is where people look for a
+           version and "am I current?". Without it the updater had no surface
+           at all: the sidebar chip only appears once an update is already
+           found, so there was no way to ask. -->
+      <section class="about-update">
+        <h3 class="about-update__title">${t("update.title")}</h3>
+        <psyntient-update-badge
+          .authToken=${props.authToken ?? null}
+          .mode=${"panel"}
+        ></psyntient-update-badge>
+      </section>
     </section>
   `;
 }

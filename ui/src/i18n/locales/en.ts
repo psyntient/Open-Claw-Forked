@@ -331,7 +331,8 @@ export const en: TranslationMap = {
     errorTitle: "Panel failed to load",
     genericSubtitle: "Something went wrong while loading this panel.",
     staleTitle: "A new version is available",
-    staleSubtitle: "OpenClaw was updated in the background. Reload to get the latest panel.",
+    staleSubtitle:
+      "Psyntient Node was updated in the background. Reload to get the latest version.",
     reloading: "Reloading…",
     retry: "Retry",
   },
@@ -2438,6 +2439,15 @@ export const en: TranslationMap = {
   },
   update: {
     title: "Software update",
+    button: "Update App",
+    close: "Close",
+    current: "Your Node is up to date.",
+    checking: "Checking\u2026",
+    checkNow: "Check for updates",
+    unknown: "Not checked yet.",
+    pressCheck: "Check to see whether an update is available.",
+    neverChecked: "Never checked.",
+    lastChecked: "Last checked {when}.",
     available: "An update is ready",
     chip: "Update ({n})",
     installing: "Updating\u2026",
@@ -2535,6 +2545,8 @@ export const en: TranslationMap = {
     askCortex: "Ask Cortex about this project",
     askCortexPrompt:
       "Tell me about my Vault project \u201c{title}\u201d (id: {id}) \u2014 what\u2019s in it and what stands out?",
+    notConnected:
+      "This browser is not connected to your Node. Reopen Psyntient Node from the launcher to sign in again.",
     requestFailed: "Could not read the Vault ({status}).",
   },
   archive: {
