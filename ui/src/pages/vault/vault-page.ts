@@ -215,10 +215,19 @@ export class PsyntientVaultPage extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    // Only worth attempting if the token is already committed; when it is not,
-    // `updated()` fires the load as soon as it arrives. Firing regardless just
-    // guarantees one unauthenticated request per visit.
-    if (this.authToken) void this.load();
+    // ALWAYS attempt, even with no token yet.
+    //
+    // This used to skip the fetch until a token arrived, to avoid one
+    // unauthenticated 401 per visit. That traded a wasted request for a much
+    // worse failure: when the token never arrives -- a browser whose stored
+    // device identity was cleared -- load() never ran, `loading` never
+    // cleared, and the page sat on "Reading the Vault..." forever with no
+    // explanation. Observed exactly that.
+    //
+    // The race that motivated the skip (a late 401 overwriting a good result)
+    // is handled properly by the generation counter in load(), so attempting
+    // always is now safe as well as more honest.
+    void this.load();
   }
 
   /**
@@ -256,7 +265,13 @@ export class PsyntientVaultPage extends LitElement {
       const res = await fetch(LEDGER_ROUTE, { headers: this.headers() });
       if (!current()) return;
       if (!res.ok) {
-        this.errorText = t("vault.requestFailed", { status: String(res.status) });
+        // 401 is not a fault in the Vault; it means this browser has no
+        // gateway identity -- typically after site data was cleared. Say what
+        // to do rather than showing a status code the user cannot act on.
+        this.errorText =
+          res.status === 401
+            ? t("vault.notConnected")
+            : t("vault.requestFailed", { status: String(res.status) });
         return;
       }
       const body = (await res.json()) as Ledger;
@@ -743,34 +758,6 @@ export class PsyntientVaultPage extends LitElement {
     `;
   }
 
-  private renderEntry(e: AreaEntry) {
-    if (e.kind === "packet" && e.packet) {
-      return html`<li class="psy-vault__entry psy-vault__entry--packet">
-        <span class="psy-vault__entry-path">${e.path}</span>
-        <span class="psy-vault__entry-meta">
-          ${e.packet.timestamp ? formatDate(e.packet.timestamp) : ""}
-          ${e.packet.durationSeconds
-            ? html` · ${t("vault.duration", { s: String(e.packet.durationSeconds) })}`
-            : nothing}
-          ${e.packet.consentState ? html` · ${e.packet.consentState}` : nothing}
-        </span>
-      </li>`;
-    }
-    if (e.kind === "text" && e.text) {
-      return html`<li class="psy-vault__entry psy-vault__entry--text">
-        <span class="psy-vault__entry-path">${e.path}</span>
-        <pre class="psy-vault__text">${e.text}</pre>
-        ${e.truncated
-          ? html`<span class="psy-vault__more">${t("vault.truncated")}</span>`
-          : nothing}
-      </li>`;
-    }
-    return html`<li class="psy-vault__entry">
-      <span class="psy-vault__entry-path">${e.path}</span>
-      <span class="psy-vault__entry-meta">${formatBytes(e.bytes)}</span>
-    </li>`;
-  }
-
   private renderDetail(p: Project) {
     const areas = (this.detail?.areas ?? []).filter((a) => a.total > 0);
     const list = this.visibleProjects();
@@ -821,27 +808,28 @@ export class PsyntientVaultPage extends LitElement {
             ? html`<p class="psy-vault__error">${this.detail.error}</p>`
             : areas.length === 0
               ? html`<p class="psy-vault__empty-note">${t("vault.projectEmpty")}</p>`
-              : areas.map(
-                  (a) => html`
-                    <section class="psy-vault__area">
-                      <h4>
-                        ${t(`vault.material.${a.area}`)}
-                        <span class="psy-vault__area-count">${a.total}</span>
-                      </h4>
-                      <ul class="psy-vault__entries">
-                        ${a.entries.map((e) => this.renderEntry(e))}
-                      </ul>
-                      ${a.truncated
-                        ? html`<p class="psy-vault__more">
-                            ${t("vault.showingOf", {
-                              listed: String(a.listed),
-                              total: String(a.total),
-                            })}
-                          </p>`
-                        : nothing}
-                    </section>
-                  `,
-                )}
+              : html`
+                  <!-- A summary, not a listing. Exploring files is the file
+                       browser's job, and dumping note text inline here was
+                       left over from before that existed: it made the profile
+                       scroll for pages and buried the identity and consent
+                       information the profile is actually for. -->
+                  <ul class="psy-vault__summary-list">
+                    ${areas.map(
+                      (a) => html`
+                        <li>
+                          <span class="psy-vault__summary-icon" aria-hidden="true"
+                            >${icons[areaIcon(a.area)]}</span
+                          >
+                          <span class="psy-vault__summary-label"
+                            >${t(`vault.material.${a.area}`)}</span
+                          >
+                          <span class="psy-vault__summary-count">${a.total}</span>
+                        </li>
+                      `,
+                    )}
+                  </ul>
+                `}
 
         <div class="psy-vault__actions">
           <button type="button" class="psy-vault__open" @click=${() => this.browse()}>
