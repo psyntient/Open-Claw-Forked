@@ -434,19 +434,26 @@ export function titleForRoute(routeId: NavigationRouteId): string {
   return t(NAVIGATION_COPY[routeId].titleKey);
 }
 
-/** Window/tab title, markers leftmost because tabs truncate from the right.
- * Offline replaces the approval count (a stale queue is not actionable) and
- * carries the pending-outbox total; titles already ending in the brand
- * ("Ask OpenClaw") skip the suffix so it never reads "… OpenClaw — OpenClaw". */
+/**
+ * Window/tab title.
+ *
+ * ALWAYS "Psyntient Node". Never the page name, and never OpenClaw -- upstream
+ * appended its own brand to every route title, so tabs read "Projects —
+ * OpenClaw". This is a product surface: the engine's name does not belong in
+ * the user's tab strip.
+ *
+ * The per-route context is deliberately discarded rather than prefixed. Status
+ * markers are kept, and are not naming: an offline or pending-approval marker
+ * is information the user acts on, and tabs truncate from the right, so they
+ * lead.
+ */
 export function formatDocumentTitle(options: {
-  context: string;
+  context?: string;
   attentionCount?: number;
   offline?: boolean;
   queuedCount?: number;
 }): string {
-  const base = options.context.endsWith("OpenClaw")
-    ? options.context
-    : `${options.context} — OpenClaw`;
+  const base = "Psyntient Node";
   if (options.offline) {
     const queued =
       options.queuedCount && options.queuedCount > 0
