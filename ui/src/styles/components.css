@@ -6996,3 +6996,102 @@ td.data-table-key-col {
   .psy-vault__browser-body { flex-direction: column; }
   .psy-vault__tree { flex: 0 0 auto; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
 }
+
+/* --- Update chip ---------------------------------------------------------
+   Absent when the Node is current: an always-visible "up to date" badge is
+   noise, and the only moment this matters is when something is waiting. */
+.psy-update { position: relative; }
+.psy-update__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.psy-update__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.psy-update__panel {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 30;
+  width: min(22rem, 80vw);
+  padding: 0.85rem 0.95rem;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.4);
+}
+.psy-update__panel h4 { margin: 0 0 0.3rem; font-size: 0.9rem; }
+.psy-update__summary { margin: 0 0 0.5rem; font-size: 0.75rem; color: var(--muted); }
+.psy-update__commit {
+  margin: 0 0 0.15rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* What the update will actually do — a restart or a 20-minute build is
+   something to know before starting, not to discover halfway through. */
+.psy-update__plan { margin: 0.5rem 0; font-size: 0.72rem; color: var(--muted); }
+.psy-update__warn {
+  margin: 0.4rem 0;
+  font-size: 0.72rem;
+  color: var(--danger, #d9534f);
+}
+.psy-update__go {
+  width: 100%;
+  margin: 0.5rem 0 0.6rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+.psy-update__go[disabled] { opacity: 0.55; cursor: default; }
+.psy-update__progress { margin: 0.6rem 0; }
+.psy-update__track {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  overflow: hidden;
+}
+.psy-update__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 55%, transparent),
+    var(--accent),
+    color-mix(in srgb, var(--accent) 40%, #b98cff),
+    var(--accent)
+  );
+  background-size: 300% 100%;
+  animation: psy-vault-shimmer 2.4s linear infinite;
+  transition: width 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.psy-update__stage { margin: 0.4rem 0 0; font-size: 0.72rem; color: var(--muted); }
+.psy-update__auto {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.psy-update__hint { margin: 0.2rem 0 0; font-size: 0.68rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) {
+  .psy-update__fill { animation: none; transition: none; }
+}

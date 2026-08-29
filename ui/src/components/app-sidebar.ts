@@ -1,6 +1,7 @@
 import { html, type PropertyValues, type TemplateResult } from "lit";
 import "./psyntient-vault-badge.ts";
 import "./psyntient-sync-badge.ts";
+import "./psyntient-update-badge.ts";
 import { state } from "lit/decorators.js";
 import type { SessionObserverDigest } from "../../../packages/gateway-protocol/src/schema/sessions.js";
 import { beginNativeWindowDragFromTopInset } from "../app/native-window-drag.ts";
@@ -412,6 +413,9 @@ class AppSidebar extends AppSidebarSessionNavigationElement implements SessionLi
             <psyntient-sync-badge
               .authToken=${this.context?.gateway.connection?.token ?? null}
             ></psyntient-sync-badge>
+            <psyntient-update-badge
+              .authToken=${this.context?.gateway.connection?.token ?? null}
+            ></psyntient-update-badge>
             ${renderAppSidebarFooterBar(this)}
           </div>
         </div>
