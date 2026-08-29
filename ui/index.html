@@ -12,6 +12,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iOS reads none of the manifest's display settings. Without these an
+         "Add to Home Screen" install opens inside Safari chrome instead of
+         standalone, which is the difference between an app and a bookmark.
+         Ported from the v1 interface, which had them and this one did not. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Psyntient Node" />
+    <meta name="theme-color" content="#0C0A1D" />
     <script>
       // Configure Zod before module evaluation so its JIT probe cannot violate strict CSP.
       globalThis.__zod_globalConfig ??= {};
