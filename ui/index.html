@@ -29,6 +29,29 @@
       globalThis.__zod_globalConfig ??= {};
       globalThis.__zod_globalConfig.jitless = true;
 
+      // Capture the install prompt HERE, in the document head, because the
+      // browser fires beforeinstallprompt once and early -- typically before
+      // the app's modules have even been evaluated, let alone before the
+      // onboarding component mounts. A listener added in connectedCallback
+      // registers after the event has already come and gone, which is why the
+      // final setup step offered no install button on a browser that was
+      // perfectly willing to install.
+      //
+      // The event is stashed rather than used: calling prompt() requires a
+      // user gesture, so it has to wait for the button.
+      globalThis.__psyInstallPrompt = null;
+      window.addEventListener("beforeinstallprompt", function (event) {
+        event.preventDefault();
+        globalThis.__psyInstallPrompt = event;
+        window.dispatchEvent(new CustomEvent("psy-install-available"));
+      });
+      // Once installed the prompt will never fire again, and any button
+      // offering it would be a lie.
+      window.addEventListener("appinstalled", function () {
+        globalThis.__psyInstallPrompt = null;
+        window.dispatchEvent(new CustomEvent("psy-install-done"));
+      });
+
       (function () {
         var THEMES = { psyntient: 1, claw: 1, knot: 1, dash: 1 };
         var MODES = { system: 1, light: 1, dark: 1 };

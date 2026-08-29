@@ -38,15 +38,6 @@ export type OnboardingStep = "welcome" | "key" | "pairing" | "handy";
  */
 const STEPS: readonly OnboardingStep[] = ["welcome", "key", "pairing", "handy"];
 
-/**
- * Steps the installer already performed, when setup was reached through it.
- *
- * Setup then presents itself as the CONTINUATION of one flow rather than a
- * second wizard beginning at step one. Somebody who has just watched a long
- * install should not be welcomed again and told they are at the beginning.
- */
-const INSTALLER_STEPS = 3;
-
 type Status = {
   hasProvider?: boolean;
   isPaired?: boolean;
@@ -91,12 +82,19 @@ export class PsyntientOnboarding extends LitElement {
   /** True when the installer handed off to this app, so setup continues its
    *  numbering instead of restarting at step one. */
   @state() private viaInstaller = false;
+  /** What was already true on arrival. Drives which steps the stepper shows
+   *  as already done rather than as work still to come. */
+  @state() private hadProvider = false;
+  @state() private wasPaired = false;
 
   private authToken: string | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
-    window.addEventListener("beforeinstallprompt", this.captureInstallPrompt);
+    window.addEventListener("psy-install-available", this.adoptInstallPrompt);
+    window.addEventListener("psy-install-done", this.adoptInstallPrompt);
+    // The event may already have fired and been stashed before this mounted.
+    this.adoptInstallPrompt();
     this.authToken = new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
     void this.bootstrap();
   }
@@ -115,6 +113,8 @@ export class PsyntientOnboarding extends LitElement {
       const res = await fetch(ROUTES.onboarding, { headers: this.headers() });
       const status = (await res.json()) as Status;
       this.viaInstaller = status.viaInstaller === true;
+      this.hadProvider = status.hasProvider === true;
+      this.wasPaired = status.isPaired === true;
       this.step =
         status.completed && status.hasProvider && status.isPaired ? "handy" : resumeStepFor(status);
     } catch {
@@ -217,6 +217,14 @@ export class PsyntientOnboarding extends LitElement {
   private installEvent: (Event & { prompt: () => Promise<void> }) | null = null;
   @state() private canInstallPwa = false;
 
+  /** Which OS's shortcut location to name. */
+  private get platform(): "mac" | "windows" | "linux" {
+    const ua = navigator.userAgent;
+    if (/Mac/.test(ua)) return "mac";
+    if (/Win/.test(ua)) return "windows";
+    return "linux";
+  }
+
   /** Which manual instructions to show when there is no install prompt. */
   private get pwaHint(): "safari" | "firefox" | "other" {
     const ua = navigator.userAgent;
@@ -225,10 +233,21 @@ export class PsyntientOnboarding extends LitElement {
     return "other";
   }
 
-  private captureInstallPrompt = (e: Event) => {
-    e.preventDefault();
-    this.installEvent = e as Event & { prompt: () => Promise<void> };
-    this.canInstallPwa = true;
+  /**
+   * Adopts the prompt captured in the document head.
+   *
+   * beforeinstallprompt fires ONCE, early -- usually before this app's modules
+   * have been evaluated, let alone before this component mounts. A listener
+   * added in connectedCallback registers after the event has come and gone,
+   * which is why the final step used to offer no install button on browsers
+   * that were perfectly willing to install. index.html stashes the event
+   * instead; this picks it up whenever it arrives, before or after mount.
+   */
+  private adoptInstallPrompt = () => {
+    const stashed = (globalThis as { __psyInstallPrompt?: Event & { prompt: () => Promise<void> } })
+      .__psyInstallPrompt;
+    this.installEvent = stashed ?? null;
+    this.canInstallPwa = stashed != null;
   };
 
   private async installPwa() {
@@ -237,7 +256,9 @@ export class PsyntientOnboarding extends LitElement {
     try {
       await this.installEvent.prompt();
       // Chromium allows one prompt per event; whether they accepted or not,
-      // it cannot be reused.
+      // it cannot be reused. Clear the stash too, or a remount would offer a
+      // spent prompt.
+      (globalThis as { __psyInstallPrompt?: unknown }).__psyInstallPrompt = null;
       this.installEvent = null;
       this.canInstallPwa = false;
     } finally {
@@ -247,17 +268,50 @@ export class PsyntientOnboarding extends LitElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    window.removeEventListener("beforeinstallprompt", this.captureInstallPrompt);
+    window.removeEventListener("psy-install-available", this.adoptInstallPrompt);
+    window.removeEventListener("psy-install-done", this.adoptInstallPrompt);
   }
 
+  /**
+   * Draws the whole journey, not just this app's share of it.
+   *
+   * Reached through the installer, setup is the CONTINUATION of one flow
+   * rather than a second wizard beginning at step one -- somebody who has just
+   * watched a twenty-minute install should not be welcomed again and told they
+   * are at the beginning.
+   *
+   * The count is DERIVED from the pills drawn, never a constant. A hardcoded
+   * "the installer did three steps" is what previously produced a bar showing
+   * four pills above a label reading "Step 6 of 6", leaving the user to
+   * reconcile the two.
+   */
   private renderStepper() {
     const viaInstaller = this.viaInstaller;
-    // Arriving from the installer, "welcome" is redundant -- the installer
-    // already did that -- so it is dropped rather than shown as a step the
-    // user never sees.
-    const steps = viaInstaller ? STEPS.filter((id) => id !== "welcome") : STEPS;
-    const offset = viaInstaller ? INSTALLER_STEPS : 0;
+    // Continuing an install, the stepper has to describe the WHOLE journey,
+    // not just this app's share of it -- otherwise the bar shows four pills
+    // while the label counts six, and the user is left to reconcile them.
+    //
+    // So the installer's completed steps become done pills here, and only
+    // steps that genuinely remain are shown as upcoming. A step the installer
+    // failed to complete is not marked done, so it never appears twice.
+    const done: string[] = [];
+    let steps: OnboardingStep[] = STEPS.filter((id) => id !== "welcome");
+    if (viaInstaller) {
+      if (this.hadProvider) {
+        done.push(t("onboarding.stepDone.key"));
+        steps = steps.filter((id) => id !== "key");
+      }
+      if (this.wasPaired) {
+        done.push(t("onboarding.stepDone.pairing"));
+        steps = steps.filter((id) => id !== "pairing");
+      }
+      done.push(t("onboarding.stepDone.installed"));
+    } else {
+      steps = [...STEPS];
+    }
+
     const index = steps.indexOf(this.step ?? steps[0]!);
+    const offset = done.length;
     const total = steps.length + offset;
 
     return html`
@@ -268,18 +322,24 @@ export class PsyntientOnboarding extends LitElement {
         })}
       </p>
       <ol class="psy-onb__stepper" aria-label=${t("onboarding.progress")}>
-        ${viaInstaller
-          ? html`<li class="psy-onb__step psy-onb__step--done">
+        ${done.map(
+          (label) => html`
+            <li class="psy-onb__step psy-onb__step--done">
               <span class="psy-onb__pip" aria-hidden="true"></span>
-              <span class="psy-onb__step-label">${t("onboarding.step.installed")}</span>
-            </li>`
-          : nothing}
+              <span class="psy-onb__step-label">${label}</span>
+            </li>
+          `,
+        )}
         ${steps.map((id, i) => {
           const state = i < index ? "done" : i === index ? "active" : "upcoming";
+          // A step names what is still to do while it is ahead, and what was
+          // done once it is behind.
+          const label =
+            state === "done" ? t(`onboarding.stepDone.${id}`) : t(`onboarding.step.${id}`);
           return html`
             <li class="psy-onb__step psy-onb__step--${state}">
               <span class="psy-onb__pip" aria-hidden="true"></span>
-              <span class="psy-onb__step-label">${t(`onboarding.step.${id}`)}</span>
+              <span class="psy-onb__step-label">${label}</span>
             </li>
           `;
         })}
@@ -397,13 +457,25 @@ export class PsyntientOnboarding extends LitElement {
             <!-- Only the installer creates a desktop shortcut. Saying so after
                  a manual checkout would send the user hunting for an icon that
                  was never written. -->
-            ${this.viaInstaller ? t("onboarding.handyShortcut") : t("onboarding.handyNoShortcut")}
+            ${this.viaInstaller
+              ? html`${t("onboarding.handyShortcut")}
+                ${t(`onboarding.shortcutWhere.${this.platform}`)}`
+              : t("onboarding.handyNoShortcut")}
             ${this.vaultPath
-              ? html`<br /><code class="psy-onb__path">${this.vaultPath}</code>`
+              ? html`<span
+                  >${t("onboarding.vaultLivesHere")}<br /><code class="psy-onb__path"
+                    >${this.vaultPath}</code
+                  ></span
+                >`
               : nothing}
           </p>
 
-          <button class="psy-onb__secondary" @click=${() => this.finish()}>
+          <!-- When no PWA install is on offer this is the only action on the
+               page, and a secondary-styled button reads as disabled. -->
+          <button
+            class=${this.canInstallPwa ? "psy-onb__secondary" : "psy-onb__primary"}
+            @click=${() => this.finish()}
+          >
             ${t("onboarding.enter")}
           </button>
         `;

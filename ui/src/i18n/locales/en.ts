@@ -2012,12 +2012,23 @@ export const en: TranslationMap = {
       key: "Model",
       pairing: "Account",
       handy: "Keep it handy",
-      installed: "Installed",
+      installed: "Install",
       install: "Ready",
+    },
+    // Past forms, shown once a step is behind the user. The pill styling
+    // already says "done"; this says WHAT is done, which is the part a label
+    // can carry and a colour cannot.
+    stepDone: {
+      welcome: "Welcome",
+      key: "Model set",
+      pairing: "Signed in",
+      handy: "Keep it handy",
+      installed: "Installed",
+      install: "Installed",
     },
     welcomeTitle: "Welcome to Psyntient Node",
     welcomeBody:
-      "Your Node runs entirely on this machine. Your research, your memory, and your Vault never leave it.",
+      "Your Node runs where you install it. Your research, your memory, and your Vault stay there and go nowhere else.",
     initialize: "Initialize Node",
     keyTitle: "Connect a model",
     keyBody:
@@ -2038,11 +2049,17 @@ export const en: TranslationMap = {
     vaultBody: "This is where your research is kept. It lives on this machine.",
     handyTitle: "Keep it handy",
     handyBody:
-      "Psyntient Node lives on this computer and opens in your browser. Install it as an app so it gets its own window and icon \u2014 or just bookmark it.",
+      "Psyntient Node runs on the machine you installed it on and opens in your browser. Install it as an app so it gets its own window and icon \u2014 or just bookmark it.",
     installApp: "Install as an app",
     handyShortcut:
-      "The installer also added a Psyntient Node shortcut, which starts your Node if it is not already running. Your Vault lives here:",
-    handyNoShortcut: "Start your Node any time by running its launcher. Your Vault lives here:",
+      "The installer also added a Psyntient Node shortcut, which starts your Node if it is not already running.",
+    vaultLivesHere: "Your Vault lives here:",
+    shortcutWhere: {
+      mac: "You will find it in your Applications folder.",
+      windows: "You will find it on your Desktop.",
+      linux: "You will find it in your applications menu.",
+    },
+    handyNoShortcut: "Start your Node any time by running its launcher.",
     handyManual: {
       safari: "In Safari, choose File \u2192 Add to Dock to install this as an app.",
       firefox:
