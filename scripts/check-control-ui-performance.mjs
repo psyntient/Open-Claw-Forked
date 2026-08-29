@@ -22,9 +22,18 @@ export const CONTROL_UI_STARTUP_JS_GZIP_TOLERANCE_BYTES = 1024;
 export const CONTROL_UI_PERFORMANCE_BUDGETS = Object.freeze({
   startupJsRequests: 18,
   startupCssRequests: 1,
-  // 317 KiB preserves headroom after the device-auth upgrade hook and sidebar
-  // session-render extraction (2026-07); the migration UI itself remains lazy.
-  startupJsGzipBytes: 317 * KIB,
+  // 345 KiB (Psyntient fork, 2026-08-29). Upstream's 317 KiB assumed upstream's
+  // sidebar. This fork ships product surfaces in the startup bundle that
+  // upstream does not have: the Projects selector, the Vault and sync badges,
+  // and the update control -- all sidebar chrome, so none of them can be
+  // route-lazy. Raised deliberately rather than by reflex; the pages behind
+  // those controls (Archive viewer, Projects Dashboard) remain lazily loaded,
+  // which is where the real weight would otherwise be.
+  //
+  // Worth knowing: `scripts/ui.js build` does NOT run this check -- only the
+  // `full` profile does. That is why the previous overage went unnoticed
+  // locally and first surfaced during a real install.
+  startupJsGzipBytes: 345 * KIB,
   // 45 KiB CSS ceilings maintainer-approved 2026-07 alongside the interleaved
   // sidebar zone styling; headroom over the ~36.5 KiB post-diet baseline.
   startupCssGzipBytes: 45 * KIB,
