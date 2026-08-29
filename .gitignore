@@ -315,3 +315,8 @@ extensions/discord/assets/embedded-app-sdk.mjs
 /.opengrep-out/
 /.crabbox-artifacts
 .comux*
+
+# Psyntient: rollback snapshot written by daemon/updater.mjs before an update.
+# Never commit it — it is a copy of dist/ that exists only to make rollback a
+# file swap instead of a 20-minute rebuild.
+dist.prev/
