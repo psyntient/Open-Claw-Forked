@@ -7095,5 +7095,3 @@ td.data-table-key-col {
 @media (prefers-reduced-motion: reduce) {
   .psy-update__fill { animation: none; transition: none; }
 }
-
-/* fork-remote update path verification */
