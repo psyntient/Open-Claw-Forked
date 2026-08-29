@@ -158,4 +158,13 @@ export type ControlUiBootstrapConfig = {
    */
   terminalEnabled?: boolean;
   pluginFrameGrants?: ControlUiPluginFrameGrantAck[];
+  /**
+   * Psyntient setup state, absent on a plain OpenClaw gateway.
+   *
+   * Carried here rather than on a plugin route because this endpoint
+   * authenticates with the device token the browser holds, and plugin routes
+   * registered `auth: "gateway"` accept only the shared secret the browser
+   * deliberately does not keep.
+   */
+  psyntient?: { onboarding: "pending" | "complete" };
 };

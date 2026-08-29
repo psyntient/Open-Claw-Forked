@@ -21,6 +21,8 @@
 //
 // This file is the ONLY Psyntient code inside the OpenClaw tree. Keep it thin
 // -- new endpoints belong in the external plugin module, not here.
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { PluginRegistry } from "../plugins/registry.js";
@@ -186,4 +188,43 @@ function mountInto(
   log?.(
     `psyntient: mounted ${routes.length} interface route(s) and ${toolCount} tool(s) from ${modPath}`,
   );
+}
+
+/**
+ * Onboarding state for the Control UI's bootstrap config.
+ *
+ * WHY THIS IS NOT A PLUGIN ROUTE
+ * The gate that decides whether to show the setup wizard runs in the browser,
+ * which holds a per-device operator token rather than the gateway's shared
+ * secret -- the Control UI trades one for the other at first load precisely so
+ * the shared secret never sits in browser storage. Plugin routes registered
+ * `auth: "gateway"` accept only the shared secret, so the gate's own request
+ * answered 401 on every launch that did not carry a token in the URL fragment.
+ * Its handler treats any non-ok response as "routes unavailable, do not block",
+ * which is right for a plain OpenClaw gateway and wrong here, so a Node with
+ * unfinished setup showed no wizard at all, silently.
+ *
+ * The bootstrap config is served by the Control UI's own handler, which DOES
+ * accept device tokens. Putting the answer there removes the credential problem
+ * rather than working around it.
+ *
+ * DELIBERATELY CHEAP
+ * Two file-existence checks and nothing else. The full status (which provider
+ * is configured) costs 10-15s because it shells out to the OpenClaw CLI, and
+ * this runs on a request the browser makes at every boot. The wizard asks for
+ * detail once it has decided to appear; the gate only needs to know whether to
+ * appear at all.
+ */
+export function psyntientOnboardingBootstrap(): { onboarding: "pending" | "complete" } | undefined {
+  const home = (process.env.PSYNTIENT_HOME ?? "").trim() || path.join(os.homedir(), ".psyntient");
+  try {
+    // The marker the wizard writes when the user finishes. Absent means setup
+    // has not been completed on this Node, whatever else is true.
+    const completed = fs.existsSync(path.join(home, "onboarding-complete"));
+    return { onboarding: completed ? "complete" : "pending" };
+  } catch {
+    // Unreadable home: say nothing rather than guess. The gate treats an
+    // absent block as "not a Psyntient Node" and does not block the app.
+    return undefined;
+  }
 }

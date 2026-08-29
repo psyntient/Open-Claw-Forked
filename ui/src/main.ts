@@ -72,38 +72,37 @@ function setDocumentLinkHref(
  * A cached "complete" is never re-checked for the rest of the browser session.
  */
 async function installPsyntientOnboardingGate() {
-  const CACHE_KEY = "psyntient-onboarding-complete";
+  // The Control UI's own bootstrap config, NOT a Psyntient plugin route.
+  //
+  // Plugin routes registered `auth: "gateway"` accept only the gateway's
+  // shared secret. The browser trades that secret for a per-device operator
+  // token at first load and strips it from the URL, precisely so the secret
+  // never sits in browser storage -- so this request answered 401 on every
+  // launch that did not carry a token in the fragment, and the handler below
+  // could not tell that from "this is a plain OpenClaw gateway". A Node with
+  // unfinished setup showed no wizard, silently, and a user who reached the
+  // app from a bookmark or the installed PWA never saw setup at all.
+  //
+  // The bootstrap endpoint is served by the handler that DOES accept device
+  // tokens, so the credential problem disappears rather than being worked
+  // around. It is also computed from two file checks instead of a 10-15s
+  // shell-out, which is why no cache is needed here any more.
+  let bootstrap: { psyntient?: { onboarding?: string } };
   try {
-    if (sessionStorage.getItem(CACHE_KEY) === "1") {
-      return;
-    }
-  } catch {
-    // Private mode or blocked storage: fall through and just ask the gateway.
-  }
-
-  const token = new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
-  const headers: Record<string, string> = {};
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  let status: { hasProvider?: boolean; isPaired?: boolean; completed?: boolean };
-  try {
-    const res = await fetch("/__openclaw__/psyntient/onboarding", { headers });
+    const res = await fetch(controlUiBootstrapConfigPath(), {
+      headers: { Accept: "application/json" },
+      credentials: "same-origin",
+    });
     if (!res.ok) {
-      return; // Routes unavailable (plain OpenClaw gateway): never block the app.
+      return; // Cannot ask: never block a working app.
     }
-    status = await res.json();
+    bootstrap = await res.json();
   } catch {
     return;
   }
 
-  if (status.hasProvider && status.isPaired && status.completed) {
-    try {
-      sessionStorage.setItem(CACHE_KEY, "1");
-    } catch {
-      // Cache is an optimisation, not a requirement.
-    }
+  // Absent block = a plain OpenClaw gateway. Only an explicit "pending" gates.
+  if (bootstrap.psyntient?.onboarding !== "pending") {
     return;
   }
 
@@ -114,4 +113,12 @@ async function installPsyntientOnboardingGate() {
   // budget and failed the build.
   await import("./pages/onboarding/onboarding-page.ts");
   document.body.replaceChildren(document.createElement("psyntient-onboarding"));
+}
+
+/** The bootstrap endpoint, relative to whatever base path this page was served
+ *  under. The default `/__openclaw__/` entry infers its own base path, so a
+ *  hardcoded absolute path 404s there. */
+function controlUiBootstrapConfigPath(): string {
+  const prefix = location.pathname.replace(/\/[^/]*$/, "");
+  return `${prefix}/control-ui-config.json`;
 }

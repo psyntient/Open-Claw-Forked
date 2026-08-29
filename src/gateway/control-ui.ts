@@ -84,6 +84,7 @@ import {
 } from "./http-utils.js";
 import { authorizeOperatorScopesForMethod } from "./method-scopes.js";
 import { resolveRequestClientIp } from "./net.js";
+import { psyntientOnboardingBootstrap } from "./psyntient-routes.js";
 import { resolveSharedGatewaySessionGeneration } from "./server/ws-shared-generation.js";
 
 const ROOT_PREFIX = "/";
@@ -997,6 +998,10 @@ export async function handleControlUiHttpRequest(
         path: grantPath,
         match,
       })),
+      // Served here because this endpoint authenticates with the device token
+      // the browser actually holds; see psyntient-routes.ts for why a plugin
+      // route could not.
+      psyntient: psyntientOnboardingBootstrap(),
     } satisfies ControlUiBootstrapConfig);
     return true;
   }
