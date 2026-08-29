@@ -1,27 +1,50 @@
 {
+  "id": "/",
   "name": "Psyntient Node",
   "short_name": "Psyntient",
-  "description": "Multi-channel AI gateway control panel",
-  "start_url": "./",
+  "description": "Your own sovereign research Node. Chat with Cortex, keep your Vault local, and contribute to the Noetic Archive only when you choose to.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "theme_color": "#0C0A1D",
   "background_color": "#0C0A1D",
   "icons": [
     {
-      "src": "./favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./brand/noetic-app-icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./favicon-32.png",
-      "sizes": "32x32",
-      "type": "image/png"
+      "src": "./brand/noetic-app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./brand/noetic-app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./brand/noetic-app-icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./brand/noetic-app-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
