@@ -6791,3 +6791,208 @@ td.data-table-key-col {
      stepper and Close are the way back. */
   .psy-vault__body--detail .psy-vault__grid { display: none; }
 }
+
+/* Project Profile header: what the project IS, before what it holds. */
+.psy-vault__detail-desc { margin: 0 0 0.3rem; font-size: 0.8125rem; color: var(--text); }
+.psy-vault__detail-desc--empty { color: var(--muted); font-style: italic; }
+.psy-vault__detail-meta { margin: 0 0 0.4rem; font-size: 0.75rem; color: var(--muted); }
+.psy-vault__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.psy-vault__actions button { flex: 1 1 10rem; }
+.psy-vault__open {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+.psy-vault__open:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+/* A deep link that matched nothing must explain itself: silently showing the
+   full list reads as a broken button. */
+.psy-vault__notice {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+/* --- Project Profile header --------------------------------------------- */
+.psy-vault__kicker {
+  margin: 0 0 0.15rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.psy-vault__detail-desc { margin: 0 0 0.3rem; font-size: 0.8125rem; color: var(--text); }
+.psy-vault__detail-desc--empty { color: var(--muted); font-style: italic; }
+.psy-vault__detail-meta { margin: 0 0 0.4rem; font-size: 0.75rem; color: var(--muted); }
+.psy-vault__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.psy-vault__actions button { flex: 1 1 9rem; }
+.psy-vault__open {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+.psy-vault__open:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.psy-vault__open[disabled] { opacity: 0.6; cursor: default; }
+/* A deep link that matched nothing has to explain itself: silently showing the
+   full list reads as a broken button. */
+.psy-vault__notice {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  font-size: 0.8125rem;
+}
+
+/* --- Project files browser ----------------------------------------------- */
+.psy-vault__browser {
+  position: fixed;
+  inset: 3rem 1.5rem 1.5rem;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  overflow: hidden;
+}
+.psy-vault__browser-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+.psy-vault__browser-head h3 { margin: 0; font-size: 1.05rem; }
+.psy-vault__browser-body { flex: 1 1 auto; display: flex; min-height: 0; }
+.psy-vault__tree {
+  flex: 0 0 17rem;
+  overflow-y: auto;
+  padding: 0.75rem;
+  border-right: 1px solid var(--border);
+}
+.psy-vault__filepane { flex: 1 1 auto; overflow-y: auto; padding: 1.25rem; }
+
+/* Accordion. Animated with grid-template-rows 0fr->1fr so the height
+   transition works without measuring content in JS, which is what makes a
+   collapsing list judder. */
+.psy-vault__acc { margin-bottom: 0.2rem; }
+.psy-vault__acc-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.4rem 0.45rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.psy-vault__acc-head:hover { background: var(--bg-hover, color-mix(in srgb, var(--text) 6%, transparent)); }
+.psy-vault__acc-icon svg,
+.psy-vault__tile-icon svg,
+.psy-vault__file-icon svg {
+  width: 1rem;
+  height: 1rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.75;
+}
+.psy-vault__acc-icon { color: var(--accent); display: inline-flex; }
+.psy-vault__acc-label { font-size: 0.8125rem; font-weight: 600; }
+.psy-vault__acc-ext {
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.psy-vault__acc-count { font-size: 0.7rem; color: var(--muted); }
+.psy-vault__acc-chevron {
+  margin-left: auto;
+  display: inline-flex;
+  color: var(--muted);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: rotate(-90deg);
+}
+.psy-vault__acc--open > .psy-vault__acc-head .psy-vault__acc-chevron { transform: rotate(0deg); }
+.psy-vault__acc-chevron svg { width: 0.9rem; height: 0.9rem; stroke: currentColor; fill: none; }
+.psy-vault__acc-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms ease;
+  opacity: 0;
+  padding-left: 0.7rem;
+}
+.psy-vault__acc-body > div { overflow: hidden; min-height: 0; }
+.psy-vault__acc--open > .psy-vault__acc-body { grid-template-rows: 1fr; opacity: 1; }
+
+.psy-vault__tiles { list-style: none; margin: 0.15rem 0 0.35rem; padding: 0; }
+.psy-vault__tile {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.psy-vault__tile:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.psy-vault__tile--active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.psy-vault__tile-icon { color: var(--muted); display: inline-flex; }
+.psy-vault__tile--active .psy-vault__tile-icon { color: var(--accent); }
+.psy-vault__tile-name {
+  flex: 1 1 auto;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psy-vault__tile-size { font-size: 0.7rem; color: var(--muted); }
+
+.psy-vault__file-card { max-width: 32rem; }
+.psy-vault__file-icon { color: var(--accent); display: inline-flex; }
+.psy-vault__file-icon svg { width: 2rem; height: 2rem; }
+.psy-vault__file-card h4 { margin: 0.5rem 0 0.9rem; font-size: 1rem; overflow-wrap: anywhere; }
+.psy-vault__fields { margin: 0 0 1rem; display: grid; gap: 0.5rem; }
+.psy-vault__fields > div { display: flex; gap: 0.6rem; font-size: 0.8125rem; }
+.psy-vault__fields dt {
+  flex: 0 0 6rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.psy-vault__fields dd { margin: 0; overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) {
+  .psy-vault__acc-body, .psy-vault__acc-chevron { transition: none; }
+}
+@media (max-width: 60rem) {
+  .psy-vault__browser { inset: 0.75rem; }
+  .psy-vault__browser-body { flex-direction: column; }
+  .psy-vault__tree { flex: 0 0 auto; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
+}

@@ -29,6 +29,7 @@
 // full contents of one project are pulled only when that project is opened.
 import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { icons, type IconName } from "../../components/icons.ts";
 import { t } from "../../i18n/index.ts";
 import { writeSelectedProjectId } from "../../lib/psyntient-projects.ts";
 import { handOffPrompt } from "../../lib/psyntient-prompt-handoff.ts";
@@ -54,6 +55,7 @@ type Project = {
   sessions: Sessions;
   material?: Record<string, number>;
   path: string;
+  createdAt?: string | null;
   lastSyncedAt: string | null;
   autoSync: boolean | null;
   autoSyncEffective?: boolean;
@@ -108,6 +110,7 @@ type Detail = { ok: boolean; error?: string; project?: Project; areas?: Area[] }
 const LEDGER_ROUTE = "/__openclaw__/psyntient/vault-ledger";
 const SEARCH_ROUTE = "/__openclaw__/psyntient/vault/search";
 const PROJECT_ROUTE = "/__openclaw__/psyntient/vault/project";
+const DOWNLOAD_ROUTE = "/__openclaw__/psyntient/vault/download";
 
 function formatBytes(n: number): string {
   if (n >= 1024 * 1024 * 1024) return `${(n / 1024 / 1024 / 1024).toFixed(1)} GB`;
@@ -129,6 +132,38 @@ function formatDate(iso: string | null | undefined): string {
  * 4,000 recordings and one note is a recording project, and showing the note
  * as its headline would misrepresent it.
  */
+/** Whole days since a date, floored at 1 so a project made today reads as a
+ *  duration rather than as "0 days". */
+function daysSince(iso: string): number {
+  return Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 86_400_000));
+}
+
+/** Category icons, so the four areas are distinguishable at a glance. */
+function areaIcon(area: string): IconName {
+  if (area === "sessions") return "activity";
+  if (area === "notes") return "fileText";
+  if (area === "analyses") return "barChart";
+  return "archive";
+}
+
+/** File-type icons. Unknown types get a neutral document rather than a guess. */
+function fileIcon(e: { ext: string; kind?: string }): IconName {
+  if (e.kind === "packet") return "brain";
+  switch (e.ext) {
+    case ".md":
+    case ".txt":
+      return "fileText";
+    case ".csv":
+      return "barChart";
+    case ".json":
+      return "database";
+    case ".pdf":
+      return "book";
+    default:
+      return "scrollText";
+  }
+}
+
 function shapeOf(p: Project): "captures" | "written" | "empty" {
   if (p.sessions.files > 0) return "captures";
   const written = Object.values(p.material ?? {}).reduce((n, v) => n + v, 0);
@@ -168,6 +203,15 @@ export class PsyntientVaultPage extends LitElement {
    * had already loaded correctly.
    */
   private loadSeq = 0;
+  /** A `?project=` that matched nothing in the ledger. */
+  @state() private missingProject: string | null = null;
+  /** File browser state. */
+  @state() private browsing = false;
+  @state() private openFile: AreaEntry | null = null;
+  @state() private openArea: string | null = null;
+  @state() private downloading = false;
+  /** Collapsed accordion nodes. Empty means everything is open. */
+  @state() private collapsed = new Set<string>();
 
   override connectedCallback() {
     super.connectedCallback();
@@ -243,7 +287,14 @@ export class PsyntientVaultPage extends LitElement {
     const wanted = new URLSearchParams(window.location.search).get("project");
     if (!wanted) return;
     const match = (this.ledger?.projects ?? []).find((p) => p.projectId === wanted);
-    if (match) void this.open(match);
+    if (match) {
+      void this.open(match);
+      return;
+    }
+    // Landing on the full list with no explanation reads as a broken button. A
+    // Project can exist in the app and not in the Vault, so this is a real
+    // state and it has to say so.
+    this.missingProject = wanted;
   }
 
   /**
@@ -385,6 +436,201 @@ export class PsyntientVaultPage extends LitElement {
   private openInApp(p: Project) {
     writeSelectedProjectId(p.projectId);
     window.location.href = "/new";
+  }
+
+  /**
+   * Open the file browser.
+   *
+   * A pane rather than an inline expansion: the profile panel is 24rem wide,
+   * and the point is to scroll THROUGH a project's files, which a panel that
+   * grows downward forever does badly.
+   */
+  private browse() {
+    this.browsing = true;
+    const first = (this.detail?.areas ?? []).find((a) => a.entries.length > 0);
+    const entry = first?.entries[0];
+    // Select something immediately: an empty right-hand pane on open reads as
+    // broken rather than ready.
+    if (first && entry) {
+      this.openArea = first.area;
+      this.openFile = entry;
+    }
+  }
+
+  private closeBrowser() {
+    this.browsing = false;
+    this.openFile = null;
+    this.openArea = null;
+  }
+
+  /** Collapse or expand one accordion node. */
+  private toggleNode(key: string) {
+    const next = new Set(this.collapsed);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    this.collapsed = next;
+  }
+
+  private async download(p: Project, area: string, entry: AreaEntry) {
+    this.downloading = true;
+    try {
+      const url =
+        `${DOWNLOAD_ROUTE}?project=${encodeURIComponent(p.projectId)}` +
+        `&device=${encodeURIComponent(p.device)}` +
+        `&path=${encodeURIComponent(`${area}/${entry.path}`)}`;
+      // fetch + blob rather than a plain <a href>: this route needs the gateway
+      // bearer token, and a token in a URL ends up in history and logs.
+      const res = await fetch(url, { headers: this.headers() });
+      if (!res.ok) {
+        this.errorText = t("vault.downloadFailed", { status: String(res.status) });
+        return;
+      }
+      const href = URL.createObjectURL(await res.blob());
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = entry.path.split("/").pop() ?? "file";
+      a.click();
+      URL.revokeObjectURL(href);
+    } catch (err) {
+      this.errorText = err instanceof Error ? err.message : String(err);
+    } finally {
+      this.downloading = false;
+    }
+  }
+
+  private renderAccordion(key: string, head: unknown, body: unknown) {
+    const open = !this.collapsed.has(key);
+    return html`
+      <div class="psy-vault__acc ${open ? "psy-vault__acc--open" : ""}">
+        <button
+          type="button"
+          class="psy-vault__acc-head"
+          aria-expanded=${String(open)}
+          @click=${() => this.toggleNode(key)}
+        >
+          ${head}
+          <span class="psy-vault__acc-chevron" aria-hidden="true">${icons.chevronDown}</span>
+        </button>
+        <div class="psy-vault__acc-body"><div>${body}</div></div>
+      </div>
+    `;
+  }
+
+  private renderFileTile(area: string, e: AreaEntry) {
+    const active = this.openFile?.path === e.path && this.openArea === area;
+    return html`
+      <li>
+        <button
+          type="button"
+          class="psy-vault__tile ${active ? "psy-vault__tile--active" : ""}"
+          @click=${() => {
+            this.openFile = e;
+            this.openArea = area;
+          }}
+        >
+          <span class="psy-vault__tile-icon" aria-hidden="true">${icons[fileIcon(e)]}</span>
+          <span class="psy-vault__tile-name">${e.path}</span>
+          <span class="psy-vault__tile-size">${formatBytes(e.bytes)}</span>
+        </button>
+      </li>
+    `;
+  }
+
+  /**
+   * Categories, then file types, then files -- the shape the Vault actually
+   * has on disk, so what a researcher sees here and what they would find in
+   * the directory match.
+   *
+   * Everything starts EXPANDED. Collapsing is for taming a large project once
+   * you know what is in it; starting collapsed would hide the very thing the
+   * pane was opened to show.
+   */
+  private renderBrowser(p: Project) {
+    const areas = (this.detail?.areas ?? []).filter((a) => a.entries.length > 0);
+    return html`
+      <div class="psy-vault__browser" role="dialog" aria-label=${t("vault.browseFiles")}>
+        <header class="psy-vault__browser-head">
+          <div>
+            <p class="psy-vault__kicker">${p.title}</p>
+            <h3>${t("vault.browseFiles")}</h3>
+          </div>
+          <button type="button" class="psy-vault__close" @click=${() => this.closeBrowser()}>
+            ${t("vault.close")}
+          </button>
+        </header>
+
+        <div class="psy-vault__browser-body">
+          <nav class="psy-vault__tree" aria-label=${t("vault.browseFiles")}>
+            ${areas.map((a) => {
+              const byType = new Map<string, AreaEntry[]>();
+              for (const e of a.entries) {
+                const key = e.ext || "(none)";
+                byType.set(key, [...(byType.get(key) ?? []), e]);
+              }
+              return this.renderAccordion(
+                a.area,
+                html`<span class="psy-vault__acc-icon" aria-hidden="true"
+                    >${icons[areaIcon(a.area)]}</span
+                  >
+                  <span class="psy-vault__acc-label">${t(`vault.material.${a.area}`)}</span>
+                  <span class="psy-vault__acc-count">${a.total}</span>`,
+                [...byType.entries()].map(([ext, entries]) =>
+                  this.renderAccordion(
+                    `${a.area}:${ext}`,
+                    html`<span class="psy-vault__acc-ext">${ext}</span>
+                      <span class="psy-vault__acc-count">${entries.length}</span>`,
+                    html`<ul class="psy-vault__tiles">
+                      ${entries.map((e) => this.renderFileTile(a.area, e))}
+                    </ul>`,
+                  ),
+                ),
+              );
+            })}
+          </nav>
+
+          <section class="psy-vault__filepane">
+            ${this.openFile && this.openArea
+              ? html`
+                  <div class="psy-vault__file-card">
+                    <span class="psy-vault__file-icon" aria-hidden="true"
+                      >${icons[fileIcon(this.openFile)]}</span
+                    >
+                    <h4>${this.openFile.path}</h4>
+                    <dl class="psy-vault__fields">
+                      <div>
+                        <dt>${t("vault.fileCategory")}</dt>
+                        <dd>${t(`vault.material.${this.openArea}`)}</dd>
+                      </div>
+                      <div>
+                        <dt>${t("vault.fileType")}</dt>
+                        <dd>${this.openFile.ext || "\u2014"}</dd>
+                      </div>
+                      <div>
+                        <dt>${t("vault.size")}</dt>
+                        <dd>${formatBytes(this.openFile.bytes)}</dd>
+                      </div>
+                      <div>
+                        <dt>${t("vault.modified")}</dt>
+                        <dd>${formatDate(this.openFile.mtime)}</dd>
+                      </div>
+                    </dl>
+                    <button
+                      type="button"
+                      class="psy-vault__open"
+                      ?disabled=${this.downloading}
+                      @click=${() =>
+                        void this.download(p, this.openArea ?? "", this.openFile as AreaEntry)}
+                    >
+                      ${this.downloading ? t("vault.downloading") : t("vault.download")}
+                    </button>
+                    <p class="psy-vault__more">${t("vault.previewLater")}</p>
+                  </div>
+                `
+              : html`<p class="psy-vault__empty-note">${t("vault.pickFile")}</p>`}
+          </section>
+        </div>
+      </div>
+    `;
   }
 
   /** One-click stepping through the visible set, same as the Archive viewer. */
@@ -550,7 +796,19 @@ export class PsyntientVaultPage extends LitElement {
           </button>
         </header>
 
+        <p class="psy-vault__kicker">${t("vault.profileLabel")}</p>
         <h2 class="psy-vault__detail-title">${p.title}</h2>
+        <p class="psy-vault__detail-desc ${p.description ? "" : "psy-vault__detail-desc--empty"}">
+          ${p.description?.trim() || t("vault.noDescription")}
+        </p>
+        ${p.createdAt
+          ? html`<p class="psy-vault__detail-meta">
+              ${t("vault.started", { date: formatDate(p.createdAt) })} ·
+              ${daysSince(p.createdAt) === 1
+                ? t("vault.ageOne")
+                : t("vault.age", { days: String(daysSince(p.createdAt)) })}
+            </p>`
+          : nothing}
         <p class="psy-vault__detail-path">${p.path}</p>
         ${p.dataTypes.length
           ? html`<p class="psy-vault__types">
@@ -586,6 +844,9 @@ export class PsyntientVaultPage extends LitElement {
                 )}
 
         <div class="psy-vault__actions">
+          <button type="button" class="psy-vault__open" @click=${() => this.browse()}>
+            ${t("vault.browseFiles")}
+          </button>
           <button type="button" class="psy-vault__open" @click=${() => this.openInApp(p)}>
             ${t("vault.openInApp")}
           </button>
@@ -671,6 +932,11 @@ export class PsyntientVaultPage extends LitElement {
             </div>`
           : nothing}
         ${this.errorText ? html`<p class="psy-vault__error">${this.errorText}</p>` : nothing}
+        ${this.missingProject
+          ? html`<p class="psy-vault__notice">
+              ${t("vault.deepLinkMissing", { id: this.missingProject })}
+            </p>`
+          : nothing}
         ${this.matchedIds
           ? html`<p class="psy-vault__result-count">
               ${projects.length === 0
@@ -687,6 +953,7 @@ export class PsyntientVaultPage extends LitElement {
           </div>
           ${this.selected ? this.renderDetail(this.selected) : nothing}
         </div>
+        ${this.browsing && this.selected ? this.renderBrowser(this.selected) : nothing}
       </div>
     `;
   }
