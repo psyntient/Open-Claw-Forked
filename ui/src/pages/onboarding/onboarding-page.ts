@@ -391,6 +391,14 @@ export class PsyntientOnboarding extends LitElement {
             placeholder=${t("onboarding.keyPlaceholder")}
             .value=${this.apiKey}
             @input=${(e: Event) => (this.apiKey = (e.target as HTMLInputElement).value)}
+            @keydown=${(e: KeyboardEvent) => {
+              // Paste a key, press Return. Matching the installer's key field,
+              // which the same user just came through.
+              if (e.key === "Enter" && this.apiKey && !this.busy) {
+                e.preventDefault();
+                void this.saveKey();
+              }
+            }}
           />
           <button
             class="psy-onb__primary"
