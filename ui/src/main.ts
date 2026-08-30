@@ -71,6 +71,42 @@ function setDocumentLinkHref(
  * pays it on every page load -- the same regression the WebClaw build hit.
  * A cached "complete" is never re-checked for the rest of the browser session.
  */
+/**
+ * The credential the Control UI itself authenticates with.
+ *
+ * The hash carries a token only on the first load -- the app exchanges it for
+ * a per-device operator token, persists that, and strips the hash -- so
+ * reading only the hash leaves every later launch unauthenticated. The
+ * persisted token is NOT in the settings blob (that holds gatewayUrl and
+ * display preferences, no token); it lives under
+ * openclaw.device.auth.v1:<gatewayUrl> as tokens.<role>.token.
+ */
+function deviceToken(): string | null {
+  const safe = (value: unknown): string | null =>
+    typeof value === "string" && value !== "" && !/[\r\n]/.test(value) ? value : null;
+
+  const fromHash = safe(new URLSearchParams(location.hash.replace(/^#/, "")).get("token"));
+  if (fromHash) {
+    return fromHash;
+  }
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (!key.startsWith("openclaw.device.auth.v1")) continue;
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const stored = JSON.parse(raw) as { tokens?: Record<string, { token?: unknown }> };
+      for (const entry of Object.values(stored.tokens ?? {})) {
+        const token = safe(entry?.token);
+        if (token) return token;
+      }
+    }
+  } catch {
+    // Blocked or unparseable storage: fall through unauthenticated, which
+    // fails open rather than blocking a working app.
+  }
+  return null;
+}
+
 async function installPsyntientOnboardingGate() {
   // The Control UI's own bootstrap config, NOT a Psyntient plugin route.
   //
@@ -89,8 +125,25 @@ async function installPsyntientOnboardingGate() {
   // shell-out, which is why no cache is needed here any more.
   let bootstrap: { psyntient?: { onboarding?: string } };
   try {
+    // The endpoint accepts the per-device operator token -- but it still
+    // REQUIRES one. An earlier version dropped the credential entirely on the
+    // reasoning that "the credential problem is gone". It was not: that
+    // endpoint had been verified reachable by passing an explicit bearer
+    // token, and the conclusion drawn was that no token was needed. Without
+    // the header it answers 401, the handler below fails open, and the wizard
+    // never appears -- the exact bug this was meant to fix, through a
+    // different door.
+    //
+    // What changed is WHICH credential works: plugin routes want the gateway's
+    // shared secret, which the browser deliberately does not keep; this
+    // endpoint takes the device token, which it does.
+    const headers: Record<string, string> = { Accept: "application/json" };
+    const token = deviceToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
     const res = await fetch(controlUiBootstrapConfigPath(), {
-      headers: { Accept: "application/json" },
+      headers,
       credentials: "same-origin",
     });
     if (!res.ok) {
