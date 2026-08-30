@@ -2053,6 +2053,9 @@ export const en: TranslationMap = {
     installApp: "Install as an app",
     handyShortcut:
       "The installer also added a Psyntient Node shortcut, which starts your Node if it is not already running.",
+    configuringTitle: "Setting up your research assistant",
+    configuringBody:
+      "Your Node is starting for the first time \u2014 loading its runtime and waking Cortex. This takes a minute or so, and only happens once.",
     vaultBelongsHere:
       "Your Vault is part of this Node. Use its Projects Dashboard and AI Agent to interact with your Vault storage.",
     shortcutWhere: {

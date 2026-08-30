@@ -27,7 +27,9 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
 
-export type OnboardingStep = "welcome" | "key" | "pairing" | "handy";
+// "configuring" is a terminal screen, not a step: it has no stepper entry and
+// nothing to go back to, so it is deliberately absent from STEPS.
+export type OnboardingStep = "welcome" | "key" | "pairing" | "handy" | "configuring";
 
 /** The stepper shows every step; none are collapsed or hidden. */
 /**
@@ -62,6 +64,28 @@ export function resumeStepFor(status: Status): OnboardingStep {
   if (!status.hasProvider) return "welcome";
   if (!status.isPaired) return "pairing";
   return "handy";
+}
+
+
+/**
+ * The flower of life, drawn.
+ *
+ * Seven circles in the seed-of-life arrangement. Inline rather than an asset
+ * file: it must inherit the theme colour and render crisply at any size, and a
+ * file would cost a fetch and fix the palette.
+ */
+function flowerOfLife() {
+  return html`
+    <svg class="psy-flower" viewBox="0 0 64 64" role="presentation" aria-hidden="true">
+            <circle cx="32.0" cy="32.0" r="13.0" />
+            <circle cx="45.0" cy="32.0" r="13.0" />
+            <circle cx="38.5" cy="43.26" r="13.0" />
+            <circle cx="25.5" cy="43.26" r="13.0" />
+            <circle cx="19.0" cy="32.0" r="13.0" />
+            <circle cx="25.5" cy="20.74" r="13.0" />
+            <circle cx="38.5" cy="20.74" r="13.0" />
+    </svg>
+  `;
 }
 
 @customElement("psyntient-onboarding")
@@ -190,7 +214,51 @@ export class PsyntientOnboarding extends LitElement {
     } catch {
       // The completion marker is a convenience; never block entry on it.
     }
+
+    // Do NOT reload straight into the app.
+    //
+    // A Node that has just been installed takes tens of seconds to become
+    // useful: the gateway warms its plugins, the agent runtime starts, the
+    // model catalogue loads. Reloading immediately drops the user into a chat
+    // window that says "offline" and shows no avatar -- which, seconds after
+    // an install they were told had succeeded, reads as a broken product
+    // rather than as work still finishing.
+    this.step = "configuring";
+    await this.waitUntilReady();
     location.reload();
+  }
+
+  /**
+   * Waits for the Node to actually be usable, then gives up gracefully.
+   *
+   * Polls the gateway's own readiness rather than guessing a duration: warm-up
+   * is dominated by machine speed, and a fixed wait would be too short on the
+   * slow machines that need it most and pointless delay on the fast ones.
+   *
+   * The ceiling is not a failure path. If the Node is still warming after two
+   * minutes the app loads anyway and shows its own connection state -- being
+   * held on a loading screen indefinitely is worse than being shown an app
+   * that is still connecting, because at least the latter can be interacted
+   * with.
+   */
+  private async waitUntilReady(timeoutMs = 120_000) {
+    const startedAt = Date.now();
+    while (Date.now() - startedAt < timeoutMs) {
+      try {
+        const res = await fetch("./readyz", { cache: "no-store" });
+        if (res.ok) {
+          // One success can be a socket answering mid-start. Confirm it holds.
+          await new Promise((r) => setTimeout(r, 1200));
+          const again = await fetch("./readyz", { cache: "no-store" });
+          if (again.ok) {
+            return;
+          }
+        }
+      } catch {
+        // Not up yet; the gateway restarts during setup and refuses briefly.
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
   }
 
   /**
@@ -342,6 +410,14 @@ export class PsyntientOnboarding extends LitElement {
         </div>
       `;
     }
+    // The configuring screen renders alone: no stepper, no mark, no error slot.
+    // renderStepper() would look "configuring" up in STEPS, not find it, and
+    // print "Step 0 of 4" -- and a progress bar is wrong here anyway, because
+    // the steps are finished and what remains is waiting.
+    if (this.step === "configuring") {
+      return html`<div class="psy-onb">${this.renderStep()}</div>`;
+    }
+
     return html`
       <div class="psy-onb">
         <img
@@ -425,6 +501,18 @@ export class PsyntientOnboarding extends LitElement {
                 ? t("onboarding.tryAgain")
                 : t("onboarding.pairNow")}
           </button>
+        `;
+      case "configuring":
+        // No stepper and no buttons: there is nothing to decide here, and a
+        // disabled control would only invite clicking.
+        return html`
+          <div class="psy-onb__configuring">
+            <div>
+              ${flowerOfLife()}
+              <h1 class="psy-onb__title">${t("onboarding.configuringTitle")}</h1>
+              <p class="psy-onb__configuring-note">${t("onboarding.configuringBody")}</p>
+            </div>
+          </div>
         `;
       case "handy":
         // The last step does something rather than announcing readiness. An

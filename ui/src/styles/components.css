@@ -7157,3 +7157,62 @@ td.data-table-key-col {
 .psy-vault__summary-icon svg { width: 0.95rem; height: 0.95rem; stroke: currentColor; fill: none; stroke-width: 1.75; }
 .psy-vault__summary-label { flex: 1 1 auto; color: var(--muted); }
 .psy-vault__summary-count { font-weight: 600; }
+
+/* Flower of life — the loader mark.
+ *
+ * Drawn rather than shipped as an image: it has to sit on a dark surface at
+ * several sizes and inherit the theme's colour, and an SVG file would need its
+ * own fetch, its own cache entry and a fixed palette. This is seven circles in
+ * the classic seed-of-life arrangement, tuned so the overlaps read as the
+ * pattern rather than as noise at 64px.
+ *
+ * The circles brighten in sequence rather than the whole mark spinning: this
+ * appears while a Node is warming up for the first time, which takes tens of
+ * seconds, and a rotating spinner at that duration reads as a hang. Something
+ * unfolding reads as work. */
+.psy-flower {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
+  color: var(--psy-gold, #eebc4a);
+}
+.psy-flower circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.15;
+  opacity: 0.18;
+  transform-origin: 50% 50%;
+  animation: psy-flower-breathe 3.6s ease-in-out infinite;
+}
+.psy-flower circle:nth-child(1) { animation-delay: 0s; }
+.psy-flower circle:nth-child(2) { animation-delay: 0.18s; }
+.psy-flower circle:nth-child(3) { animation-delay: 0.36s; }
+.psy-flower circle:nth-child(4) { animation-delay: 0.54s; }
+.psy-flower circle:nth-child(5) { animation-delay: 0.72s; }
+.psy-flower circle:nth-child(6) { animation-delay: 0.9s; }
+.psy-flower circle:nth-child(7) { animation-delay: 1.08s; }
+
+@keyframes psy-flower-breathe {
+  0%, 70%, 100% { opacity: 0.18; }
+  20% { opacity: 0.95; }
+}
+
+/* Motion is decoration here; the message carries the meaning. */
+@media (prefers-reduced-motion: reduce) {
+  .psy-flower circle { animation: none; opacity: 0.55; }
+}
+
+.psy-onb__configuring {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  text-align: center;
+}
+.psy-onb__configuring-note {
+  max-width: 34rem;
+  margin: 0.75rem auto 0;
+  font-size: 0.9375rem;
+  opacity: 0.7;
+  line-height: 1.6;
+}
