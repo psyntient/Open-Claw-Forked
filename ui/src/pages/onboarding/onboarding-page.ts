@@ -68,6 +68,74 @@ export function resumeStepFor(status: Status): OnboardingStep {
 
 
 /**
+ * Styles for the setup wizard's loader, injected by THIS module rather than
+ * living in the global stylesheet.
+ *
+ * They were in components.css and pushed startup CSS 8 bytes over its 45 KiB
+ * budget, failing the build. Trimming eight bytes would have left no headroom
+ * for the next change; this removes them from the startup cost entirely.
+ *
+ * That is also where they belong. This module is dynamically imported, and
+ * only when a Node's setup is unfinished -- so the rules now load exactly when
+ * something can use them, instead of on every launch for the life of the
+ * install.
+ */
+const ONBOARDING_STYLE_ID = "psyntient-onboarding-style";
+
+function ensureOnboardingStyles() {
+  if (document.getElementById(ONBOARDING_STYLE_ID)) {
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = ONBOARDING_STYLE_ID;
+  style.textContent = `
+.psy-flower {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
+  color: var(--psy-gold, #eebc4a);
+}
+.psy-flower circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.15;
+  opacity: 0.18;
+  transform-origin: 50% 50%;
+  animation: psy-flower-breathe 3.6s ease-in-out infinite;
+}
+.psy-flower circle:nth-child(1) { animation-delay: 0s; }
+.psy-flower circle:nth-child(2) { animation-delay: 0.18s; }
+.psy-flower circle:nth-child(3) { animation-delay: 0.36s; }
+.psy-flower circle:nth-child(4) { animation-delay: 0.54s; }
+.psy-flower circle:nth-child(5) { animation-delay: 0.72s; }
+.psy-flower circle:nth-child(6) { animation-delay: 0.9s; }
+.psy-flower circle:nth-child(7) { animation-delay: 1.08s; }
+@keyframes psy-flower-breathe {
+  0%, 70%, 100% { opacity: 0.18; }
+  20% { opacity: 0.95; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .psy-flower circle { animation: none; opacity: 0.55; }
+}
+.psy-onb__configuring {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  text-align: center;
+}
+.psy-onb__configuring-note {
+  max-width: 34rem;
+  margin: 0.75rem auto 0;
+  font-size: 0.9375rem;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+`;
+  document.head.append(style);
+}
+
+/**
  * The flower of life, drawn.
  *
  * Seven circles in the seed-of-life arrangement. Inline rather than an asset
@@ -113,6 +181,7 @@ export class PsyntientOnboarding extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    ensureOnboardingStyles();
     window.addEventListener("psy-install-available", this.adoptInstallPrompt);
     window.addEventListener("psy-install-done", this.adoptInstallPrompt);
     // The event may already have fired and been stashed before this mounted.
