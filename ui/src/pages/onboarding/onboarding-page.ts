@@ -24,7 +24,7 @@
 //  - The status check is expensive (hasAnyProvider shells out to the CLI at
 //    ~10s), so it runs ONCE on mount and never per render.
 import { LitElement, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
 
 // "configuring" is a terminal screen, not a step: it has no stepper entry and
@@ -65,7 +65,6 @@ export function resumeStepFor(status: Status): OnboardingStep {
   if (!status.isPaired) return "pairing";
   return "handy";
 }
-
 
 /**
  * Styles for the setup wizard's loader, injected by THIS module rather than
@@ -145,13 +144,13 @@ function ensureOnboardingStyles() {
 function flowerOfLife() {
   return html`
     <svg class="psy-flower" viewBox="0 0 64 64" role="presentation" aria-hidden="true">
-            <circle cx="32.0" cy="32.0" r="13.0" />
-            <circle cx="45.0" cy="32.0" r="13.0" />
-            <circle cx="38.5" cy="43.26" r="13.0" />
-            <circle cx="25.5" cy="43.26" r="13.0" />
-            <circle cx="19.0" cy="32.0" r="13.0" />
-            <circle cx="25.5" cy="20.74" r="13.0" />
-            <circle cx="38.5" cy="20.74" r="13.0" />
+      <circle cx="32.0" cy="32.0" r="13.0" />
+      <circle cx="45.0" cy="32.0" r="13.0" />
+      <circle cx="38.5" cy="43.26" r="13.0" />
+      <circle cx="25.5" cy="43.26" r="13.0" />
+      <circle cx="19.0" cy="32.0" r="13.0" />
+      <circle cx="25.5" cy="20.74" r="13.0" />
+      <circle cx="38.5" cy="20.74" r="13.0" />
     </svg>
   `;
 }
@@ -177,7 +176,14 @@ export class PsyntientOnboarding extends LitElement {
   @state() private hadProvider = false;
   @state() private wasPaired = false;
 
-  private authToken: string | null = null;
+  /**
+   * The gateway shared secret, handed in by the loader.
+   *
+   * Not read from location.hash here: the loader mounts this element after an
+   * await, and the app shell clears the hash during it. The hash read below
+   * survives only as a fallback for a direct mount.
+   */
+  @property({ attribute: false }) authToken: string | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -186,7 +192,7 @@ export class PsyntientOnboarding extends LitElement {
     window.addEventListener("psy-install-done", this.adoptInstallPrompt);
     // The event may already have fired and been stashed before this mounted.
     this.adoptInstallPrompt();
-    this.authToken = new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
+    this.authToken ??= new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
     void this.bootstrap();
   }
 

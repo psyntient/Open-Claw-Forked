@@ -18,6 +18,22 @@ const isProd = (import.meta as ViteImportMeta).env?.PROD === true;
 const currentControlUiBuildId = CONTROL_UI_BUILD_INFO.buildId;
 
 syncDocumentPublicAssetLinks();
+// Read SYNCHRONOUSLY, at module load, before anything can strip the hash.
+//
+// The gate below is async: it awaits a fetch before it mounts the wizard, and
+// during that await the app shell boots, trades the hash token for a device
+// token and clears the hash. The wizard then read location.hash for itself,
+// found nothing, sent no Authorization header, and every one of its own
+// endpoints answered 401 -- so setup appeared on screen and could not be
+// completed. "Keep it handy" was never being skipped; the wizard could not
+// get past the step before it.
+//
+// It must be the HASH token specifically, not deviceToken(): the wizard's
+// endpoints are plugin routes registered `auth: "gateway"`, which take the
+// shared secret and reject the per-device token. The shortcut puts that
+// secret in the hash on every launch, so it is there whenever the app is
+// opened the way the installer sets it up to be opened.
+const bootHashToken = new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
 void installPsyntientOnboardingGate();
 installStaleChunkReloadListener();
 installMissingStylesheetRecovery();
@@ -165,7 +181,12 @@ async function installPsyntientOnboardingGate() {
   // every launch pays for afterwards. That is what pushed startup JS past its
   // budget and failed the build.
   await import("./pages/onboarding/onboarding-page.ts");
-  document.body.replaceChildren(document.createElement("psyntient-onboarding"));
+  const wizard = document.createElement("psyntient-onboarding") as HTMLElement & {
+    authToken?: string | null;
+  };
+  // Handed in rather than re-derived: by the time this runs the hash is gone.
+  wizard.authToken = bootHashToken;
+  document.body.replaceChildren(wizard);
 }
 
 /** The bootstrap endpoint, relative to whatever base path this page was served
