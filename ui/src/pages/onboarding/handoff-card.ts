@@ -218,6 +218,23 @@ export class PsyntientHandoff extends LitElement {
     return /mac/i.test(navigator.platform || navigator.userAgent);
   }
 
+  /**
+   * Which browser we are, only enough to say what to do instead.
+   *
+   * There is no way to install a web app without `beforeinstallprompt`, and
+   * browsers fire it only when they are actually willing -- so when it has not
+   * fired there is no button worth drawing, and the honest thing is to say why.
+   * "Why" differs enough between browsers to be worth getting right: Safari can
+   * do it from a menu, Firefox cannot do it at all, and Chrome usually has not
+   * offered because the app is already installed.
+   */
+  private get pwaHint(): "safari" | "firefox" | "other" {
+    const ua = navigator.userAgent;
+    if (/firefox/i.test(ua)) return "firefox";
+    if (/safari/i.test(ua) && !/chrome|chromium|edg/i.test(ua)) return "safari";
+    return "other";
+  }
+
   override render() {
     const bookmarkKey = this.isMac ? "⌘ D" : "Ctrl + D";
     return html`
@@ -238,7 +255,9 @@ export class PsyntientHandoff extends LitElement {
                 <span>
                   ${this.canInstall
                     ? t("onboarding.handyChoice.appBody")
-                    : t("onboarding.handyChoice.appUnavailable")}
+                    : this.pwaHint === "other"
+                      ? t("onboarding.handyChoice.appUnavailable")
+                      : t(`onboarding.handyManual.${this.pwaHint}`)}
                 </span>
               </div>
               ${this.canInstall

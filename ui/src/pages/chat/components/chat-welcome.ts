@@ -181,15 +181,24 @@ function renderWelcomeHero(
 ) {
   const name = props.assistantName || "Assistant";
   const avatar = resolveAssistantAvatarUrl(props);
-  const avatarText = avatar ? null : resolveAssistantTextAvatar(props.assistantAvatar);
+  // A real avatar image wins. A TEXT avatar does not.
+  //
+  // IDENTITY.md gives Cortex an emoji and no avatar image, and the gateway
+  // syncs that emoji into the agent's avatar field -- so this slot rendered a
+  // sparkle tile and the elf below was unreachable. The elf still appeared on
+  // the new-session page, which calls this from a different site without the
+  // avatar props, which is how one product ended up with two answers for its
+  // own mascot.
+  //
+  // An emoji is the stand-in for an agent that has no artwork. This one has
+  // artwork, and this slot is the most prominent persona surface in the
+  // product, so the artwork wins here. The emoji is still right everywhere it
+  // is used at text size -- session rows, notifications -- and is untouched
+  // there.
   return html`
     ${avatar
       ? html`<img class="agent-chat__welcome-avatar" src=${avatar} alt=${name} />`
-      : avatarText
-        ? html`<div class="agent-chat__avatar agent-chat__avatar--text" aria-label=${name}>
-            ${avatarText}
-          </div>`
-        : renderWelcomeClawd()}
+      : renderWelcomeClawd()}
     <h2>${name}</h2>
     <p class="agent-chat__hint">${props.hint}</p>
   `;
