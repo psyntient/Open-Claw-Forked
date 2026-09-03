@@ -150,6 +150,7 @@ async function installPsyntientOnboardingGate() {
       hasProvider?: boolean;
       isPaired?: boolean;
       viaInstaller?: boolean;
+      installedAt?: string | null;
     };
   };
   try {
@@ -214,12 +215,17 @@ async function installPsyntientOnboardingGate() {
   // anything.
   if (psy.hasProvider && psy.isPaired) {
     const { handoffNeeded } = await import("./pages/onboarding/handoff-card.ts");
-    if (!handoffNeeded()) {
+    const installedAt = psy.installedAt ?? null;
+    if (!handoffNeeded(installedAt)) {
       return;
     }
     // Appended, not replacing: there is no body to lose to the app shell, so
     // there is no race to lose.
-    document.body.appendChild(document.createElement("psyntient-handoff"));
+    const card = document.createElement("psyntient-handoff") as HTMLElement & {
+      installedAt?: string | null;
+    };
+    card.installedAt = installedAt;
+    document.body.appendChild(card);
     return;
   }
 

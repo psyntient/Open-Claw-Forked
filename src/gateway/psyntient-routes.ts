@@ -215,12 +215,23 @@ function mountInto(
  * detail once it has decided to appear; the gate only needs to know whether to
  * appear at all.
  */
+/** The installer's timestamp, or null. Cheap: one small read, no parsing. */
+function readInstalledAt(home: string): string | null {
+  try {
+    const raw = fs.readFileSync(path.join(home, "installed-via-wizard"), "utf8").trim();
+    return raw || null;
+  } catch {
+    return null;
+  }
+}
+
 export function psyntientOnboardingBootstrap():
   | {
       onboarding: "pending" | "complete";
       hasProvider: boolean;
       isPaired: boolean;
       viaInstaller: boolean;
+      installedAt: string | null;
     }
   | undefined {
   const home = (process.env.PSYNTIENT_HOME ?? "").trim() || path.join(os.homedir(), ".psyntient");
@@ -239,6 +250,15 @@ export function psyntientOnboardingBootstrap():
       hasProvider: fs.existsSync(path.join(home, "providers.json")),
       isPaired: fs.existsSync(path.join(home, "node.key")),
       viaInstaller: fs.existsSync(path.join(home, "installed-via-wizard")),
+      // The install's own timestamp, so the browser can tell one install from
+      // the next.
+      //
+      // "Have you been shown the ways back in?" is a per-browser question, so
+      // the answer lives in localStorage -- but localStorage is keyed by origin,
+      // and every install of this Node is the same origin. Reinstalling
+      // therefore inherited the previous install's answer and the card never
+      // appeared again, on a Node that had never shown it.
+      installedAt: readInstalledAt(home),
     };
   } catch {
     // Unreadable home: say nothing rather than guess. The gate treats an

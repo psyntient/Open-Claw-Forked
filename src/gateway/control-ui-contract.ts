@@ -183,5 +183,7 @@ export type ControlUiBootstrapConfig = {
     hasProvider: boolean;
     isPaired: boolean;
     viaInstaller: boolean;
+    /** Install timestamp, so a reinstall is not mistaken for the same install. */
+    installedAt: string | null;
   };
 };

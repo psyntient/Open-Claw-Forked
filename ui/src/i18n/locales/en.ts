@@ -2061,6 +2061,7 @@ export const en: TranslationMap = {
       appUnavailable:
         "Your browser is not offering this right now \u2014 usually because it is already installed, or because this browser cannot install web apps.",
     },
+    handyBadge: "Ways to open",
     handyTitle: "Keep it handy",
     handyBody:
       "Psyntient Node runs on the machine you installed it on and opens in your browser. Pick whichever way back in suits you \u2014 you can do more than one, or none.",

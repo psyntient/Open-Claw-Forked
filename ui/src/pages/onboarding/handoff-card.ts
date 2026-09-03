@@ -37,24 +37,42 @@
  * rewrite exists to remove.
  */
 import { LitElement, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
 
-const SEEN_KEY = "psyntient.handy.seen.v1";
+const SEEN_PREFIX = "psyntient.handy.seen.v1";
 const STYLE_ID = "psyntient-handoff-style";
 
-/** Per-browser, and deliberately forgiving: a storage failure shows the card. */
-function alreadySeen(): boolean {
+/**
+ * Scoped to the install, not just the browser.
+ *
+ * localStorage is keyed by origin, and every install of this Node is the same
+ * origin -- so a bare flag meant that dismissing the card once silenced it for
+ * every future install on that machine. Reinstalling from scratch produced a
+ * Node that had never shown the card and never would.
+ *
+ * Keying on the installer's timestamp makes each install ask the question
+ * again, which is the honest answer to "has this Node offered you a way back
+ * in yet?". A Node with no timestamp (a manual checkout) falls back to a shared
+ * key; there is no install event to scope to, and re-offering on every launch
+ * would be worse than remembering.
+ */
+function seenKey(installedAt: string | null): string {
+  return installedAt ? `${SEEN_PREFIX}:${installedAt}` : SEEN_PREFIX;
+}
+
+/** Deliberately forgiving: a storage failure shows the card. */
+function alreadySeen(installedAt: string | null): boolean {
   try {
-    return localStorage.getItem(SEEN_KEY) === "1";
+    return localStorage.getItem(seenKey(installedAt)) === "1";
   } catch {
     return false;
   }
 }
 
-function markSeen() {
+function markSeen(installedAt: string | null) {
   try {
-    localStorage.setItem(SEEN_KEY, "1");
+    localStorage.setItem(seenKey(installedAt), "1");
   } catch {
     // Private windows and blocked storage both land here. Showing the card
     // again next launch is a far better failure than throwing on dismissal.
@@ -133,6 +151,19 @@ export class PsyntientHandoff extends LitElement {
   @state() private busy = false;
   @state() private copied = false;
 
+  /** The install this card belongs to; scopes the dismissal. */
+  @property({ attribute: false }) installedAt: string | null = null;
+
+  /**
+   * Whether dismissing this card should stop it appearing on its own.
+   *
+   * False when the user opened it deliberately from the sidebar. Closing
+   * something you went looking for should not silence the thing that would
+   * have offered it to you anyway -- that would make the button a trap, where
+   * looking at your options costs you the reminder.
+   */
+  @property({ attribute: false }) persistDismissal = true;
+
   private installEvent: (Event & { prompt: () => Promise<void> }) | null = null;
 
   override connectedCallback() {
@@ -173,7 +204,9 @@ export class PsyntientHandoff extends LitElement {
   }
 
   private dismiss() {
-    markSeen();
+    if (this.persistDismissal) {
+      markSeen(this.installedAt);
+    }
     this.remove();
   }
 
@@ -303,7 +336,7 @@ export class PsyntientHandoff extends LitElement {
   }
 }
 
-/** True when this browser has not yet been offered a way back in. */
-export function handoffNeeded(): boolean {
-  return !alreadySeen();
+/** True when this browser has not yet been offered a way back into THIS install. */
+export function handoffNeeded(installedAt: string | null): boolean {
+  return !alreadySeen(installedAt);
 }
