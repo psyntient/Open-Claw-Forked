@@ -46,16 +46,26 @@ export class PsyntientHandyBadge extends LitElement {
   }
 
   override render() {
+    // Deliberately the update badge's classes, not new ones.
+    //
+    // It is the same kind of control in the same slot -- a nav-rail-sized pill
+    // that opens something larger -- so it should be indistinguishable from its
+    // neighbour, and duplicating the rules under a new name would only let the
+    // two drift apart. It also keeps this off the startup stylesheet, which is
+    // within a couple of hundred bytes of its budget.
     return html`
-      <button
-        class="psyntient-badge psyntient-badge--handy"
-        type="button"
-        ?disabled=${this.busy}
-        @click=${() => void this.open()}
-        title=${t("onboarding.handyTitle")}
-      >
-        <span>${t("onboarding.handyBadge")}</span>
-      </button>
+      <div class="psy-update">
+        <button
+          type="button"
+          class="psy-update__btn"
+          aria-haspopup="dialog"
+          ?disabled=${this.busy}
+          @click=${() => void this.open()}
+          title=${t("onboarding.handyTitle")}
+        >
+          <span>${t("onboarding.handyBadge")}</span>
+        </button>
+      </div>
     `;
   }
 }
