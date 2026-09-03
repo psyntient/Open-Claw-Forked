@@ -26,6 +26,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { PluginRegistry } from "../plugins/registry.js";
+import { dispatchGatewayMethodInProcessRaw } from "./server-plugins.js";
 
 type MinimalRouteInput = {
   path: string;
@@ -155,6 +156,34 @@ function mountInto(
   registry.tools = tools;
   let toolCount = 0;
   register({
+    /**
+     * The gateway itself, for the few things a route cannot do alone.
+     *
+     * The interface plugin is loaded through this shim rather than the plugin
+     * loader (see the note above), so it never received the runtime surface a
+     * native plugin gets -- only registerHttpRoute and registerTool. That was
+     * enough while it only answered HTTP, and stopped being enough the moment
+     * it needed to make the agent say something: the one call that can run a
+     * turn AND keep its own prompt out of the transcript is a gateway method,
+     * and the CLI has no flag for the second half.
+     *
+     * Without it, a first-run greeting had to be driven through the CLI, which
+     * persists the triggering prompt -- so the user's first sight of their
+     * research assistant was an instruction they never typed, telling it not to
+     * mention the instruction.
+     */
+    gateway: {
+      isAvailable: async () => {
+        try {
+          await dispatchGatewayMethodInProcessRaw("ping", {}, { timeoutMs: 5_000 });
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      request: async (method: string, params?: Record<string, unknown>) =>
+        await dispatchGatewayMethodInProcessRaw(method, params ?? {}, { timeoutMs: 600_000 }),
+    },
     registerHttpRoute: (route: MinimalRouteInput) => {
       routes.push({
         pluginId: "psyntient",
