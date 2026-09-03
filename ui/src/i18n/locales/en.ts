@@ -2047,9 +2047,18 @@ export const en: TranslationMap = {
     tryAgain: "Try again",
     vaultTitle: "Your Neural Vault",
     vaultBody: "This is where your research is kept. It lives on this machine.",
+    handyChoice: {
+      appTitle: "Install as an app",
+      appBody: "Its own window and icon, like any other app. The best option where it is offered.",
+      bookmarkTitle: "Bookmark this page",
+      bookmarkBody: "Press {key} to save it. Works in every browser.",
+      shortcutTitle: "Use the shortcut",
+      shortcutBody:
+        "The installer already made one, and it starts your Node if it is not already running.",
+    },
     handyTitle: "Keep it handy",
     handyBody:
-      "Psyntient Node runs on the machine you installed it on and opens in your browser. Install it as an app so it gets its own window and icon \u2014 or just bookmark it.",
+      "Psyntient Node runs on the machine you installed it on and opens in your browser. Pick whichever way back in suits you \u2014 you can do more than one, or none.",
     installApp: "Install as an app",
     handyShortcut:
       "The installer also added a Psyntient Node shortcut, which starts your Node if it is not already running.",

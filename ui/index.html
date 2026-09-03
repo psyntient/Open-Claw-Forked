@@ -29,6 +29,24 @@
       globalThis.__zod_globalConfig ??= {};
       globalThis.__zod_globalConfig.jitless = true;
 
+      // Capture the launch token HERE, in the head, for the same reason the
+      // install prompt is captured here: by the time the app's modules run it
+      // is already gone.
+      //
+      // The gateway secret arrives in the location hash on every launch, and
+      // the app shell trades it for a per-device token and clears the hash
+      // early in boot. Setup needs the SECRET specifically -- its endpoints are
+      // plugin routes registered `auth: "gateway"`, which reject the per-device
+      // token. Reading the hash from inside a module loses that race, and it
+      // loses it silently: setup read null, sent no Authorization header, every
+      // one of its calls answered 401, and it fell back to its first screen as
+      // though nothing had been set up at all.
+      //
+      // Reading it here cannot lose that race. Nothing runs before the head.
+      globalThis.__psyntientBootToken = new URLSearchParams(
+        location.hash.replace(/^#/, ""),
+      ).get("token");
+
       // Capture the install prompt HERE, in the document head, because the
       // browser fires beforeinstallprompt once and early -- typically before
       // the app's modules have even been evaluated, let alone before the

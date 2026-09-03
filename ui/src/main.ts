@@ -33,7 +33,12 @@ syncDocumentPublicAssetLinks();
 // shared secret and reject the per-device token. The shortcut puts that
 // secret in the hash on every launch, so it is there whenever the app is
 // opened the way the installer sets it up to be opened.
-const bootHashToken = new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
+// Captured by index.html's head script, not read here: this module is bundled
+// into a lazily-initialised chunk, so even "read it at module load" runs after
+// the app shell has cleared the hash. The head script cannot be beaten to it.
+const bootHashToken =
+  (globalThis as { __psyntientBootToken?: string | null }).__psyntientBootToken ??
+  new URLSearchParams(location.hash.replace(/^#/, "")).get("token");
 void installPsyntientOnboardingGate();
 installStaleChunkReloadListener();
 installMissingStylesheetRecovery();

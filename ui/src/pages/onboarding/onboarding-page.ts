@@ -88,6 +88,50 @@ function ensureOnboardingStyles() {
   const style = document.createElement("style");
   style.id = ONBOARDING_STYLE_ID;
   style.textContent = `
+.psy-onb__choices {
+  list-style: none;
+  margin: 1.25rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+.psy-onb__choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.psy-onb__choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.psy-onb__choice-text strong {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.psy-onb__choice-text span {
+  font-size: 0.85rem;
+  opacity: 0.66;
+  line-height: 1.4;
+}
+.psy-onb__choice .psy-onb__secondary {
+  flex: none;
+  white-space: nowrap;
+}
+@media (max-width: 460px) {
+  .psy-onb__choice {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 .psy-flower {
   display: block;
   width: 72px;
@@ -589,48 +633,76 @@ export class PsyntientOnboarding extends LitElement {
             </div>
           </div>
         `;
-      case "handy":
-        // The last step does something rather than announcing readiness. An
-        // installed app, a desktop shortcut or a bookmark are the three ways
-        // back in, and which are available depends on the browser -- so the
-        // options are offered in order of how well they work, not as a list of
-        // equals.
+      case "handy": {
+        // THREE WAYS BACK IN, PRESENTED AS A CHOICE.
+        //
+        // Nothing here installs anything on its own. The PWA install used to be
+        // the single primary button on the page, which made it read as the
+        // thing you press to finish -- so it got pressed without anyone
+        // deciding they wanted an installed app. A bookmark, or the shortcut
+        // the installer already made, are equally good ways back, and on
+        // browsers that cannot install web apps they are the only ways.
+        //
+        // So all three are listed, each saying what it actually gives you, and
+        // none of them is the button that ends the step. Choosing none is a
+        // legitimate outcome -- the shortcut exists either way.
+        const bookmarkKey = this.platform === "mac" ? "\u2318 D" : "Ctrl + D";
         return html`
           <h1 class="psy-onb__title">${t("onboarding.handyTitle")}</h1>
           <p class="psy-onb__hint">${t("onboarding.handyBody")}</p>
 
-          ${this.canInstallPwa
-            ? html`<button
-                class="psy-onb__primary"
-                ?disabled=${this.busy}
-                @click=${() => void this.installPwa()}
-              >
-                ${t("onboarding.installApp")}
-              </button>`
-            : html`<p class="psy-onb__hint psy-onb__hint--quiet">
-                ${t(`onboarding.handyManual.${this.pwaHint}`)}
-              </p>`}
+          <ul class="psy-onb__choices">
+            ${this.canInstallPwa
+              ? html`<li class="psy-onb__choice">
+                  <div class="psy-onb__choice-text">
+                    <strong>${t("onboarding.handyChoice.appTitle")}</strong>
+                    <span>${t("onboarding.handyChoice.appBody")}</span>
+                  </div>
+                  <button
+                    class="psy-onb__secondary"
+                    ?disabled=${this.busy}
+                    @click=${() => void this.installPwa()}
+                  >
+                    ${t("onboarding.installApp")}
+                  </button>
+                </li>`
+              : html`<li class="psy-onb__choice">
+                  <div class="psy-onb__choice-text">
+                    <strong>${t("onboarding.handyChoice.appTitle")}</strong>
+                    <span>${t(`onboarding.handyManual.${this.pwaHint}`)}</span>
+                  </div>
+                </li>`}
 
-          <p class="psy-onb__hint psy-onb__hint--quiet">
-            <!-- Only the installer creates a desktop shortcut. Saying so after
-                 a manual checkout would send the user hunting for an icon that
-                 was never written. -->
+            <li class="psy-onb__choice">
+              <div class="psy-onb__choice-text">
+                <strong>${t("onboarding.handyChoice.bookmarkTitle")}</strong>
+                <span>${t("onboarding.handyChoice.bookmarkBody", { key: bookmarkKey })}</span>
+              </div>
+            </li>
+
+            <!-- Only the installer writes a shortcut. Offering it after a manual
+                 checkout would send someone hunting for an icon that was never
+                 created. -->
             ${this.viaInstaller
-              ? html`${t("onboarding.handyShortcut")}
-                ${t(`onboarding.shortcutWhere.${this.platform}`)}`
-              : t("onboarding.handyNoShortcut")}
-            ${t("onboarding.vaultBelongsHere")}
-          </p>
+              ? html`<li class="psy-onb__choice">
+                  <div class="psy-onb__choice-text">
+                    <strong>${t("onboarding.handyChoice.shortcutTitle")}</strong>
+                    <span>
+                      ${t("onboarding.handyChoice.shortcutBody")}
+                      ${t(`onboarding.shortcutWhere.${this.platform}`)}
+                    </span>
+                  </div>
+                </li>`
+              : nothing}
+          </ul>
 
-          <!-- When no PWA install is on offer this is the only action on the
-               page, and a secondary-styled button reads as disabled. -->
-          <button
-            class=${this.canInstallPwa ? "psy-onb__secondary" : "psy-onb__primary"}
-            @click=${() => this.finish()}
-          >
+          <p class="psy-onb__hint psy-onb__hint--quiet">${t("onboarding.vaultBelongsHere")}</p>
+
+          <button class="psy-onb__primary" @click=${() => this.finish()}>
             ${t("onboarding.enter")}
           </button>
         `;
+      }
       default:
         return nothing;
     }
