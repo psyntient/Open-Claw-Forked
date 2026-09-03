@@ -2052,9 +2052,14 @@ export const en: TranslationMap = {
       appBody: "Its own window and icon, like any other app. The best option where it is offered.",
       bookmarkTitle: "Bookmark this page",
       bookmarkBody: "Press {key} to save it. Works in every browser.",
-      shortcutTitle: "Use the shortcut",
+      shortcutTitle: "Keep a link on your desktop",
       shortcutBody:
-        "The installer already made one, and it starts your Node if it is not already running.",
+        "Saves a file that opens your Node. The installer also made an app shortcut for you.",
+      shortcutAction: "Save link",
+      bookmarkAction: "Copy link",
+      copied: "Copied",
+      appUnavailable:
+        "Your browser is not offering this right now \u2014 usually because it is already installed, or because this browser cannot install web apps.",
     },
     handyTitle: "Keep it handy",
     handyBody:

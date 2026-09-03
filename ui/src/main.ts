@@ -166,7 +166,20 @@ async function installPsyntientOnboardingGate() {
     // shared secret, which the browser deliberately does not keep; this
     // endpoint takes the device token, which it does.
     const headers: Record<string, string> = { Accept: "application/json" };
-    const token = deviceToken();
+    // deviceToken() first, then the token captured in the head.
+    //
+    // On a returning launch the device token is in localStorage and is the
+    // right credential. On a FIRST launch there is none yet -- the app has not
+    // finished trading the hash for one -- and by then the hash itself is
+    // gone, so this returns null, the request goes out unauthenticated, and
+    // the handler answers 401. The gate fails open on a bad response by
+    // design, so the whole thing ends silently: no card, no wizard, no error,
+    // on precisely the launch that still had something to show.
+    //
+    // The head capture exists for exactly that window. It was already being
+    // handed to the wizard; it was not being used for the gate's OWN request,
+    // which is the one deciding whether anything appears at all.
+    const token = deviceToken() ?? bootHashToken;
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }

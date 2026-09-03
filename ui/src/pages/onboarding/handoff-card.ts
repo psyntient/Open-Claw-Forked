@@ -131,6 +131,7 @@ export class PsyntientHandoff extends LitElement {
 
   @state() private canInstall = false;
   @state() private busy = false;
+  @state() private copied = false;
 
   private installEvent: (Event & { prompt: () => Promise<void> }) | null = null;
 
@@ -176,6 +177,43 @@ export class PsyntientHandoff extends LitElement {
     this.remove();
   }
 
+  /** The address of this Node, which is what every option here is really about. */
+  private get nodeUrl(): string {
+    return `${location.origin}${location.pathname}`;
+  }
+
+  private async copyLink() {
+    try {
+      await navigator.clipboard.writeText(this.nodeUrl);
+      this.copied = true;
+      setTimeout(() => (this.copied = false), 2000);
+    } catch {
+      // Clipboard permission can be refused; the address is on screen in the
+      // bar above regardless, so this is a convenience rather than the only way.
+    }
+  }
+
+  /**
+   * Saves a .webloc/.url file that opens the Node.
+   *
+   * A real file the user can drop on their desktop, which is what "keep a link
+   * handy" means to most people. The installer's app shortcut does more (it
+   * starts the Node if it is not running), so this is offered alongside it
+   * rather than instead of it.
+   */
+  private saveLink() {
+    const mac = this.isMac;
+    const body = mac
+      ? `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>URL</key><string>${this.nodeUrl}</string></dict></plist>\n`
+      : `[InternetShortcut]\r\nURL=${this.nodeUrl}\r\n`;
+    const blob = new Blob([body], { type: mac ? "application/xml" : "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = mac ? "Psyntient Node.webloc" : "Psyntient Node.url";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
   private get isMac() {
     return /mac/i.test(navigator.platform || navigator.userAgent);
   }
@@ -200,7 +238,7 @@ export class PsyntientHandoff extends LitElement {
                 <span>
                   ${this.canInstall
                     ? t("onboarding.handyChoice.appBody")
-                    : t("onboarding.handyManual.other")}
+                    : t("onboarding.handyChoice.appUnavailable")}
                 </span>
               </div>
               ${this.canInstall
@@ -219,6 +257,11 @@ export class PsyntientHandoff extends LitElement {
                 <strong>${t("onboarding.handyChoice.bookmarkTitle")}</strong>
                 <span>${t("onboarding.handyChoice.bookmarkBody", { key: bookmarkKey })}</span>
               </div>
+              <button class="psy-handoff__action" @click=${() => void this.copyLink()}>
+                ${this.copied
+                  ? t("onboarding.handyChoice.copied")
+                  : t("onboarding.handyChoice.bookmarkAction")}
+              </button>
             </li>
 
             <li class="psy-handoff__item">
@@ -226,6 +269,9 @@ export class PsyntientHandoff extends LitElement {
                 <strong>${t("onboarding.handyChoice.shortcutTitle")}</strong>
                 <span>${t("onboarding.handyChoice.shortcutBody")}</span>
               </div>
+              <button class="psy-handoff__action" @click=${() => this.saveLink()}>
+                ${t("onboarding.handyChoice.shortcutAction")}
+              </button>
             </li>
           </ul>
 
