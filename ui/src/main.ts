@@ -144,7 +144,14 @@ async function installPsyntientOnboardingGate() {
   // tokens, so the credential problem disappears rather than being worked
   // around. It is also computed from two file checks instead of a 10-15s
   // shell-out, which is why no cache is needed here any more.
-  let bootstrap: { psyntient?: { onboarding?: string } };
+  let bootstrap: {
+    psyntient?: {
+      onboarding?: string;
+      hasProvider?: boolean;
+      isPaired?: boolean;
+      viaInstaller?: boolean;
+    };
+  };
   try {
     // The endpoint accepts the per-device operator token -- but it still
     // REQUIRES one. An earlier version dropped the credential entirely on the
@@ -176,15 +183,42 @@ async function installPsyntientOnboardingGate() {
   }
 
   // Absent block = a plain OpenClaw gateway. Only an explicit "pending" gates.
-  if (bootstrap.psyntient?.onboarding !== "pending") {
+  const psy = bootstrap.psyntient;
+  if (psy?.onboarding !== "pending") {
     return;
   }
 
-  // Loaded HERE, not at module top level. Onboarding runs once in an
-  // install's life, but a static import puts the whole wizard -- element,
-  // styles and its share of the i18n table -- into the startup bundle that
-  // every launch pays for afterwards. That is what pushed startup JS past its
-  // budget and failed the build.
+  // THE HANDOFF CASE, which is every install the installer performed.
+  //
+  // Setup is already done -- key stored, account linked, service running. The
+  // only thing left is offering a way back in, and the only reason that has to
+  // happen here rather than in the installer is that browsers fire
+  // `beforeinstallprompt` on the page's own origin and nowhere else.
+  //
+  // So: an overlay over a working app, not a wizard replacing it. The wizard
+  // below re-derived what the installer had done in order to skip it, and the
+  // deriving is what broke -- three ways, all silent. Nothing here derives
+  // anything.
+  if (psy.hasProvider && psy.isPaired) {
+    const { handoffNeeded } = await import("./pages/onboarding/handoff-card.ts");
+    if (!handoffNeeded()) {
+      return;
+    }
+    // Appended, not replacing: there is no body to lose to the app shell, so
+    // there is no race to lose.
+    document.body.appendChild(document.createElement("psyntient-handoff"));
+    return;
+  }
+
+  // Reached only by a Node that was NOT set up by the installer -- a manual or
+  // developer checkout with no stored key and no pairing. There is real work to
+  // present in that case, so the full wizard still exists for it.
+  //
+  // Loaded HERE, not at module top level. Onboarding runs once in an install's
+  // life, but a static import puts the whole wizard -- element, styles and its
+  // share of the i18n table -- into the startup bundle that every launch pays
+  // for afterwards. That is what pushed startup JS past its budget and failed
+  // the build.
   await import("./pages/onboarding/onboarding-page.ts");
   const wizard = document.createElement("psyntient-onboarding") as HTMLElement & {
     authToken?: string | null;

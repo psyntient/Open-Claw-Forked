@@ -166,5 +166,22 @@ export type ControlUiBootstrapConfig = {
    * registered `auth: "gateway"` accept only the shared secret the browser
    * deliberately does not keep.
    */
-  psyntient?: { onboarding: "pending" | "complete" };
+  psyntient?: {
+    onboarding: "pending" | "complete";
+    /**
+     * Whether the installer already did the setup steps.
+     *
+     * Carried HERE, in the bootstrap config, because this endpoint is the one
+     * the browser can actually authenticate against -- it takes the device
+     * token. The wizard used to ask a plugin route for the same three facts,
+     * and that route takes only the shared secret, which the browser clears
+     * from the URL during boot. Every way of getting that secret to the wizard
+     * lost a race with the app shell, so it read nothing, sent no
+     * Authorization header, and fell back to its first screen as though a
+     * finished install had never happened.
+     */
+    hasProvider: boolean;
+    isPaired: boolean;
+    viaInstaller: boolean;
+  };
 };

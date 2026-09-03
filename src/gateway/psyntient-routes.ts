@@ -215,13 +215,31 @@ function mountInto(
  * detail once it has decided to appear; the gate only needs to know whether to
  * appear at all.
  */
-export function psyntientOnboardingBootstrap(): { onboarding: "pending" | "complete" } | undefined {
+export function psyntientOnboardingBootstrap():
+  | {
+      onboarding: "pending" | "complete";
+      hasProvider: boolean;
+      isPaired: boolean;
+      viaInstaller: boolean;
+    }
+  | undefined {
   const home = (process.env.PSYNTIENT_HOME ?? "").trim() || path.join(os.homedir(), ".psyntient");
   try {
     // The marker the wizard writes when the user finishes. Absent means setup
     // has not been completed on this Node, whatever else is true.
     const completed = fs.existsSync(path.join(home, "onboarding-complete"));
-    return { onboarding: completed ? "complete" : "pending" };
+    // Three more existence checks, answered here rather than made the browser's
+    // problem. These decide whether there is any setup left to present, and the
+    // browser cannot ask the route that used to answer them: it is a plugin
+    // route wanting the shared secret, which the app clears out of the URL
+    // early in boot. Answering here costs three stat calls on a request the
+    // browser already makes.
+    return {
+      onboarding: completed ? "complete" : "pending",
+      hasProvider: fs.existsSync(path.join(home, "providers.json")),
+      isPaired: fs.existsSync(path.join(home, "node.key")),
+      viaInstaller: fs.existsSync(path.join(home, "installed-via-wizard")),
+    };
   } catch {
     // Unreadable home: say nothing rather than guess. The gate treats an
     // absent block as "not a Psyntient Node" and does not block the app.
