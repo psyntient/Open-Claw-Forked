@@ -111,6 +111,7 @@ const LEDGER_ROUTE = "/__openclaw__/psyntient/vault-ledger";
 const SEARCH_ROUTE = "/__openclaw__/psyntient/vault/search";
 const PROJECT_ROUTE = "/__openclaw__/psyntient/vault/project";
 const DOWNLOAD_ROUTE = "/__openclaw__/psyntient/vault/download";
+const UPLOAD_ROUTE = "/__openclaw__/psyntient/vault/upload";
 
 function formatBytes(n: number): string {
   if (n >= 1024 * 1024 * 1024) return `${(n / 1024 / 1024 / 1024).toFixed(1)} GB`;
@@ -143,6 +144,7 @@ function areaIcon(area: string): IconName {
   if (area === "sessions") return "activity";
   if (area === "notes") return "fileText";
   if (area === "analyses") return "barChart";
+  if (area === "images") return "image";
   return "archive";
 }
 
@@ -159,6 +161,13 @@ function fileIcon(e: { ext: string; kind?: string }): IconName {
       return "database";
     case ".pdf":
       return "book";
+    case ".png":
+    case ".jpg":
+    case ".jpeg":
+    case ".gif":
+    case ".svg":
+    case ".webp":
+      return "image";
     default:
       return "scrollText";
   }
@@ -210,6 +219,7 @@ export class PsyntientVaultPage extends LitElement {
   @state() private openFile: AreaEntry | null = null;
   @state() private openArea: string | null = null;
   @state() private downloading = false;
+  @state() private uploading = false;
   /** Collapsed accordion nodes. Empty means everything is open. */
   @state() private collapsed = new Set<string>();
 
@@ -420,6 +430,13 @@ export class PsyntientVaultPage extends LitElement {
     if (window.matchMedia("(max-width: 60rem)").matches) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+    await this.reloadDetail(p);
+  }
+
+  /** Re-fetches the open project's file listing. Shared by open() (first
+   *  view) and a successful upload (the list must show the new file without
+   *  the user having to close and reopen the panel). */
+  private async reloadDetail(p: Project) {
     this.detail = null;
     this.detailLoading = true;
     try {
@@ -511,6 +528,52 @@ export class PsyntientVaultPage extends LitElement {
     } finally {
       this.downloading = false;
     }
+  }
+
+  /**
+   * Uploads one file into the open project.
+   *
+   * No multipart form: the raw File is sent as the fetch body (its own bytes,
+   * unwrapped), with the original filename carried in a header instead --
+   * matching the route's own contract exactly, see gateway-plugin's upload
+   * route for why. Where the file lands (which area, what final name if the
+   * name collides) is entirely the server's call; this only reports what
+   * came back.
+   */
+  private async uploadFile(p: Project, file: File) {
+    this.uploading = true;
+    this.errorText = null;
+    try {
+      const url = `${UPLOAD_ROUTE}?project=${encodeURIComponent(p.projectId)}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { ...this.headers(), "X-Filename": encodeURIComponent(file.name) },
+        body: file,
+      });
+      const body = (await res.json()) as { ok: boolean; error?: string };
+      if (!body.ok) {
+        this.errorText = body.error || t("vault.uploadFailed", { status: String(res.status) });
+        return;
+      }
+      // The file is now on disk; the panel is still showing the listing from
+      // before it arrived until this refreshes it.
+      await this.reloadDetail(p);
+    } catch (err) {
+      this.errorText = err instanceof Error ? err.message : String(err);
+    } finally {
+      this.uploading = false;
+    }
+  }
+
+  /** Opens the native file picker, scoped to the currently-open project. */
+  private pickUpload(p: Project) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.addEventListener("change", () => {
+      const file = input.files?.[0];
+      if (file) void this.uploadFile(p, file);
+    });
+    input.click();
   }
 
   private renderAccordion(key: string, head: unknown, body: unknown) {
@@ -832,6 +895,14 @@ export class PsyntientVaultPage extends LitElement {
                 `}
 
         <div class="psy-vault__actions">
+          <button
+            type="button"
+            class="psy-vault__open"
+            ?disabled=${this.uploading}
+            @click=${() => this.pickUpload(p)}
+          >
+            ${this.uploading ? t("vault.uploading") : t("vault.uploadFile")}
+          </button>
           <button type="button" class="psy-vault__open" @click=${() => this.browse()}>
             ${t("vault.browseFiles")}
           </button>
