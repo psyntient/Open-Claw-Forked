@@ -465,16 +465,25 @@ export class PsyntientVaultPage extends LitElement {
 
   /**
    * Hand off to the chat side of this Project, using the Project selector's own
-   * plumbing so the two cannot drift: write the selection, then land on "/new".
+   * plumbing so the two cannot drift: write the selection, queue the prompt,
+   * then land on "/new".
    *
    * "/new" rather than "/" or "/sessions" for the reason the selector already
    * documents -- Home opens the main session, which belongs to the Default
    * Project, so any other Project would land on a General thread. The new-thread
    * draft belongs to no Project until sent, which also gives a Project with no
    * threads yet somewhere to start.
+   *
+   * The one action row had a separate "Open Chat" button until this was
+   * fixed to navigate itself -- it never did before (handOffPrompt only
+   * queues the prompt; nothing called it), so the only way off this page was
+   * the plain button next to it. Folded into one: there is no case where
+   * "open chat, blank" is a distinct thing to want from "open chat and ask
+   * about this project" when a project is already the context.
    */
-  private openInApp(p: Project) {
+  private askCortex(p: Project) {
     writeSelectedProjectId(p.projectId);
+    handOffPrompt(t("vault.askCortexPrompt", { title: p.title, id: p.projectId }));
     window.location.href = "/new";
   }
 
@@ -1032,15 +1041,7 @@ export class PsyntientVaultPage extends LitElement {
           <button type="button" class="psy-vault__open" @click=${() => this.browse(p)}>
             ${t("vault.browseFiles")}
           </button>
-          <button type="button" class="psy-vault__open" @click=${() => this.openInApp(p)}>
-            ${t("vault.openInApp")}
-          </button>
-          <button
-            type="button"
-            class="psy-vault__ask"
-            @click=${() =>
-              handOffPrompt(t("vault.askCortexPrompt", { title: p.title, id: p.projectId }))}
-          >
+          <button type="button" class="psy-vault__ask" @click=${() => this.askCortex(p)}>
             ${t("vault.askCortex")}
           </button>
         </div>

@@ -2606,7 +2606,6 @@ export const en: TranslationMap = {
     previewLoading: "Loading preview\u2026",
     previewUnavailable: "No preview for this file type -- download to view it.",
     previewTruncated: "(truncated)",
-    openInApp: "Open Chat",
     askCortex: "Ask Cortex about this project",
     askCortexPrompt:
       "Tell me about my Vault project \u201c{title}\u201d (id: {id}) \u2014 what\u2019s in it and what stands out?",
