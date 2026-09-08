@@ -60,6 +60,7 @@ type Project = {
   autoSync: boolean | null;
   autoSyncEffective?: boolean;
   submissions: number;
+  watchDir?: string;
 };
 
 type Ledger = {
@@ -112,6 +113,7 @@ const SEARCH_ROUTE = "/__openclaw__/psyntient/vault/search";
 const PROJECT_ROUTE = "/__openclaw__/psyntient/vault/project";
 const DOWNLOAD_ROUTE = "/__openclaw__/psyntient/vault/download";
 const UPLOAD_ROUTE = "/__openclaw__/psyntient/vault/upload";
+const PROJECTS_ROUTE = "/__openclaw__/psyntient/projects";
 
 function formatBytes(n: number): string {
   if (n >= 1024 * 1024 * 1024) return `${(n / 1024 / 1024 / 1024).toFixed(1)} GB`;
@@ -140,6 +142,8 @@ function daysSince(iso: string): number {
 }
 
 /** Category icons, so the four areas are distinguishable at a glance. */
+const IMAGE_PREVIEW_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"]);
+
 function areaIcon(area: string): IconName {
   if (area === "sessions") return "activity";
   if (area === "notes") return "fileText";
@@ -219,7 +223,11 @@ export class PsyntientVaultPage extends LitElement {
   @state() private openFile: AreaEntry | null = null;
   @state() private openArea: string | null = null;
   @state() private downloading = false;
+  @state() private previewUrl: string | null = null;
+  @state() private previewLoading = false;
   @state() private uploading = false;
+  @state() private watchDirInput = "";
+  @state() private savingWatchDir = false;
   /** Collapsed accordion nodes. Empty means everything is open. */
   @state() private collapsed = new Set<string>();
 
@@ -477,15 +485,14 @@ export class PsyntientVaultPage extends LitElement {
    * and the point is to scroll THROUGH a project's files, which a panel that
    * grows downward forever does badly.
    */
-  private browse() {
+  private browse(p: Project) {
     this.browsing = true;
     const first = (this.detail?.areas ?? []).find((a) => a.entries.length > 0);
     const entry = first?.entries[0];
     // Select something immediately: an empty right-hand pane on open reads as
     // broken rather than ready.
     if (first && entry) {
-      this.openArea = first.area;
-      this.openFile = entry;
+      this.openEntry(p, first.area, entry);
     }
   }
 
@@ -493,6 +500,44 @@ export class PsyntientVaultPage extends LitElement {
     this.browsing = false;
     this.openFile = null;
     this.openArea = null;
+    this.clearPreview();
+  }
+
+  private clearPreview() {
+    if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+    this.previewUrl = null;
+    this.previewLoading = false;
+  }
+
+  /** Sets the open file and, for a previewable type, fetches its bytes into
+   *  an object URL -- same authenticated-fetch-then-blob pattern download()
+   *  uses, since an <img src> cannot carry the Authorization header this
+   *  route requires. Text content needs no fetch: readArea's `withText`
+   *  areas (notes, analyses) already deliver it inline on the entry. */
+  private openEntry(p: Project, area: string, entry: AreaEntry) {
+    this.clearPreview();
+    this.openArea = area;
+    this.openFile = entry;
+    if (!IMAGE_PREVIEW_EXTENSIONS.has(entry.ext.toLowerCase())) return;
+    this.previewLoading = true;
+    const url =
+      `${DOWNLOAD_ROUTE}?project=${encodeURIComponent(p.projectId)}` +
+      `&device=${encodeURIComponent(p.device)}` +
+      `&path=${encodeURIComponent(`${area}/${entry.path}`)}`;
+    fetch(url, { headers: this.headers() })
+      .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(String(res.status)))))
+      .then((blob) => {
+        // A slower fetch resolving after the user already moved to a
+        // different file must not paint over what they are looking at now.
+        if (this.openFile !== entry) return;
+        this.previewUrl = URL.createObjectURL(blob);
+      })
+      .catch(() => {
+        // Preview is a nicety; download still works. Fail quiet.
+      })
+      .finally(() => {
+        if (this.openFile === entry) this.previewLoading = false;
+      });
   }
 
   /** Collapse or expand one accordion node. */
@@ -528,6 +573,36 @@ export class PsyntientVaultPage extends LitElement {
     } finally {
       this.downloading = false;
     }
+  }
+
+  /**
+   * The file-card's preview area: loading state, then an image, then inline
+   * text, then a plain "no preview" note. Its own method (rather than inline
+   * in the template) for two reasons: the branch chain is already four deep,
+   * and a `<pre>` is whitespace-sensitive -- if the formatter ever wraps a
+   * long inline expression there across lines, the wrap itself becomes a
+   * visible leading newline in the rendered preview. Keeping the interpolated
+   * text a short named value (`body` below) instead of a long inline
+   * expression keeps every line well under the wrap width, so that can't
+   * happen here.
+   */
+  private renderPreview(entry: AreaEntry) {
+    if (this.previewLoading) {
+      return html`<p class="psy-vault__more">${t("vault.previewLoading")}</p>`;
+    }
+    if (this.previewUrl) {
+      return html`<img
+        class="psy-vault__preview-image"
+        src=${this.previewUrl}
+        alt=${entry.path}
+      />`;
+    }
+    if (entry.text) {
+      const note = entry.truncated ? `\n… ${t("vault.previewTruncated")}` : "";
+      const body = `${entry.text}${note}`;
+      return html`<pre class="psy-vault__preview-text">${body}</pre>`;
+    }
+    return html`<p class="psy-vault__more">${t("vault.previewUnavailable")}</p>`;
   }
 
   /**
@@ -576,6 +651,60 @@ export class PsyntientVaultPage extends LitElement {
     input.click();
   }
 
+  /**
+   * Binds a folder on this machine to the open project, so anything
+   * deposited there gets imported automatically. No native browse dialog:
+   * a web page cannot hand back a reusable filesystem path the way a
+   * native app can, so this is a typed path, same as the Vault's own
+   * relocate control.
+   */
+  private async setWatchDir(p: Project) {
+    const dir = this.watchDirInput.trim();
+    if (!dir) return;
+    this.savingWatchDir = true;
+    this.errorText = null;
+    try {
+      const res = await fetch(PROJECTS_ROUTE, {
+        method: "POST",
+        headers: { ...this.headers(), "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set-watch-dir", projectId: p.projectId, dir }),
+      });
+      const body = (await res.json()) as { ok: boolean; watchDir?: string; error?: string };
+      if (!body.ok) {
+        this.errorText = body.error || t("vault.watchDirFailed");
+        return;
+      }
+      this.watchDirInput = "";
+      this.selected = { ...p, watchDir: body.watchDir };
+    } catch (err) {
+      this.errorText = err instanceof Error ? err.message : String(err);
+    } finally {
+      this.savingWatchDir = false;
+    }
+  }
+
+  private async clearWatchDir(p: Project) {
+    this.savingWatchDir = true;
+    this.errorText = null;
+    try {
+      const res = await fetch(PROJECTS_ROUTE, {
+        method: "POST",
+        headers: { ...this.headers(), "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "unset-watch-dir", projectId: p.projectId }),
+      });
+      const body = (await res.json()) as { ok: boolean; error?: string };
+      if (!body.ok) {
+        this.errorText = body.error || t("vault.watchDirFailed");
+        return;
+      }
+      this.selected = { ...p, watchDir: undefined };
+    } catch (err) {
+      this.errorText = err instanceof Error ? err.message : String(err);
+    } finally {
+      this.savingWatchDir = false;
+    }
+  }
+
   private renderAccordion(key: string, head: unknown, body: unknown) {
     const open = !this.collapsed.has(key);
     return html`
@@ -594,17 +723,14 @@ export class PsyntientVaultPage extends LitElement {
     `;
   }
 
-  private renderFileTile(area: string, e: AreaEntry) {
+  private renderFileTile(p: Project, area: string, e: AreaEntry) {
     const active = this.openFile?.path === e.path && this.openArea === area;
     return html`
       <li>
         <button
           type="button"
           class="psy-vault__tile ${active ? "psy-vault__tile--active" : ""}"
-          @click=${() => {
-            this.openFile = e;
-            this.openArea = area;
-          }}
+          @click=${() => this.openEntry(p, area, e)}
         >
           <span class="psy-vault__tile-icon" aria-hidden="true">${icons[fileIcon(e)]}</span>
           <span class="psy-vault__tile-name">${e.path}</span>
@@ -658,7 +784,7 @@ export class PsyntientVaultPage extends LitElement {
                     html`<span class="psy-vault__acc-ext">${ext}</span>
                       <span class="psy-vault__acc-count">${entries.length}</span>`,
                     html`<ul class="psy-vault__tiles">
-                      ${entries.map((e) => this.renderFileTile(a.area, e))}
+                      ${entries.map((e) => this.renderFileTile(p, a.area, e))}
                     </ul>`,
                   ),
                 ),
@@ -701,7 +827,7 @@ export class PsyntientVaultPage extends LitElement {
                     >
                       ${this.downloading ? t("vault.downloading") : t("vault.download")}
                     </button>
-                    <p class="psy-vault__more">${t("vault.previewLater")}</p>
+                    ${this.renderPreview(this.openFile)}
                   </div>
                 `
               : html`<p class="psy-vault__empty-note">${t("vault.pickFile")}</p>`}
@@ -903,7 +1029,7 @@ export class PsyntientVaultPage extends LitElement {
           >
             ${this.uploading ? t("vault.uploading") : t("vault.uploadFile")}
           </button>
-          <button type="button" class="psy-vault__open" @click=${() => this.browse()}>
+          <button type="button" class="psy-vault__open" @click=${() => this.browse(p)}>
             ${t("vault.browseFiles")}
           </button>
           <button type="button" class="psy-vault__open" @click=${() => this.openInApp(p)}>
@@ -917,6 +1043,45 @@ export class PsyntientVaultPage extends LitElement {
           >
             ${t("vault.askCortex")}
           </button>
+        </div>
+
+        <div class="psy-vault__watch-dir">
+          ${p.watchDir
+            ? html`
+                <p class="psy-vault__watch-dir-active">
+                  ${t("vault.watching")} <code>${p.watchDir}</code>
+                </p>
+                <button
+                  type="button"
+                  class="psy-vault__watch-dir-clear"
+                  ?disabled=${this.savingWatchDir}
+                  @click=${() => this.clearWatchDir(p)}
+                >
+                  ${t("vault.stopWatching")}
+                </button>
+              `
+            : html`
+                <p class="psy-vault__watch-dir-hint">${t("vault.watchDirHint")}</p>
+                <div class="psy-vault__watch-dir-row">
+                  <input
+                    type="text"
+                    class="psy-vault__watch-dir-input"
+                    placeholder=${t("vault.watchDirPlaceholder")}
+                    .value=${this.watchDirInput}
+                    @input=${(e: Event) => {
+                      this.watchDirInput = (e.target as HTMLInputElement).value;
+                    }}
+                  />
+                  <button
+                    type="button"
+                    class="psy-vault__watch-dir-save"
+                    ?disabled=${this.savingWatchDir || !this.watchDirInput.trim()}
+                    @click=${() => this.setWatchDir(p)}
+                  >
+                    ${t("vault.watchDirSave")}
+                  </button>
+                </div>
+              `}
         </div>
       </aside>
     `;

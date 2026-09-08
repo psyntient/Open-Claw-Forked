@@ -2596,7 +2596,16 @@ export const en: TranslationMap = {
     downloading: "Preparing\u2026",
     downloadFailed: "That file could not be downloaded ({status}).",
     uploadFailed: "That file could not be uploaded ({status}).",
-    previewLater: "Preview, upload and delete are not built yet.",
+    watchDirHint:
+      "Point this project at a folder on this machine, and anything deposited there is imported automatically -- checked about once a minute.",
+    watchDirPlaceholder: "/path/to/folder",
+    watchDirSave: "Watch this folder",
+    watchDirFailed: "That folder could not be watched.",
+    watching: "Watching",
+    stopWatching: "Stop watching",
+    previewLoading: "Loading preview\u2026",
+    previewUnavailable: "No preview for this file type -- download to view it.",
+    previewTruncated: "(truncated)",
     openInApp: "Open Chat",
     askCortex: "Ask Cortex about this project",
     askCortexPrompt:

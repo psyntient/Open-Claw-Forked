@@ -6748,7 +6748,7 @@ td.data-table-key-col {
    useful question about a capture in a list is when it ran and under what
    consent, never its sample array. */
 .psy-vault__entry--packet .psy-vault__entry-path { color: var(--accent); }
-.psy-vault__text {
+.psy-vault__preview-text {
   margin: 0.2rem 0 0;
   padding: 0.5rem 0.6rem;
   max-height: 12rem;
@@ -6759,6 +6759,16 @@ td.data-table-key-col {
   font-size: 0.75rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.psy-vault__preview-image {
+  display: block;
+  margin: 0.2rem 0 0;
+  max-width: 100%;
+  max-height: 20rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--bg);
 }
 .psy-vault__more { font-size: 0.7rem; color: var(--muted); }
 .psy-vault__ask {
@@ -6843,6 +6853,63 @@ td.data-table-key-col {
 }
 .psy-vault__open:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
 .psy-vault__open[disabled] { opacity: 0.6; cursor: default; }
+.psy-vault__watch-dir {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+}
+.psy-vault__watch-dir-hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.psy-vault__watch-dir-row { display: flex; gap: 0.4rem; }
+.psy-vault__watch-dir-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.psy-vault__watch-dir-save {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.psy-vault__watch-dir-save[disabled] { opacity: 0.5; cursor: default; }
+.psy-vault__watch-dir-active {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text);
+  word-break: break-all;
+}
+.psy-vault__watch-dir-active code {
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+.psy-vault__watch-dir-clear {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.psy-vault__watch-dir-clear:hover { color: var(--text); border-color: var(--text); }
 /* A deep link that matched nothing has to explain itself: silently showing the
    full list reads as a broken button. */
 .psy-vault__notice {
