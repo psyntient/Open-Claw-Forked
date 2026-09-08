@@ -149,6 +149,7 @@ function areaIcon(area: string): IconName {
   if (area === "notes") return "fileText";
   if (area === "analyses") return "barChart";
   if (area === "images") return "image";
+  if (area === "Syncable_Data_Files") return "send";
   return "archive";
 }
 

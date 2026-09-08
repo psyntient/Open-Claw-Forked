@@ -2571,6 +2571,7 @@ export const en: TranslationMap = {
       analyses: "analyses",
       exports: "exports",
       images: "images",
+      Syncable_Data_Files: "staged for Archive sync",
     },
     previous: "Previous project",
     next: "Next project",
