@@ -89,6 +89,11 @@ type AreaEntry = {
   kind: "file" | "packet" | "text" | "data" | "binary";
   text?: string;
   truncated?: boolean;
+  /** Content-based Archive-Observation-Packet check (packet-compat.mjs),
+   *  not the loose display probe `kind === "packet"` runs off of. Undefined
+   *  for anything whose content was never read (binary, or areas that don't
+   *  read text) -- absence means "unknown", never "no". */
+  syncable?: boolean;
   packet?: {
     sessionId: string | null;
     timestamp: string | null;
@@ -229,6 +234,12 @@ export class PsyntientVaultPage extends LitElement {
   @state() private previewUrl: string | null = null;
   @state() private previewLoading = false;
   @state() private uploading = false;
+  @state() private syncingProject = false;
+  /** `${area}/${path}` of the one file currently syncing, or null. Keyed by
+   *  path rather than a boolean so one file's request never disables the
+   *  Sync action on every OTHER already-eligible file in the list. */
+  @state() private syncingFile: string | null = null;
+  @state() private syncResult: string | null = null;
   @state() private watchDirInput = "";
   @state() private watchDirDeleteAfterImport = false;
   @state() private watchDirMirror = false;
@@ -438,6 +449,7 @@ export class PsyntientVaultPage extends LitElement {
 
   private async open(p: Project) {
     this.selected = p;
+    this.syncResult = null;
     // Stacked layouts swap the grid for the panel, so the page must return to
     // the top or the reader lands mid-panel with no idea what changed.
     if (window.matchMedia("(max-width: 60rem)").matches) {
@@ -666,6 +678,63 @@ export class PsyntientVaultPage extends LitElement {
   }
 
   /**
+   * One request to the gateway's "sync-now" action, shared by the
+   * project-level and per-file Sync buttons -- see that action's own
+   * comment for why staging and submitting are one round trip rather than
+   * two the caller has to sequence itself.
+   */
+  private async runSync(p: Project, path?: string) {
+    this.errorText = null;
+    try {
+      const res = await fetch(PROJECTS_ROUTE, {
+        method: "POST",
+        headers: { ...this.headers(), "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sync-now", projectId: p.projectId, path }),
+      });
+      const body = (await res.json()) as {
+        ok: boolean;
+        submitted?: { submitted: unknown[]; errors: { error: string }[]; alreadySubmitted: unknown[] };
+        error?: string;
+      };
+      if (!body.ok) {
+        this.errorText = body.error || t("vault.syncFailed");
+        return;
+      }
+      const s = body.submitted;
+      this.syncResult =
+        s && s.errors.length > 0
+          ? t("vault.syncPartial", { submitted: String(s.submitted.length), failed: String(s.errors.length) })
+          : t("vault.syncQueued", { count: String(s?.submitted.length ?? 0) });
+      // The file that was just staged (or already was) has either moved area
+      // or gained a submission record -- both only show up on a fresh read.
+      await this.reloadDetail(p);
+    } catch (err) {
+      this.errorText = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  private async syncProject(p: Project) {
+    this.syncingProject = true;
+    this.syncResult = null;
+    try {
+      await this.runSync(p);
+    } finally {
+      this.syncingProject = false;
+    }
+  }
+
+  private async syncFile(p: Project, area: string, entry: AreaEntry) {
+    const key = `${area}/${entry.path}`;
+    this.syncingFile = key;
+    this.syncResult = null;
+    try {
+      await this.runSync(p, key);
+    } finally {
+      if (this.syncingFile === key) this.syncingFile = null;
+    }
+  }
+
+  /**
    * Binds a folder on this machine to the open project, so anything
    * deposited there gets imported automatically. No native browse dialog:
    * a web page cannot hand back a reusable filesystem path the way a
@@ -758,8 +827,10 @@ export class PsyntientVaultPage extends LitElement {
 
   private renderFileTile(p: Project, area: string, e: AreaEntry) {
     const active = this.openFile?.path === e.path && this.openArea === area;
+    const syncKey = `${area}/${e.path}`;
+    const syncing = this.syncingFile === syncKey;
     return html`
-      <li>
+      <li class="psy-vault__tile-row">
         <button
           type="button"
           class="psy-vault__tile ${active ? "psy-vault__tile--active" : ""}"
@@ -769,6 +840,19 @@ export class PsyntientVaultPage extends LitElement {
           <span class="psy-vault__tile-name">${e.path}</span>
           <span class="psy-vault__tile-size">${formatBytes(e.bytes)}</span>
         </button>
+        ${e.syncable
+          ? html`
+              <button
+                type="button"
+                class="psy-vault__tile-sync"
+                ?disabled=${syncing}
+                title=${t("vault.syncFile")}
+                @click=${() => this.syncFile(p, area, e)}
+              >
+                ${syncing ? t("vault.syncing") : icons.send}
+              </button>
+            `
+          : nothing}
       </li>
     `;
   }
@@ -1065,10 +1149,19 @@ export class PsyntientVaultPage extends LitElement {
           <button type="button" class="psy-vault__open" @click=${() => this.browse(p)}>
             ${t("vault.browseFiles")}
           </button>
+          <button
+            type="button"
+            class="psy-vault__open"
+            ?disabled=${this.syncingProject}
+            @click=${() => this.syncProject(p)}
+          >
+            ${this.syncingProject ? t("vault.syncing") : t("vault.syncProject")}
+          </button>
           <button type="button" class="psy-vault__ask" @click=${() => this.askCortex(p)}>
             ${t("vault.askCortex")}
           </button>
         </div>
+        ${this.syncResult ? html`<p class="psy-vault__more">${this.syncResult}</p>` : nothing}
 
         <div class="psy-vault__watch-dir">
           ${p.watchDir

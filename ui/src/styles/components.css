@@ -6728,26 +6728,6 @@ td.data-table-key-col {
   font-size: 0.7rem;
   color: var(--accent);
 }
-.psy-vault__area { margin-bottom: 1.1rem; }
-.psy-vault__area h4 {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  margin: 0 0 0.4rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.psy-vault__area-count { color: var(--accent); font-weight: 600; }
-.psy-vault__entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
-.psy-vault__entry { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.8125rem; }
-.psy-vault__entry-path { overflow-wrap: anywhere; }
-.psy-vault__entry-meta { font-size: 0.75rem; color: var(--muted); }
-/* Packets are summarised to their identifying fields rather than dumped: the
-   useful question about a capture in a list is when it ran and under what
-   consent, never its sample array. */
-.psy-vault__entry--packet .psy-vault__entry-path { color: var(--accent); }
 .psy-vault__preview-text {
   margin: 0.2rem 0 0;
   padding: 0.5rem 0.6rem;
@@ -6897,7 +6877,8 @@ td.data-table-key-col {
   cursor: pointer;
   white-space: nowrap;
 }
-.psy-vault__watch-dir-save[disabled] { opacity: 0.5; cursor: default; }
+.psy-vault__watch-dir-save[disabled],
+.psy-vault__tile-sync[disabled] { opacity: 0.5; cursor: default; }
 .psy-vault__watch-dir-active {
   margin: 0 0 0.5rem;
   font-size: 0.75rem;
@@ -7019,11 +7000,13 @@ td.data-table-key-col {
 .psy-vault__acc--open > .psy-vault__acc-body { grid-template-rows: 1fr; opacity: 1; }
 
 .psy-vault__tiles { list-style: none; margin: 0.15rem 0 0.35rem; padding: 0; }
+.psy-vault__tile-row { display: flex; align-items: center; gap: 0.3rem; }
 .psy-vault__tile {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 0.35rem 0.45rem;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -7033,6 +7016,22 @@ td.data-table-key-col {
   text-align: left;
   cursor: pointer;
 }
+.psy-vault__tile-sync {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.psy-vault__tile-sync svg { width: 0.9rem; height: 0.9rem; }
+.psy-vault__tile-sync:hover { color: var(--accent); border-color: var(--accent); }
 .psy-vault__tile:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
 .psy-vault__tile--active {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));

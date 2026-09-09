@@ -2613,6 +2613,12 @@ export const en: TranslationMap = {
     previewLoading: "Loading preview\u2026",
     previewUnavailable: "No preview for this file type -- download to view it.",
     previewTruncated: "(truncated)",
+    syncProject: "Sync to Archive",
+    syncFile: "Sync this file to the Archive",
+    syncing: "Syncing…",
+    syncFailed: "That sync could not be completed.",
+    syncQueued: "Queued {count} packet(s) for the Archive.",
+    syncPartial: "Queued {submitted}, {failed} failed -- see the project for details.",
     askCortex: "Ask Cortex about this project",
     askCortexPrompt:
       "Tell me about my Vault project \u201c{title}\u201d (id: {id}) \u2014 what\u2019s in it and what stands out?",
