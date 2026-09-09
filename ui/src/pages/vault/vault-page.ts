@@ -62,6 +62,7 @@ type Project = {
   submissions: number;
   watchDir?: string;
   watchDeleteAfterImport?: boolean;
+  watchMirror?: boolean;
 };
 
 type Ledger = {
@@ -230,6 +231,7 @@ export class PsyntientVaultPage extends LitElement {
   @state() private uploading = false;
   @state() private watchDirInput = "";
   @state() private watchDirDeleteAfterImport = false;
+  @state() private watchDirMirror = false;
   @state() private savingWatchDir = false;
   /** Collapsed accordion nodes. Empty means everything is open. */
   @state() private collapsed = new Set<string>();
@@ -684,12 +686,14 @@ export class PsyntientVaultPage extends LitElement {
           projectId: p.projectId,
           dir,
           deleteAfterImport: this.watchDirDeleteAfterImport,
+          mirror: this.watchDirMirror,
         }),
       });
       const body = (await res.json()) as {
         ok: boolean;
         watchDir?: string;
         deleteAfterImport?: boolean;
+        mirror?: boolean;
         error?: string;
       };
       if (!body.ok) {
@@ -698,7 +702,13 @@ export class PsyntientVaultPage extends LitElement {
       }
       this.watchDirInput = "";
       this.watchDirDeleteAfterImport = false;
-      this.selected = { ...p, watchDir: body.watchDir, watchDeleteAfterImport: body.deleteAfterImport };
+      this.watchDirMirror = false;
+      this.selected = {
+        ...p,
+        watchDir: body.watchDir,
+        watchDeleteAfterImport: body.deleteAfterImport,
+        watchMirror: body.mirror,
+      };
     } catch (err) {
       this.errorText = err instanceof Error ? err.message : String(err);
     } finally {
@@ -1069,6 +1079,9 @@ export class PsyntientVaultPage extends LitElement {
                 <p class="psy-vault__watch-dir-hint">
                   ${p.watchDeleteAfterImport ? t("vault.watchDirDeletesOn") : t("vault.watchDirKeepsOriginals")}
                 </p>
+                <p class="psy-vault__watch-dir-hint">
+                  ${p.watchMirror ? t("vault.watchDirMirrorOn") : t("vault.watchDirMirrorOff")}
+                </p>
                 <button
                   type="button"
                   class="psy-vault__watch-dir-clear"
@@ -1108,6 +1121,16 @@ export class PsyntientVaultPage extends LitElement {
                     }}
                   />
                   ${t("vault.watchDirDeleteOption")}
+                </label>
+                <label class="psy-vault__watch-dir-delete">
+                  <input
+                    type="checkbox"
+                    .checked=${this.watchDirMirror}
+                    @change=${(e: Event) => {
+                      this.watchDirMirror = (e.target as HTMLInputElement).checked;
+                    }}
+                  />
+                  ${t("vault.watchDirMirrorOption")}
                 </label>
               `}
         </div>
