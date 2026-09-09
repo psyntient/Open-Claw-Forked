@@ -6912,8 +6912,8 @@ td.data-table-key-col {
      implied by a shadow -- a translucent fill + blur lets the grid actually
      show through, softened, behind it. */
   background: color-mix(in srgb, var(--popover) 88%, transparent);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: inset 0 1px 0 var(--card-highlight), 0 24px 60px rgb(0 0 0 / 0.45);
