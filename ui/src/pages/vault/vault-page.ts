@@ -61,6 +61,7 @@ type Project = {
   autoSyncEffective?: boolean;
   submissions: number;
   watchDir?: string;
+  watchDeleteAfterImport?: boolean;
 };
 
 type Ledger = {
@@ -228,6 +229,7 @@ export class PsyntientVaultPage extends LitElement {
   @state() private previewLoading = false;
   @state() private uploading = false;
   @state() private watchDirInput = "";
+  @state() private watchDirDeleteAfterImport = false;
   @state() private savingWatchDir = false;
   /** Collapsed accordion nodes. Empty means everything is open. */
   @state() private collapsed = new Set<string>();
@@ -677,15 +679,26 @@ export class PsyntientVaultPage extends LitElement {
       const res = await fetch(PROJECTS_ROUTE, {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "set-watch-dir", projectId: p.projectId, dir }),
+        body: JSON.stringify({
+          action: "set-watch-dir",
+          projectId: p.projectId,
+          dir,
+          deleteAfterImport: this.watchDirDeleteAfterImport,
+        }),
       });
-      const body = (await res.json()) as { ok: boolean; watchDir?: string; error?: string };
+      const body = (await res.json()) as {
+        ok: boolean;
+        watchDir?: string;
+        deleteAfterImport?: boolean;
+        error?: string;
+      };
       if (!body.ok) {
         this.errorText = body.error || t("vault.watchDirFailed");
         return;
       }
       this.watchDirInput = "";
-      this.selected = { ...p, watchDir: body.watchDir };
+      this.watchDirDeleteAfterImport = false;
+      this.selected = { ...p, watchDir: body.watchDir, watchDeleteAfterImport: body.deleteAfterImport };
     } catch (err) {
       this.errorText = err instanceof Error ? err.message : String(err);
     } finally {
@@ -1053,6 +1066,9 @@ export class PsyntientVaultPage extends LitElement {
                 <p class="psy-vault__watch-dir-active">
                   ${t("vault.watching")} <code>${p.watchDir}</code>
                 </p>
+                <p class="psy-vault__watch-dir-hint">
+                  ${p.watchDeleteAfterImport ? t("vault.watchDirDeletesOn") : t("vault.watchDirKeepsOriginals")}
+                </p>
                 <button
                   type="button"
                   class="psy-vault__watch-dir-clear"
@@ -1083,6 +1099,16 @@ export class PsyntientVaultPage extends LitElement {
                     ${t("vault.watchDirSave")}
                   </button>
                 </div>
+                <label class="psy-vault__watch-dir-delete">
+                  <input
+                    type="checkbox"
+                    .checked=${this.watchDirDeleteAfterImport}
+                    @change=${(e: Event) => {
+                      this.watchDirDeleteAfterImport = (e.target as HTMLInputElement).checked;
+                    }}
+                  />
+                  ${t("vault.watchDirDeleteOption")}
+                </label>
               `}
         </div>
       </aside>

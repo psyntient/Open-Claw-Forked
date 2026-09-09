@@ -6866,6 +6866,15 @@ td.data-table-key-col {
   color: var(--muted);
 }
 .psy-vault__watch-dir-row { display: flex; gap: 0.4rem; }
+.psy-vault__watch-dir-delete {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+}
 .psy-vault__watch-dir-input {
   flex: 1;
   min-width: 0;
