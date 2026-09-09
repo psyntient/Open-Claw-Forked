@@ -685,6 +685,22 @@
   --shadow-md: 0 4px 16px rgba(4, 3, 10, 0.45);
   --shadow-lg: 0 12px 32px rgba(4, 3, 10, 0.55);
   --grid-line: rgba(254, 244, 227, 0.03);
+
+  /* Elevation: a surface reads as raised material, not a flat color fill,
+     from two cues together -- a shadow cast BELOW it, and a soft highlight
+     along its own top edge as if lit from above. --card-highlight already
+     existed and was used in exactly one place; these three tiers pair it
+     with the existing --shadow-sm/md/lg scale so every elevated surface in
+     the app gets both cues from one declaration instead of composing them
+     by hand each time (and forgetting the highlight half, which is the
+     easy part to leave out since a shadow alone still "looks like something"
+     on its own). Tier 3 exists for anything that floats above the whole
+     page (a modal, a fixed panel) rather than sitting in the normal stack.
+     Rim-light source is bg-focused (a bg-toned card cannot look lit from
+     above by definition -- there is nothing under it to catch the light). */
+  --elevate-1: inset 0 1px 0 var(--card-highlight), var(--shadow-sm);
+  --elevate-2: inset 0 1px 0 var(--card-highlight), var(--shadow-md);
+  --elevate-3: inset 0 1px 0 var(--card-highlight), var(--shadow-lg);
 }
 
 

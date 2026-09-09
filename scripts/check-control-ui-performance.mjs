@@ -34,11 +34,18 @@ export const CONTROL_UI_PERFORMANCE_BUDGETS = Object.freeze({
   // `full` profile does. That is why the previous overage went unnoticed
   // locally and first surfaced during a real install.
   startupJsGzipBytes: 345 * KIB,
-  // 45 KiB CSS ceilings maintainer-approved 2026-07 alongside the interleaved
-  // sidebar zone styling; headroom over the ~36.5 KiB post-diet baseline.
-  startupCssGzipBytes: 45 * KIB,
+  // 50 KiB CSS ceilings, raised from 45 KiB, user-approved 2026-09-09 for a
+  // deliberate visual pass on the Vault dashboard: a real elevation system
+  // (layered shadows, rim-light highlights, gradient card fills, backdrop-
+  // blur on floating panels) to address "the app doesn't pop enough"
+  // feedback. The 45 KiB ceiling was already sitting at its own limit before
+  // this work started (every prior addition this session had to trade away
+  // dead CSS just to stay under it), so a few more small passes in the same
+  // direction would have hit this wall again regardless -- raised once, with
+  // headroom for the rest of that pass, rather than by reflex per commit.
+  startupCssGzipBytes: 50 * KIB,
   largestJsGzipBytes: 215 * KIB,
-  largestCssGzipBytes: 45 * KIB,
+  largestCssGzipBytes: 50 * KIB,
 });
 
 function controlUiAssetPathFromUrl(value) {

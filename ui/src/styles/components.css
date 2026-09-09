@@ -6299,17 +6299,6 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-arch__raw {
-  margin-top: 1rem;
-  padding: 0.85rem;
-  max-height: 18rem;
-  overflow: auto;
-  background: var(--bg);
-  border-radius: 10px;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .psy-arch__card { transition: none; }
   .psy-arch__card:hover { transform: none; }
@@ -6631,14 +6620,25 @@ td.data-table-key-col {
   gap: 0.6rem;
   padding: 0.95rem 1rem 0.9rem;
   text-align: left;
-  background: var(--popover);
+  /* A flat fill reads as a color swatch; a faint top-lit gradient on top of
+     --elevate-1's own highlight is what actually sells "raised material"
+     rather than "painted rectangle with a shadow under it". */
+  background: linear-gradient(165deg, color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%), var(--popover));
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
   cursor: pointer;
-  transition: transform 140ms ease, border-color 140ms ease;
+  box-shadow: var(--elevate-1);
+  transition:
+    transform var(--duration-slow) var(--ease-out),
+    box-shadow var(--duration-slow) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
 }
-.psy-vault__card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.psy-vault__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--elevate-2);
+}
 /* A project holding no data is still shown rather than hidden -- an inventory
    that silently omits empties cannot answer "is that everything?". It just
    sits back. */
@@ -6783,21 +6783,6 @@ td.data-table-key-col {
 }
 
 /* Project Profile header: what the project IS, before what it holds. */
-.psy-vault__detail-desc { margin: 0 0 0.3rem; font-size: 0.8125rem; color: var(--text); }
-.psy-vault__detail-desc--empty { color: var(--muted); font-style: italic; }
-.psy-vault__detail-meta { margin: 0 0 0.4rem; font-size: 0.75rem; color: var(--muted); }
-.psy-vault__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-.psy-vault__actions button { flex: 1 1 10rem; }
-.psy-vault__open {
-  padding: 0.55rem 0.9rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
-  font: inherit;
-  cursor: pointer;
-}
-.psy-vault__open:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
 /* A deep link that matched nothing must explain itself: silently showing the
    full list reads as a broken button. */
 .psy-vault__notice {
@@ -6839,6 +6824,11 @@ td.data-table-key-col {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: color-mix(in srgb, var(--text) 3%, transparent);
+  /* Pressed IN, not raised -- the opposite cue from a card, and the correct
+     one for a config well: light catching the underside of the top lip,
+     same "light source above" logic as --elevate-*'s highlight but turned
+     inward instead of outward. */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.22);
 }
 .psy-vault__watch-dir-hint {
   margin: 0 0 0.5rem;
@@ -6917,10 +6907,16 @@ td.data-table-key-col {
   z-index: 40;
   display: flex;
   flex-direction: column;
-  background: var(--popover);
+  /* Genuinely floats above the whole dashboard grid, so it is the one
+     surface where "this is ABOVE that" can be shown literally rather than
+     implied by a shadow -- a translucent fill + blur lets the grid actually
+     show through, softened, behind it. */
+  background: color-mix(in srgb, var(--popover) 88%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  box-shadow: inset 0 1px 0 var(--card-highlight), 0 24px 60px rgb(0 0 0 / 0.45);
   overflow: hidden;
 }
 .psy-vault__browser-head {
@@ -7048,7 +7044,19 @@ td.data-table-key-col {
 }
 .psy-vault__tile-size { font-size: 0.7rem; color: var(--muted); }
 
-.psy-vault__file-card { max-width: 32rem; }
+.psy-vault__file-card {
+  max-width: 32rem;
+  /* The browser panel around this is already a blurred glass surface; a
+     second, solid elevated layer floating inside it (rather than the file
+     detail just sitting bare on that glass) is the nested-depth version of
+     the same "this is above that" cue the panel itself uses on the page
+     behind it. */
+  padding: 1.1rem 1.2rem;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--card) 100%, var(--text-strong) 4%), var(--card));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--elevate-2);
+}
 .psy-vault__file-icon { color: var(--accent); display: inline-flex; }
 .psy-vault__file-icon svg { width: 2rem; height: 2rem; }
 .psy-vault__file-card h4 { margin: 0.5rem 0 0.9rem; font-size: 1rem; overflow-wrap: anywhere; }
@@ -7147,19 +7155,6 @@ td.data-table-key-col {
 .psy-update__close:hover { color: var(--accent); border-color: var(--accent); }
 .psy-update__line { margin: 0 0 0.2rem; font-size: 0.8125rem; }
 
-.psy-update__panel {
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 0;
-  z-index: 30;
-  width: min(22rem, 80vw);
-  padding: 0.85rem 0.95rem;
-  background: var(--popover);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 18px 40px rgb(0 0 0 / 0.4);
-}
-.psy-update__panel h4 { margin: 0 0 0.3rem; font-size: 0.9rem; }
 .psy-update__summary { margin: 0 0 0.5rem; font-size: 0.75rem; color: var(--muted); }
 .psy-update__commit {
   margin: 0 0 0.15rem;
