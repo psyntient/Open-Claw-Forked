@@ -144,9 +144,14 @@
 /* ── Group (the only surface) ── */
 
 .settings-group {
-  background: var(--card);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--card) 100%, var(--text-strong) 3%),
+    var(--card)
+  );
   border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
   border-radius: var(--radius-lg);
+  box-shadow: var(--elevate-1);
   overflow: hidden;
   min-width: 0;
 }

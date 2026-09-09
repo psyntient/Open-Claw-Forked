@@ -5790,17 +5790,34 @@ td.data-table-key-col {
   background: var(--accent);
   flex: none;
 }
-.psy-vault-badge--warn { border-color: var(--destructive); color: var(--destructive); }
-.psy-vault-badge--warn .psy-vault-badge__dot { background: var(--destructive); }
+.psy-vault-badge--warn {
+  border-color: var(--destructive);
+  color: var(--destructive);
+}
+.psy-vault-badge--warn .psy-vault-badge__dot {
+  background: var(--destructive);
+}
 
 @keyframes psy-aura {
-  0%, 100% { transform: scale(1); opacity: 0.35; }
-  50% { transform: scale(1.18); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.7;
+  }
 }
-.psy-aura { animation: psy-aura 7s ease-in-out infinite; }
+.psy-aura {
+  animation: psy-aura 7s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .psy-aura { animation: none; opacity: 0.7; }
+  .psy-aura {
+    animation: none;
+    opacity: 0.7;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -5879,8 +5896,13 @@ td.data-table-key-col {
   border-radius: 10px;
   cursor: pointer;
 }
-.psy-onb__primary:hover:not(:disabled) { background: var(--accent-hover); }
-.psy-onb__primary:disabled { opacity: 0.55; cursor: default; }
+.psy-onb__primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.psy-onb__primary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
 
 .psy-onb__path {
   font-size: 0.95rem;
@@ -5934,20 +5956,33 @@ td.data-table-key-col {
   background: var(--accent);
   animation: psy-morph 4s linear infinite;
 }
-.psy-onb__step--done .psy-onb__pip { opacity: 0.6; }
-.psy-onb__step--active .psy-onb__step-label { color: var(--text-strong); }
+.psy-onb__step--done .psy-onb__pip {
+  opacity: 0.6;
+}
+.psy-onb__step--active .psy-onb__step-label {
+  color: var(--text-strong);
+}
 
 @keyframes psy-morph {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .psy-onb__pip { animation: none !important; }
+  .psy-onb__pip {
+    animation: none !important;
+  }
 }
 
 /* Project selector — the Slack-style scope switcher at the sidebar top. */
-.psy-project-select { position: relative; width: 100%; }
+.psy-project-select {
+  position: relative;
+  width: 100%;
+}
 .psy-project-select__trigger {
   display: flex;
   align-items: baseline;
@@ -5961,15 +5996,23 @@ td.data-table-key-col {
   text-align: left;
   color: var(--text-strong);
 }
-.psy-project-select__trigger:hover { background: var(--bg-hover); }
+.psy-project-select__trigger:hover {
+  background: var(--bg-hover);
+}
 .psy-project-select__label {
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
-.psy-project-select__name { font-size: 0.9375rem; font-weight: 600; }
-.psy-project-select__chevron { margin-left: auto; color: var(--muted); }
+.psy-project-select__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.psy-project-select__chevron {
+  margin-left: auto;
+  color: var(--muted);
+}
 .psy-project-select__menu {
   position: absolute;
   z-index: 60;
@@ -5995,14 +6038,30 @@ td.data-table-key-col {
   color: var(--text);
   cursor: pointer;
 }
-.psy-project-select__option:hover { background: var(--bg-hover); }
-.psy-project-select__option.is-selected { color: var(--accent); font-weight: 600; }
-.psy-project-select__option--new { color: var(--muted); border-top: 1px solid var(--border); margin-top: 0.25rem; }
+.psy-project-select__option:hover {
+  background: var(--bg-hover);
+}
+.psy-project-select__option.is-selected {
+  color: var(--accent);
+  font-weight: 600;
+}
+.psy-project-select__option--new {
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 0.25rem;
+}
 
 /* Row wrapper so the manage button sits beside the option without overlapping
    its click target -- the option must stay full-width and selectable. */
-.psy-project-select__row { display: flex; align-items: center; gap: 0.125rem; }
-.psy-project-select__row .psy-project-select__option { flex: 1 1 auto; min-width: 0; }
+.psy-project-select__row {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+.psy-project-select__row .psy-project-select__option {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .psy-project-select__manage {
   flex: 0 0 auto;
   padding: 0.25rem 0.4rem;
@@ -6016,8 +6075,13 @@ td.data-table-key-col {
   opacity: 0;
 }
 .psy-project-select__row:hover .psy-project-select__manage,
-.psy-project-select__manage:focus-visible { opacity: 1; }
-.psy-project-select__manage:hover { background: var(--bg-hover); color: var(--text); }
+.psy-project-select__manage:focus-visible {
+  opacity: 1;
+}
+.psy-project-select__manage:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
 
 /* --- Project removal dialog ------------------------------------------- */
 /* openclaw-modal-dialog owns the backdrop, centring, sizing, focus return and
@@ -6027,8 +6091,16 @@ td.data-table-key-col {
 .psy-project-create {
   padding: 1.25rem;
 }
-.psy-project-remove__title { margin: 0 0 0.35rem; font-size: 1.0625rem; font-weight: 600; }
-.psy-project-remove__intro { margin: 0 0 1rem; font-size: 0.875rem; color: var(--muted); }
+.psy-project-remove__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.psy-project-remove__intro {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
 .psy-project-remove__choice {
   display: block;
   width: 100%;
@@ -6041,9 +6113,18 @@ td.data-table-key-col {
   color: var(--text);
   cursor: pointer;
 }
-.psy-project-remove__choice:hover:not(:disabled) { background: var(--bg-hover); }
-.psy-project-remove__choice:disabled { opacity: 0.5; cursor: not-allowed; }
-.psy-project-remove__choice-label { display: block; font-size: 0.9375rem; font-weight: 600; }
+.psy-project-remove__choice:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+.psy-project-remove__choice:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.psy-project-remove__choice-label {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
 .psy-project-remove__choice-hint {
   display: block;
   margin-top: 0.15rem;
@@ -6076,8 +6157,16 @@ td.data-table-key-col {
   color: var(--text);
   font: inherit;
 }
-.psy-project-remove__warning { margin: 0 0 0.75rem; font-size: 0.875rem; color: var(--text); }
-.psy-project-remove__error { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--danger, #d9534f); }
+.psy-project-remove__warning {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+.psy-project-remove__error {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--danger, #d9534f);
+}
 .psy-project-remove__cancel {
   margin-top: 1rem;
   padding: 0.45rem 0.8rem;
@@ -6088,8 +6177,10 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-project-remove__cancel:hover:not(:disabled) { background: var(--bg-hover); color: var(--text); }
-
+.psy-project-remove__cancel:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text);
+}
 
 /* --- Archive sync ------------------------------------------------------
    Lives in the sidebar footer beside the Vault badge: both answer "what is
@@ -6103,8 +6194,14 @@ td.data-table-key-col {
   font-size: 0.75rem;
   color: var(--text);
 }
-.psy-sync--error { background: color-mix(in srgb, var(--danger, #d9534f) 14%, transparent); }
-.psy-sync__row { display: flex; align-items: center; gap: 0.4rem; }
+.psy-sync--error {
+  background: color-mix(in srgb, var(--danger, #d9534f) 14%, transparent);
+}
+.psy-sync__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 .psy-sync__dot {
   width: 6px;
   height: 6px;
@@ -6112,7 +6209,10 @@ td.data-table-key-col {
   background: var(--accent);
   animation: psy-aura 7s ease-in-out infinite;
 }
-.psy-sync__label { flex: 1 1 auto; min-width: 0; }
+.psy-sync__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .psy-sync__track {
   margin-top: 0.35rem;
   height: 3px;
@@ -6131,15 +6231,28 @@ td.data-table-key-col {
   padding-bottom: 0.85rem;
   border-bottom: 1px solid var(--border);
 }
-.psy-project-remove__toggle { display: flex; align-items: flex-start; gap: 0.5rem; }
-.psy-project-remove__toggle input { margin-top: 0.2rem; }
-.psy-project-remove__note { margin: 0.35rem 0 0; font-size: 0.8125rem; color: var(--muted); }
-
-@media (prefers-reduced-motion: reduce) {
-  .psy-sync__dot { animation: none; }
-  .psy-sync__fill { transition: none; }
+.psy-project-remove__toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.psy-project-remove__toggle input {
+  margin-top: 0.2rem;
+}
+.psy-project-remove__note {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .psy-sync__dot {
+    animation: none;
+  }
+  .psy-sync__fill {
+    transition: none;
+  }
+}
 
 /* --- Archive viewer ----------------------------------------------------
    A field, not a table. The reader's first question is "what does this
@@ -6150,20 +6263,51 @@ td.data-table-key-col {
 
    Deliberately NO relationship graph: the Archive exposes zero mappings
    today, so every edge would be invented. */
-.psy-arch { max-width: 68rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-.psy-arch__hero { text-align: center; margin-bottom: 2rem; }
-.psy-arch__title { margin: 0 0 0.35rem; font-size: 1.75rem; font-weight: 600; }
-.psy-arch__sub { margin: 0 0 1.25rem; color: var(--muted); }
-.psy-arch__stats { display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 0.75rem; }
-.psy-arch__stat { display: flex; flex-direction: column; gap: 0.15rem; }
-.psy-arch__stat-value { font-size: 1.5rem; font-weight: 600; color: var(--accent); }
+.psy-arch {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+.psy-arch__hero {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.psy-arch__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+.psy-arch__sub {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+.psy-arch__stats {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.psy-arch__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.psy-arch__stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--accent);
+}
 .psy-arch__stat-label {
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
-.psy-arch__edition { margin: 0; font-size: 0.8125rem; color: var(--muted); }
+.psy-arch__edition {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
 .psy-arch__notice {
   max-width: 34rem;
   margin: 0.85rem auto 0;
@@ -6173,9 +6317,16 @@ td.data-table-key-col {
   font-size: 0.8125rem;
   color: var(--text);
 }
-.psy-arch__error { color: var(--danger, #d9534f); text-align: center; }
+.psy-arch__error {
+  color: var(--danger, #d9534f);
+  text-align: center;
+}
 
-.psy-arch__search { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+.psy-arch__search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
 .psy-arch__search input {
   flex: 1 1 auto;
   padding: 0.6rem 0.85rem;
@@ -6194,7 +6345,10 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-arch__loading { text-align: center; color: var(--muted); }
+.psy-arch__loading {
+  text-align: center;
+  color: var(--muted);
+}
 
 .psy-arch__grid {
   display: grid;
@@ -6208,7 +6362,16 @@ td.data-table-key-col {
   gap: 0.4rem;
   padding: 0.95rem 1rem 0.9rem;
   text-align: left;
-  background: var(--popover);
+  /* Same treatment as the Vault dashboard cards -- a top-lit gradient plus
+     --elevate-1's shadow+rim-light, so this grid reads as the same raised
+     material rather than a differently-styled flat fill next to it.
+     overflow:hidden below clips the card-bar, not this element's OWN
+     shadow, so the two combine without conflict. */
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%),
+    var(--popover)
+  );
   /* Evidence weight reads as presence: better-supported archetypes sit
      forward with a stronger edge rather than shouting in a different colour. */
   border: 1px solid
@@ -6217,9 +6380,17 @@ td.data-table-key-col {
   color: var(--text);
   cursor: pointer;
   overflow: hidden;
-  transition: transform 140ms ease, border-color 140ms ease;
+  box-shadow: var(--elevate-1);
+  transition:
+    transform var(--duration-slow) var(--ease-out),
+    box-shadow var(--duration-slow) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
 }
-.psy-arch__card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.psy-arch__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--elevate-2);
+}
 .psy-arch__card-bar {
   position: absolute;
   inset: 0 auto 0 0;
@@ -6227,7 +6398,10 @@ td.data-table-key-col {
   background: var(--accent);
   opacity: calc(0.25 + (var(--psy-arch-weight, 0) * 0.75));
 }
-.psy-arch__card-name { font-weight: 600; font-size: 0.9375rem; }
+.psy-arch__card-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
 .psy-arch__card-desc {
   font-size: 0.8125rem;
   color: var(--muted);
@@ -6252,8 +6426,13 @@ td.data-table-key-col {
   text-transform: uppercase;
   background: color-mix(in srgb, var(--muted) 18%, transparent);
 }
-.psy-arch__tier--established { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--text); }
-.psy-arch__tier--emerging { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.psy-arch__tier--established {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--text);
+}
+.psy-arch__tier--emerging {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
 
 .psy-arch__detail {
   position: fixed;
@@ -6271,10 +6450,14 @@ td.data-table-key-col {
   max-height: 85dvh;
   overflow-y: auto;
   padding: 1.5rem;
-  background: var(--popover);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%),
+    var(--popover)
+  );
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--elevate-3);
 }
 .psy-arch__close {
   position: absolute;
@@ -6287,9 +6470,19 @@ td.data-table-key-col {
   line-height: 1;
   cursor: pointer;
 }
-.psy-arch__detail-name { margin: 0.5rem 0 0.5rem; font-size: 1.25rem; }
-.psy-arch__detail-desc { margin: 0 0 0.85rem; color: var(--text); }
-.psy-arch__detail-id { margin: 0 0 1rem; font-size: 0.75rem; color: var(--muted); }
+.psy-arch__detail-name {
+  margin: 0.5rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+.psy-arch__detail-desc {
+  margin: 0 0 0.85rem;
+  color: var(--text);
+}
+.psy-arch__detail-id {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 .psy-arch__ask {
   padding: 0.55rem 1rem;
   border: 1px solid var(--accent);
@@ -6300,8 +6493,12 @@ td.data-table-key-col {
   cursor: pointer;
 }
 @media (prefers-reduced-motion: reduce) {
-  .psy-arch__card { transition: none; }
-  .psy-arch__card:hover { transform: none; }
+  .psy-arch__card {
+    transition: none;
+  }
+  .psy-arch__card:hover {
+    transform: none;
+  }
 }
 
 /* Archive detail: structured record, not a JSON dump. The Architect authors
@@ -6323,7 +6520,9 @@ td.data-table-key-col {
   color: var(--text);
   font-size: 0.75rem;
 }
-.psy-arch__section { margin-bottom: 1.15rem; }
+.psy-arch__section {
+  margin-bottom: 1.15rem;
+}
 .psy-arch__section-title {
   margin: 0 0 0.4rem;
   font-size: 0.6875rem;
@@ -6331,10 +6530,26 @@ td.data-table-key-col {
   text-transform: uppercase;
   color: var(--accent);
 }
-.psy-arch__list { margin: 0; padding-left: 1.1rem; font-size: 0.875rem; line-height: 1.55; }
-.psy-arch__list li { margin-bottom: 0.2rem; }
-.psy-arch__prose { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--text); }
-.psy-arch__related { list-style: none; margin: 0; padding: 0; }
+.psy-arch__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+.psy-arch__list li {
+  margin-bottom: 0.2rem;
+}
+.psy-arch__prose {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.psy-arch__related {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .psy-arch__related li {
   display: flex;
   flex-direction: column;
@@ -6354,7 +6569,10 @@ td.data-table-key-col {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.psy-arch__related-why { font-size: 0.8125rem; color: var(--muted); }
+.psy-arch__related-why {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
 .psy-arch__detail-actions {
   display: flex;
   align-items: center;
@@ -6363,7 +6581,9 @@ td.data-table-key-col {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
 }
-.psy-arch__detail-actions .psy-arch__detail-id { margin: 0; }
+.psy-arch__detail-actions .psy-arch__detail-id {
+  margin: 0;
+}
 
 /* Genus line: taxonomy layer 3. Present as a link, absent as a plain
    statement -- never a disabled control, because "no family yet" is the
@@ -6381,7 +6601,10 @@ td.data-table-key-col {
   text-transform: uppercase;
   color: var(--accent);
 }
-.psy-arch__genus--none { color: var(--muted); font-size: 0.8125rem; }
+.psy-arch__genus--none {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
 
 /* Viewer links occupy the slot the PAGES section used to. No heading: these
    are two buttons that open two viewers, and a label over them would be more
@@ -6397,14 +6620,26 @@ td.data-table-key-col {
 /* Analysis Tools: collapsible section in the slot PAGES used to occupy. Reuses
    the session-group toggle so it collapses and persists identically to the
    groups below rather than being a second kind of section header. */
-.sidebar-tools { margin-bottom: 0.5rem; }
-.sidebar-tools__items { display: flex; flex-direction: column; gap: 0.1rem; }
+.sidebar-tools {
+  margin-bottom: 0.5rem;
+}
+.sidebar-tools__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
 
 /* A search with no hits must never be a dead end: before this, an empty result
    set left the grid blank with no control to undo it, so the only way back to
    the archetypes was to leave the viewer entirely. */
-.psy-arch__empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
-.psy-arch__empty p { margin: 0 0 1rem; }
+.psy-arch__empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--muted);
+}
+.psy-arch__empty p {
+  margin: 0 0 1rem;
+}
 .psy-arch__result-bar {
   display: flex;
   align-items: center;
@@ -6430,7 +6665,9 @@ td.data-table-key-col {
    the width barely moves, so "slow" never looks like "frozen". */
 /* Sits below the search field with breathing room, and thick enough to read as
    a deliberate element rather than a hairline. */
-.psy-arch__progress { margin: 1.1rem 0 1.75rem; }
+.psy-arch__progress {
+  margin: 1.1rem 0 1.75rem;
+}
 .psy-arch__progress-track {
   height: 12px;
   border-radius: 999px;
@@ -6455,8 +6692,12 @@ td.data-table-key-col {
   box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 @keyframes psy-arch-shimmer {
-  from { background-position: 0% 50%; }
-  to { background-position: 300% 50%; }
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 300% 50%;
+  }
 }
 .psy-arch__progress-label {
   margin: 0.6rem 0 0;
@@ -6465,13 +6706,24 @@ td.data-table-key-col {
   animation: psy-arch-breathe 2.8s ease-in-out infinite;
 }
 @keyframes psy-arch-breathe {
-  0%, 100% { opacity: 0.65; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .psy-arch__progress-fill { animation: none; transition: none; }
-  .psy-arch__progress-label { animation: none; opacity: 1; }
+  .psy-arch__progress-fill {
+    animation: none;
+    transition: none;
+  }
+  .psy-arch__progress-label {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* Detail-panel navigation: flip between archetypes without closing. Sits with
@@ -6495,7 +6747,10 @@ td.data-table-key-col {
   line-height: 1;
   cursor: pointer;
 }
-.psy-arch__step:hover { background: var(--bg-hover); color: var(--accent); }
+.psy-arch__step:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+}
 .psy-arch__step-count {
   min-width: 3.5rem;
   text-align: center;
@@ -6515,13 +6770,39 @@ td.data-table-key-col {
    what governs consent; the body renders what the project actually is, since
    a three-year EEG capture and a folder of notes are not the same object and
    a uniform row would hide exactly that difference. */
-.psy-vault { max-width: 72rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-.psy-vault__head { margin-bottom: 1.5rem; }
-.psy-vault__head h1 { margin: 0 0 0.35rem; font-size: 1.75rem; font-weight: 600; }
-.psy-vault__subtitle { margin: 0 0 1.25rem; color: var(--muted); }
-.psy-vault__totals { display: flex; flex-wrap: wrap; gap: 2.5rem; margin-bottom: 0.75rem; }
-.psy-vault__stat { display: flex; flex-direction: column; gap: 0.15rem; }
-.psy-vault__stat-value { font-size: 1.4rem; font-weight: 600; color: var(--accent); }
+.psy-vault {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+.psy-vault__head {
+  margin-bottom: 1.5rem;
+}
+.psy-vault__head h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+.psy-vault__subtitle {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+.psy-vault__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.psy-vault__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.psy-vault__stat-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent);
+}
 .psy-vault__stat-label {
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
@@ -6534,10 +6815,19 @@ td.data-table-key-col {
   color: var(--muted);
   overflow-wrap: anywhere;
 }
-.psy-vault__error { color: var(--danger, #d9534f); }
-.psy-vault__loading { text-align: center; color: var(--muted); }
+.psy-vault__error {
+  color: var(--danger, #d9534f);
+}
+.psy-vault__loading {
+  text-align: center;
+  color: var(--muted);
+}
 
-.psy-vault__search { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.psy-vault__search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
 .psy-vault__search input {
   flex: 1 1 auto;
   padding: 0.6rem 0.85rem;
@@ -6556,13 +6846,20 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-vault__search button[disabled] { opacity: 0.55; cursor: default; }
-.psy-vault__clear { color: var(--muted); }
+.psy-vault__search button[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+.psy-vault__clear {
+  color: var(--muted);
+}
 
 /* The match step is one opaque model call that cannot report from inside
    itself, so the fill eases toward a ceiling and only completes when the
    result actually lands. The stage labels underneath are real. */
-.psy-vault__progress { margin: 0.35rem 0 1.5rem; }
+.psy-vault__progress {
+  margin: 0.35rem 0 1.5rem;
+}
 .psy-vault__progress-track {
   height: 12px;
   border-radius: 999px;
@@ -6588,8 +6885,12 @@ td.data-table-key-col {
   box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 @keyframes psy-vault-shimmer {
-  from { background-position: 0% 50%; }
-  to { background-position: 300% 50%; }
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 300% 50%;
+  }
 }
 .psy-vault__progress-label {
   margin: 0.6rem 0 0;
@@ -6598,16 +6899,35 @@ td.data-table-key-col {
   animation: psy-vault-breathe 2.8s ease-in-out infinite;
 }
 @keyframes psy-vault-breathe {
-  0%, 100% { opacity: 0.65; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .psy-vault__progress-fill { animation: none; transition: none; }
-  .psy-vault__progress-label { animation: none; opacity: 1; }
+  .psy-vault__progress-fill {
+    animation: none;
+    transition: none;
+  }
+  .psy-vault__progress-label {
+    animation: none;
+    opacity: 1;
+  }
 }
-.psy-vault__result-count { margin: 0 0 0.85rem; font-size: 0.875rem; color: var(--muted); }
+.psy-vault__result-count {
+  margin: 0 0 0.85rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
 
-.psy-vault__body { display: flex; gap: 1.25rem; align-items: flex-start; }
+.psy-vault__body {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
 .psy-vault__grid {
   flex: 1 1 auto;
   display: grid;
@@ -6623,7 +6943,11 @@ td.data-table-key-col {
   /* A flat fill reads as a color swatch; a faint top-lit gradient on top of
      --elevate-1's own highlight is what actually sells "raised material"
      rather than "painted rectangle with a shadow under it". */
-  background: linear-gradient(165deg, color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%), var(--popover));
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%),
+    var(--popover)
+  );
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
@@ -6642,14 +6966,38 @@ td.data-table-key-col {
 /* A project holding no data is still shown rather than hidden -- an inventory
    that silently omits empties cannot answer "is that everything?". It just
    sits back. */
-.psy-vault__card--empty { opacity: 0.72; }
-.psy-vault__card-head { display: flex; flex-direction: column; gap: 0.15rem; }
-.psy-vault__card-title { margin: 0; font-size: 0.9375rem; font-weight: 600; }
-.psy-vault__device { font-size: 0.75rem; color: var(--muted); }
+.psy-vault__card--empty {
+  opacity: 0.72;
+}
+.psy-vault__card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.psy-vault__card-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.psy-vault__device {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 
-.psy-vault__strip { display: flex; flex-wrap: wrap; gap: 1.25rem; }
-.psy-vault__strip .psy-vault__stat-value { font-size: 1.05rem; }
-.psy-vault__formats { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0; }
+.psy-vault__strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+.psy-vault__strip .psy-vault__stat-value {
+  font-size: 1.05rem;
+}
+.psy-vault__formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+}
 .psy-vault__format {
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
@@ -6657,12 +7005,19 @@ td.data-table-key-col {
   font-size: 0.7rem;
   color: var(--muted);
 }
-.psy-vault__span, .psy-vault__desc, .psy-vault__empty-note {
+.psy-vault__span,
+.psy-vault__desc,
+.psy-vault__empty-note {
   margin: 0;
   font-size: 0.8125rem;
   color: var(--muted);
 }
-.psy-vault__desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.psy-vault__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 .psy-vault__card-foot {
   display: flex;
@@ -6686,8 +7041,14 @@ td.data-table-key-col {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
 }
-.psy-vault__badge--quiet { opacity: 0.7; }
-.psy-vault__synced, .psy-vault__submissions { font-size: 0.7rem; color: var(--muted); }
+.psy-vault__badge--quiet {
+  opacity: 0.7;
+}
+.psy-vault__synced,
+.psy-vault__submissions {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
 
 .psy-vault__detail {
   flex: 0 0 24rem;
@@ -6707,7 +7068,13 @@ td.data-table-key-col {
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
-.psy-vault__stepper { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8125rem; color: var(--muted); }
+.psy-vault__stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
 .psy-vault__stepper button,
 .psy-vault__close {
   padding: 0.15rem 0.5rem;
@@ -6718,9 +7085,22 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-vault__detail-title { margin: 0 0 0.2rem; font-size: 1.1rem; }
-.psy-vault__detail-path { margin: 0 0 0.6rem; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
-.psy-vault__types { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0 0 0.9rem; }
+.psy-vault__detail-title {
+  margin: 0 0 0.2rem;
+  font-size: 1.1rem;
+}
+.psy-vault__detail-path {
+  margin: 0 0 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.psy-vault__types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.9rem;
+}
 .psy-vault__type {
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
@@ -6750,7 +7130,10 @@ td.data-table-key-col {
   object-fit: contain;
   background: var(--bg);
 }
-.psy-vault__more { font-size: 0.7rem; color: var(--muted); }
+.psy-vault__more {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
 .psy-vault__ask {
   width: 100%;
   margin-top: 0.5rem;
@@ -6762,7 +7145,10 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-vault__ask:hover { border-color: var(--accent); color: var(--accent); }
+.psy-vault__ask:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 @media (max-width: 60rem) {
   /* `align-items: flex-start` is right in row direction -- it stops the sticky
@@ -6770,8 +7156,16 @@ td.data-table-key-col {
      flips it shrink-wraps children horizontally instead, collapsing the grid
      to a single column's intrinsic width. Stretch is the correct cross-axis
      behaviour here. */
-  .psy-vault__body { flex-direction: column; align-items: stretch; }
-  .psy-vault__detail { flex: 1 1 auto; width: 100%; position: static; max-height: none; }
+  .psy-vault__body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .psy-vault__detail {
+    flex: 1 1 auto;
+    width: 100%;
+    position: static;
+    max-height: none;
+  }
 
   /* Narrow layouts drill down rather than append. Side by side, opening a
      project puts the panel next to the grid; stacked, it puts it BELOW the
@@ -6779,7 +7173,9 @@ td.data-table-key-col {
      it did nothing and left the user staring at the same list. At this width
      the correct interaction is master/detail: the grid steps aside, and the
      stepper and Close are the way back. */
-  .psy-vault__body--detail .psy-vault__grid { display: none; }
+  .psy-vault__body--detail .psy-vault__grid {
+    display: none;
+  }
 }
 
 /* Project Profile header: what the project IS, before what it holds. */
@@ -6802,11 +7198,29 @@ td.data-table-key-col {
   text-transform: uppercase;
   color: var(--accent);
 }
-.psy-vault__detail-desc { margin: 0 0 0.3rem; font-size: 0.8125rem; color: var(--text); }
-.psy-vault__detail-desc--empty { color: var(--muted); font-style: italic; }
-.psy-vault__detail-meta { margin: 0 0 0.4rem; font-size: 0.75rem; color: var(--muted); }
-.psy-vault__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-.psy-vault__actions button { flex: 1 1 9rem; }
+.psy-vault__detail-desc {
+  margin: 0 0 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+.psy-vault__detail-desc--empty {
+  color: var(--muted);
+  font-style: italic;
+}
+.psy-vault__detail-meta {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.psy-vault__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.psy-vault__actions button {
+  flex: 1 1 9rem;
+}
 .psy-vault__open {
   padding: 0.55rem 0.9rem;
   border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
@@ -6816,8 +7230,13 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-vault__open:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
-.psy-vault__open[disabled] { opacity: 0.6; cursor: default; }
+.psy-vault__open:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.psy-vault__open[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
 .psy-vault__watch-dir {
   margin-top: 0.75rem;
   padding: 0.65rem 0.75rem;
@@ -6835,7 +7254,10 @@ td.data-table-key-col {
   font-size: 0.75rem;
   color: var(--muted);
 }
-.psy-vault__watch-dir-row { display: flex; gap: 0.4rem; }
+.psy-vault__watch-dir-row {
+  display: flex;
+  gap: 0.4rem;
+}
 .psy-vault__watch-dir-delete {
   display: flex;
   align-items: center;
@@ -6868,7 +7290,10 @@ td.data-table-key-col {
   white-space: nowrap;
 }
 .psy-vault__watch-dir-save[disabled],
-.psy-vault__tile-sync[disabled] { opacity: 0.5; cursor: default; }
+.psy-vault__tile-sync[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
 .psy-vault__watch-dir-active {
   margin: 0 0 0.5rem;
   font-size: 0.75rem;
@@ -6889,7 +7314,10 @@ td.data-table-key-col {
   font-size: 0.75rem;
   cursor: pointer;
 }
-.psy-vault__watch-dir-clear:hover { color: var(--text); border-color: var(--text); }
+.psy-vault__watch-dir-clear:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
 /* A deep link that matched nothing has to explain itself: silently showing the
    full list reads as a broken button. */
 .psy-vault__notice {
@@ -6916,7 +7344,9 @@ td.data-table-key-col {
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: inset 0 1px 0 var(--card-highlight), 0 24px 60px rgb(0 0 0 / 0.45);
+  box-shadow:
+    inset 0 1px 0 var(--card-highlight),
+    0 24px 60px rgb(0 0 0 / 0.45);
   overflow: hidden;
 }
 .psy-vault__browser-head {
@@ -6927,20 +7357,33 @@ td.data-table-key-col {
   padding: 0.9rem 1.1rem;
   border-bottom: 1px solid var(--border);
 }
-.psy-vault__browser-head h3 { margin: 0; font-size: 1.05rem; }
-.psy-vault__browser-body { flex: 1 1 auto; display: flex; min-height: 0; }
+.psy-vault__browser-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.psy-vault__browser-body {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
 .psy-vault__tree {
   flex: 0 0 17rem;
   overflow-y: auto;
   padding: 0.75rem;
   border-right: 1px solid var(--border);
 }
-.psy-vault__filepane { flex: 1 1 auto; overflow-y: auto; padding: 1.25rem; }
+.psy-vault__filepane {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
 
 /* Accordion. Animated with grid-template-rows 0fr->1fr so the height
    transition works without measuring content in JS, which is what makes a
    collapsing list judder. */
-.psy-vault__acc { margin-bottom: 0.2rem; }
+.psy-vault__acc {
+  margin-bottom: 0.2rem;
+}
 .psy-vault__acc-head {
   display: flex;
   align-items: center;
@@ -6955,7 +7398,9 @@ td.data-table-key-col {
   text-align: left;
   cursor: pointer;
 }
-.psy-vault__acc-head:hover { background: var(--bg-hover, color-mix(in srgb, var(--text) 6%, transparent)); }
+.psy-vault__acc-head:hover {
+  background: var(--bg-hover, color-mix(in srgb, var(--text) 6%, transparent));
+}
 .psy-vault__acc-icon svg,
 .psy-vault__tile-icon svg,
 .psy-vault__file-icon svg {
@@ -6965,8 +7410,14 @@ td.data-table-key-col {
   fill: none;
   stroke-width: 1.75;
 }
-.psy-vault__acc-icon { color: var(--accent); display: inline-flex; }
-.psy-vault__acc-label { font-size: 0.8125rem; font-weight: 600; }
+.psy-vault__acc-icon {
+  color: var(--accent);
+  display: inline-flex;
+}
+.psy-vault__acc-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
 .psy-vault__acc-ext {
   padding: 0.05rem 0.4rem;
   border-radius: 999px;
@@ -6974,7 +7425,10 @@ td.data-table-key-col {
   font-size: 0.7rem;
   color: var(--muted);
 }
-.psy-vault__acc-count { font-size: 0.7rem; color: var(--muted); }
+.psy-vault__acc-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
 .psy-vault__acc-chevron {
   margin-left: auto;
   display: inline-flex;
@@ -6982,21 +7436,43 @@ td.data-table-key-col {
   transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
   transform: rotate(-90deg);
 }
-.psy-vault__acc--open > .psy-vault__acc-head .psy-vault__acc-chevron { transform: rotate(0deg); }
-.psy-vault__acc-chevron svg { width: 0.9rem; height: 0.9rem; stroke: currentColor; fill: none; }
+.psy-vault__acc--open > .psy-vault__acc-head .psy-vault__acc-chevron {
+  transform: rotate(0deg);
+}
+.psy-vault__acc-chevron svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  stroke: currentColor;
+  fill: none;
+}
 .psy-vault__acc-body {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 240ms cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    grid-template-rows 240ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 200ms ease;
   opacity: 0;
   padding-left: 0.7rem;
 }
-.psy-vault__acc-body > div { overflow: hidden; min-height: 0; }
-.psy-vault__acc--open > .psy-vault__acc-body { grid-template-rows: 1fr; opacity: 1; }
+.psy-vault__acc-body > div {
+  overflow: hidden;
+  min-height: 0;
+}
+.psy-vault__acc--open > .psy-vault__acc-body {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
 
-.psy-vault__tiles { list-style: none; margin: 0.15rem 0 0.35rem; padding: 0; }
-.psy-vault__tile-row { display: flex; align-items: center; gap: 0.3rem; }
+.psy-vault__tiles {
+  list-style: none;
+  margin: 0.15rem 0 0.35rem;
+  padding: 0;
+}
+.psy-vault__tile-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
 .psy-vault__tile {
   display: flex;
   align-items: center;
@@ -7026,15 +7502,28 @@ td.data-table-key-col {
   color: var(--muted);
   cursor: pointer;
 }
-.psy-vault__tile-sync svg { width: 0.9rem; height: 0.9rem; }
-.psy-vault__tile-sync:hover { color: var(--accent); border-color: var(--accent); }
-.psy-vault__tile:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.psy-vault__tile-sync svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+.psy-vault__tile-sync:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.psy-vault__tile:hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
 .psy-vault__tile--active {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
   background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
-.psy-vault__tile-icon { color: var(--muted); display: inline-flex; }
-.psy-vault__tile--active .psy-vault__tile-icon { color: var(--accent); }
+.psy-vault__tile-icon {
+  color: var(--muted);
+  display: inline-flex;
+}
+.psy-vault__tile--active .psy-vault__tile-icon {
+  color: var(--accent);
+}
 .psy-vault__tile-name {
   flex: 1 1 auto;
   font-size: 0.75rem;
@@ -7042,7 +7531,10 @@ td.data-table-key-col {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.psy-vault__tile-size { font-size: 0.7rem; color: var(--muted); }
+.psy-vault__tile-size {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
 
 .psy-vault__file-card {
   max-width: 32rem;
@@ -7052,16 +7544,38 @@ td.data-table-key-col {
      the same "this is above that" cue the panel itself uses on the page
      behind it. */
   padding: 1.1rem 1.2rem;
-  background: linear-gradient(165deg, color-mix(in srgb, var(--card) 100%, var(--text-strong) 4%), var(--card));
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--card) 100%, var(--text-strong) 4%),
+    var(--card)
+  );
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--elevate-2);
 }
-.psy-vault__file-icon { color: var(--accent); display: inline-flex; }
-.psy-vault__file-icon svg { width: 2rem; height: 2rem; }
-.psy-vault__file-card h4 { margin: 0.5rem 0 0.9rem; font-size: 1rem; overflow-wrap: anywhere; }
-.psy-vault__fields { margin: 0 0 1rem; display: grid; gap: 0.5rem; }
-.psy-vault__fields > div { display: flex; gap: 0.6rem; font-size: 0.8125rem; }
+.psy-vault__file-icon {
+  color: var(--accent);
+  display: inline-flex;
+}
+.psy-vault__file-icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+.psy-vault__file-card h4 {
+  margin: 0.5rem 0 0.9rem;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.psy-vault__fields {
+  margin: 0 0 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.psy-vault__fields > div {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.8125rem;
+}
 .psy-vault__fields dt {
   flex: 0 0 6rem;
   color: var(--muted);
@@ -7069,22 +7583,39 @@ td.data-table-key-col {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.psy-vault__fields dd { margin: 0; overflow-wrap: anywhere; }
+.psy-vault__fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .psy-vault__acc-body, .psy-vault__acc-chevron { transition: none; }
+  .psy-vault__acc-body,
+  .psy-vault__acc-chevron {
+    transition: none;
+  }
 }
 @media (max-width: 60rem) {
-  .psy-vault__browser { inset: 0.75rem; }
-  .psy-vault__browser-body { flex-direction: column; }
-  .psy-vault__tree { flex: 0 0 auto; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
+  .psy-vault__browser {
+    inset: 0.75rem;
+  }
+  .psy-vault__browser-body {
+    flex-direction: column;
+  }
+  .psy-vault__tree {
+    flex: 0 0 auto;
+    max-height: 45%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
 }
 
 /* --- Software update -----------------------------------------------------
    A nav-sized button in the sidebar; the real surface opens as a modal. The
    sidebar is a navigation rail, so a permanent control there has to be the
    size of a nav item rather than the size of what it opens. */
-.psy-update { position: relative; }
+.psy-update {
+  position: relative;
+}
 .psy-update__btn {
   display: inline-flex;
   align-items: center;
@@ -7099,7 +7630,10 @@ td.data-table-key-col {
   cursor: pointer;
   white-space: nowrap;
 }
-.psy-update__btn:hover { border-color: var(--accent); color: var(--accent); }
+.psy-update__btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 /* Colour is earned by having something to say, not by existing. */
 .psy-update__btn--available {
   border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
@@ -7141,7 +7675,10 @@ td.data-table-key-col {
   gap: 1rem;
   margin-bottom: 0.75rem;
 }
-.psy-update__modal-head h3 { margin: 0; font-size: 1rem; }
+.psy-update__modal-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
 .psy-update__close {
   padding: 0.1rem 0.45rem;
   border: 1px solid var(--border);
@@ -7152,10 +7689,20 @@ td.data-table-key-col {
   line-height: 1.2;
   cursor: pointer;
 }
-.psy-update__close:hover { color: var(--accent); border-color: var(--accent); }
-.psy-update__line { margin: 0 0 0.2rem; font-size: 0.8125rem; }
+.psy-update__close:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.psy-update__line {
+  margin: 0 0 0.2rem;
+  font-size: 0.8125rem;
+}
 
-.psy-update__summary { margin: 0 0 0.5rem; font-size: 0.75rem; color: var(--muted); }
+.psy-update__summary {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 .psy-update__commit {
   margin: 0 0 0.15rem;
   font-size: 0.72rem;
@@ -7166,7 +7713,11 @@ td.data-table-key-col {
 }
 /* What the update will actually do — a restart or a 20-minute build is
    something to know before starting, not to discover halfway through. */
-.psy-update__plan { margin: 0.5rem 0; font-size: 0.72rem; color: var(--muted); }
+.psy-update__plan {
+  margin: 0.5rem 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
 .psy-update__warn {
   margin: 0.4rem 0;
   font-size: 0.72rem;
@@ -7183,8 +7734,13 @@ td.data-table-key-col {
   font: inherit;
   cursor: pointer;
 }
-.psy-update__go[disabled] { opacity: 0.55; cursor: default; }
-.psy-update__progress { margin: 0.6rem 0; }
+.psy-update__go[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+.psy-update__progress {
+  margin: 0.6rem 0;
+}
 .psy-update__track {
   height: 8px;
   border-radius: 999px;
@@ -7205,7 +7761,11 @@ td.data-table-key-col {
   animation: psy-vault-shimmer 2.4s linear infinite;
   transition: width 400ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.psy-update__stage { margin: 0.4rem 0 0; font-size: 0.72rem; color: var(--muted); }
+.psy-update__stage {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
 .psy-update__auto {
   display: flex;
   align-items: center;
@@ -7213,17 +7773,49 @@ td.data-table-key-col {
   font-size: 0.75rem;
   cursor: pointer;
 }
-.psy-update__hint { margin: 0.2rem 0 0; font-size: 0.68rem; color: var(--muted); }
+.psy-update__hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
 @media (prefers-reduced-motion: reduce) {
-  .psy-update__fill { animation: none; transition: none; }
+  .psy-update__fill {
+    animation: none;
+    transition: none;
+  }
 }
 
 /* Project Profile content summary. A count per category, not a file listing --
    browsing is the file browser's job, and the profile's own space belongs to
    what the project IS and whether its data may leave. */
-.psy-vault__summary-list { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.4rem; }
-.psy-vault__summary-list li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; }
-.psy-vault__summary-icon { display: inline-flex; color: var(--accent); }
-.psy-vault__summary-icon svg { width: 0.95rem; height: 0.95rem; stroke: currentColor; fill: none; stroke-width: 1.75; }
-.psy-vault__summary-label { flex: 1 1 auto; color: var(--muted); }
-.psy-vault__summary-count { font-weight: 600; }
+.psy-vault__summary-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.psy-vault__summary-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+.psy-vault__summary-icon {
+  display: inline-flex;
+  color: var(--accent);
+}
+.psy-vault__summary-icon svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.75;
+}
+.psy-vault__summary-label {
+  flex: 1 1 auto;
+  color: var(--muted);
+}
+.psy-vault__summary-count {
+  font-weight: 600;
+}

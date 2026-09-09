@@ -105,7 +105,13 @@ function ensureOnboardingStyles() {
   padding: 0.75rem 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  box-shadow: var(--elevate-1, none);
+  transition: box-shadow var(--duration-slow, 0.25s) var(--ease-out, ease), transform var(--duration-slow, 0.25s) var(--ease-out, ease);
+}
+.psy-onb__choice:hover {
+  box-shadow: var(--elevate-2, none);
+  transform: translateY(-2px);
 }
 .psy-onb__choice-text {
   display: flex;
