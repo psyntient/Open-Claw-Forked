@@ -2673,8 +2673,7 @@ export const en: TranslationMap = {
     members: "Species in this family ({count})",
     noFamily:
       "Not grouped into an archetype family yet — this Edition defines species but no genera.",
-    familyPillIn: "▲ in {name}",
-    familyPillSpecies: "▼ {count} species",
+    familyTree: "Family Tree",
     speciesCount: "{count} species",
     testData: "Test data",
     treeSimulatedTitle: "{name} is simulated test data",

@@ -535,6 +535,13 @@ export class PsyntientArchivePage extends LitElement {
     const members = Array.isArray(raw.members)
       ? raw.members.filter((m): m is string => typeof m === "string")
       : [];
+    // Whether the "Family Tree" button has anywhere to go: a genus with at
+    // least one species, or a species with a genus. Checked once here so the
+    // button and its footer placement stay in sync with the taxonomy fields
+    // above rather than re-deriving the same condition twice.
+    const hasFamily = isGenus
+      ? members.length > 0
+      : typeof raw.parent_archetype === "string" && raw.parent_archetype !== "";
     const list = this.displayOrder();
     const position = list.findIndex((x) => x.id === a.id);
     const inList = position !== -1 && list.length > 1;
@@ -592,16 +599,12 @@ export class PsyntientArchivePage extends LitElement {
           <div class="psy-arch__facts">
             ${isGenus
               ? html`<span class="psy-arch__chip"
-                    >${t("archive.genusRank")}${genusKind ? ` · ${genusKind}` : ""}</span
-                  >
-                  <button
-                    type="button"
-                    class="psy-arch__chip psy-arch__chip--link"
-                    @click=${() => this.openFamily(a.id)}
-                  >
-                    ${t("archive.familyPillSpecies", { count: String(members.length) })}
-                  </button>`
+                  >${t("archive.genusRank")}${genusKind ? ` · ${genusKind}` : ""}</span
+                >`
               : html`<span>${t("archive.exemplarMany", { count: String(exemplarsOf(a)) })}</span>`}
+            ${isGenus
+              ? html`<span>${t("archive.speciesCount", { count: String(members.length) })}</span>`
+              : nothing}
             ${modalityKeys.map(
               (m) => html`<span class="psy-arch__chip">${m} · ${modality[m]}</span>`,
             )}
@@ -621,9 +624,9 @@ export class PsyntientArchivePage extends LitElement {
                   <button
                     type="button"
                     class="psy-arch__related-link"
-                    @click=${() => this.openFamily(a.id)}
+                    @click=${() => this.openById(String(raw.parent_archetype))}
                   >
-                    ${t("archive.familyPillIn", { name: prettifyId(String(raw.parent_archetype)) })}
+                    ${prettifyId(String(raw.parent_archetype))}
                   </button>
                 </p>`
               : html`<p class="psy-arch__genus psy-arch__genus--none">${t("archive.noFamily")}</p>`
@@ -706,6 +709,20 @@ export class PsyntientArchivePage extends LitElement {
             <button class="psy-arch__ask" type="button" @click=${() => this.askCortex(a)}>
               ${t("archive.askCortex")}
             </button>
+            <!-- The one way into the tree, shown only when there is
+                 somewhere for it to go: a genus with species, or a species
+                 with a genus. The Family/Genus text above stays a separate,
+                 direct jump to one specific record -- this button is the
+                 whole pyramid. -->
+            ${hasFamily
+              ? html`<button
+                  class="psy-arch__ask"
+                  type="button"
+                  @click=${() => this.openFamily(a.id)}
+                >
+                  ${t("archive.familyTree")}
+                </button>`
+              : nothing}
             <code class="psy-arch__detail-id">${a.id}</code>
           </div>
         </div>

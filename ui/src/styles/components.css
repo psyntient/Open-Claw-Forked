@@ -6605,14 +6605,6 @@ td.data-table-key-col {
   color: var(--muted);
   font-size: 0.8125rem;
 }
-.psy-arch__chip--link {
-  border: none;
-  font: inherit;
-  cursor: pointer;
-}
-.psy-arch__chip--link:hover {
-  background: color-mix(in srgb, var(--accent) 26%, transparent);
-}
 
 /* --- Family tree ---------------------------------------------------------
    Three tiers: genus, its species one rank beneath, and each species' own
