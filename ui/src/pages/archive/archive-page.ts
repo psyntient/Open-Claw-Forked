@@ -320,6 +320,17 @@ export class PsyntientArchivePage extends LitElement {
     this.family = null;
   }
 
+  private closeDetail() {
+    this.selected = null;
+    this.detail = null;
+  }
+
+  /** Closes an overlay when its backdrop itself is clicked, not a bubbled
+   *  click from the panel or anything inside it. */
+  private static onBackdropClick(e: Event, close: () => void) {
+    if (e.target === e.currentTarget) close();
+  }
+
   /**
    * Hand the question to Cortex rather than answering it here.
    *
@@ -548,7 +559,12 @@ export class PsyntientArchivePage extends LitElement {
     const listLength = list.length;
 
     return html`
-      <div class="psy-arch__detail" role="dialog" aria-modal="true">
+      <div
+        class="psy-arch__detail"
+        role="dialog"
+        aria-modal="true"
+        @click=${(e: Event) => PsyntientArchivePage.onBackdropClick(e, () => this.closeDetail())}
+      >
         <div class="psy-arch__detail-panel">
           <div class="psy-arch__detail-nav">
             <!-- Flip through without leaving the panel. Hidden for a record
@@ -584,10 +600,7 @@ export class PsyntientArchivePage extends LitElement {
               type="button"
               class="psy-arch__close"
               aria-label=${t("archive.close")}
-              @click=${() => {
-                this.selected = null;
-                this.detail = null;
-              }}
+              @click=${() => this.closeDetail()}
             >
               ×
             </button>
@@ -751,7 +764,12 @@ export class PsyntientArchivePage extends LitElement {
 
     if (this.familyLoading || !this.family) {
       return html`
-        <div class="psy-arch__detail" role="dialog" aria-modal="true">
+        <div
+          class="psy-arch__detail"
+          role="dialog"
+          aria-modal="true"
+          @click=${(e: Event) => PsyntientArchivePage.onBackdropClick(e, () => this.closeFamily())}
+        >
           <div class="psy-arch__tree-panel">
             ${closeButton}
             <p class="psy-arch__loading">${t("archive.loading")}</p>
@@ -763,7 +781,12 @@ export class PsyntientArchivePage extends LitElement {
     const { genus, species, note } = this.family;
     if (!genus) {
       return html`
-        <div class="psy-arch__detail" role="dialog" aria-modal="true">
+        <div
+          class="psy-arch__detail"
+          role="dialog"
+          aria-modal="true"
+          @click=${(e: Event) => PsyntientArchivePage.onBackdropClick(e, () => this.closeFamily())}
+        >
           <div class="psy-arch__tree-panel">
             ${closeButton}
             <p class="psy-arch__genus--none">${note ?? t("archive.noFamily")}</p>
@@ -784,7 +807,12 @@ export class PsyntientArchivePage extends LitElement {
     const genusId = String(genus.id ?? "");
 
     return html`
-      <div class="psy-arch__detail" role="dialog" aria-modal="true">
+      <div
+        class="psy-arch__detail"
+        role="dialog"
+        aria-modal="true"
+        @click=${(e: Event) => PsyntientArchivePage.onBackdropClick(e, () => this.closeFamily())}
+      >
         <div class="psy-arch__tree-panel">
           ${closeButton}
           ${simulated
