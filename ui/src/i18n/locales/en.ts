@@ -2698,6 +2698,16 @@ export const en: TranslationMap = {
     promotionCriteria: "Promotion criteria",
     figures: "Figures",
     figureNotes: "Notes from the figure generator",
+    historyChip: "Recently browsed ({count})",
+    historyJustNow: "just now",
+    historyMinutesAgo: "{count} min ago",
+    historyHoursAgo: "{count} hr ago",
+    historyYesterday: "yesterday",
+    historyDaysAgo: "{count} days ago",
+    historyGone: "No longer in this Edition.",
+    historyRetention:
+      "Kept for 30 days, then dropped. Stored against a masked id, not your name.",
+    historyClear: "Clear this list",
   },
   sync: {
     inProgress: "Sending to the Archive… {done} of {total}",

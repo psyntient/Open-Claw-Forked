@@ -84,6 +84,11 @@ type PacketDetail = {
 
 type FigureRef = { name: string; caption: string; url: string; bytes: number };
 
+/** One archetype's own page having been opened. Newest first, maintained by
+ *  daemon/archive-history.mjs -- the client trusts that order rather than
+ *  re-sorting. */
+type HistoryEntry = { id: string; lastSeen: number; views: number };
+
 /** This Edition's own account of itself, opened from the hero's "About this
  *  Edition" button. `manifest` is passed through verbatim -- it is
  *  Edition-authored content, not this client's shape to define. */
@@ -131,6 +136,24 @@ function prettifyId(id: string): string {
   return id.replace(/^NA-\d+-/, "").replace(/-/g, " ");
 }
 
+/** localStorage key for the history strip's open/closed state -- a reader
+ *  who likes it open should find it open next time, same as the Library. */
+const HISTORY_OPEN_KEY = "psy-arch-history-open";
+
+/** "just now" / "15 min ago" / "yesterday" / "4 days ago" -- the exact
+ *  bucket set the Library's own history strip uses. */
+function relativeTime(atMs: number): string {
+  const diff = Date.now() - atMs;
+  const minute = 60_000;
+  const hour = 3_600_000;
+  const day = 86_400_000;
+  if (diff < minute) return t("archive.historyJustNow");
+  if (diff < hour) return t("archive.historyMinutesAgo", { count: String(Math.max(1, Math.floor(diff / minute))) });
+  if (diff < day) return t("archive.historyHoursAgo", { count: String(Math.max(1, Math.floor(diff / hour))) });
+  const days = Math.floor(diff / day);
+  return days === 1 ? t("archive.historyYesterday") : t("archive.historyDaysAgo", { count: String(days) });
+}
+
 @customElement("psyntient-archive-page")
 export class PsyntientArchivePage extends LitElement {
   protected override createRenderRoot() {
@@ -175,6 +198,18 @@ export class PsyntientArchivePage extends LitElement {
   @state() private editionInfo: EditionInfo | null = null;
   @state() private editionInfoLoading = false;
   @state() private figureUrls: Map<string, string> = new Map();
+  /** Recently-browsed archetypes, newest first. Loaded on mount and after
+   *  every record/clear -- see recordArchetypeView()/clearHistory(). */
+  @state() private history: HistoryEntry[] = [];
+  /** Open/closed state of the strip, persisted so a reader who opens it
+   *  once finds it open next time (localStorage, not synced -- purely a
+   *  per-browser UI preference, unlike the list itself). */
+  @state() private historyOpen = false;
+  /** True once loadHistory() has actually succeeded once -- distinct from
+   *  history.length === 0, which is also the ordinary "nothing browsed yet"
+   *  state. Lets updated() know whether an un-authed first attempt (see
+   *  connectedCallback) still needs retrying once a real token arrives. */
+  private historyLoaded = false;
 
   private searchAbort: AbortController | null = null;
   private progressTimer: ReturnType<typeof setInterval> | null = null;
@@ -214,12 +249,22 @@ export class PsyntientArchivePage extends LitElement {
   override connectedCallback() {
     super.connectedCallback();
     void this.load();
+    void this.loadHistory();
+    try {
+      this.historyOpen = localStorage.getItem(HISTORY_OPEN_KEY) === "1";
+    } catch {
+      // Private browsing / storage disabled: default closed, same as a
+      // reader who has never opened it.
+    }
   }
 
   override updated(changed: Map<string, unknown>) {
-    // The loader resolves after first paint, so the token can arrive late.
-    if (changed.has("authToken") && this.authToken && !this.edition) {
-      void this.load();
+    // The loader resolves after first paint, so the token can arrive late --
+    // both fetches below run once un-authed in connectedCallback() (and fail
+    // quietly), so each needs its own retry here once a real token shows up.
+    if (changed.has("authToken") && this.authToken) {
+      if (!this.edition) void this.load();
+      if (!this.historyLoaded) void this.loadHistory();
     }
   }
 
@@ -363,6 +408,9 @@ export class PsyntientArchivePage extends LitElement {
     if (body?.ok !== false) {
       this.detail = (body?.record as Record<string, unknown>) ?? null;
       void this.loadEvidence(a.id);
+      // Recently-browsed records an archetype's own page being opened --
+      // not the card in the grid a moment ago. See recordArchetypeView().
+      if (body?.kind === "archetype") this.recordArchetypeView(a.id);
     }
   }
 
@@ -520,6 +568,78 @@ export class PsyntientArchivePage extends LitElement {
     }
   }
 
+  /** GET/POST helper for the history route -- a sibling of ROUTE, not a
+   *  query param on it: that route is a pass-through to archive.psyntient.io
+   *  and this never touches the network at all (see gateway-plugin/index.js).
+   *  Returns null on any failure (including the un-authed first attempt in
+   *  connectedCallback, before the token has arrived) so callers can tell
+   *  "failed, keep what's on screen" apart from "succeeded, genuinely empty". */
+  private async historyRequest(init?: RequestInit): Promise<HistoryEntry[] | null> {
+    try {
+      const res = await fetch(`${ROUTE}/history`, {
+        ...init,
+        headers: {
+          ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
+          ...(init?.body ? { "Content-Type": "application/json" } : {}),
+        },
+      });
+      if (!res.ok) return null;
+      const body = (await res.json()) as { ok?: boolean; entries?: HistoryEntry[] };
+      return body.ok === false ? null : (body.entries ?? []);
+    } catch {
+      // Recently-browsed is a convenience, not core reading functionality --
+      // a failure here must never surface as a page-level error.
+      return null;
+    }
+  }
+
+  private async loadHistory() {
+    const entries = await this.historyRequest();
+    if (entries === null) return; // updated() retries once a token arrives
+    this.history = entries;
+    this.historyLoaded = true;
+  }
+
+  /**
+   * Record an archetype's own page being opened -- not a card in the grid,
+   * not a search result, not a packet or family-tree visit (see
+   * daemon/docs/ARCHIVE_VIEWER.md). Fire-and-forget: a slow or failed
+   * record must never hold up or break the page the reader actually asked
+   * for.
+   */
+  private recordArchetypeView(id: string) {
+    void this.historyRequest({
+      method: "POST",
+      body: JSON.stringify({ action: "record", id }),
+    }).then((entries) => {
+      if (entries !== null) this.history = entries;
+    });
+  }
+
+  private toggleHistory() {
+    this.historyOpen = !this.historyOpen;
+    try {
+      localStorage.setItem(HISTORY_OPEN_KEY, this.historyOpen ? "1" : "0");
+    } catch {
+      // Per-browser convenience only; losing it just means it defaults
+      // closed again next time.
+    }
+  }
+
+  /**
+   * Clears the local list. Local-only today, same as the rest of this
+   * feature (see recordArchetypeView) -- once syncing exists this must also
+   * POST {clear: true} to the Library, not just wipe this Node's copy, or
+   * clearing here would be a lie on the other surface.
+   */
+  private async clearHistory() {
+    const entries = await this.historyRequest({
+      method: "POST",
+      body: JSON.stringify({ action: "clear" }),
+    });
+    if (entries !== null) this.history = entries;
+  }
+
   /** Closes an overlay when its backdrop itself is clicked, not a bubbled
    *  click from the panel or anything inside it. */
   private static onBackdropClick(e: Event, close: () => void) {
@@ -551,6 +671,76 @@ export class PsyntientArchivePage extends LitElement {
         <span class="psy-arch__stat-label">${label}</span>
       </div>
     `;
+  }
+
+  /**
+   * The "recently browsed" chip + strip -- copies the Library's behaviour
+   * (a chip that expands into a strip of pills, newest first, with a
+   * retention/masking note and a clear control) rather than its layout: a
+   * docked side panel would be a much larger structural change to a page
+   * that has no sidebar concept anywhere else in it, for behaviour this
+   * inline pattern already delivers.
+   */
+  private renderHistory() {
+    return html`
+      <div class="psy-arch__history">
+        <button
+          type="button"
+          class="psy-arch__history-chip"
+          aria-expanded=${this.historyOpen ? "true" : "false"}
+          @click=${() => this.toggleHistory()}
+        >
+          ${t("archive.historyChip", { count: String(this.history.length) })}
+        </button>
+        ${this.historyOpen
+          ? html`
+              <div class="psy-arch__history-strip">
+                <div class="psy-arch__history-pills">
+                  ${this.history.map((entry) => this.renderHistoryPill(entry))}
+                </div>
+                <p class="psy-arch__history-note">${t("archive.historyRetention")}</p>
+                <button
+                  type="button"
+                  class="psy-arch__history-clear"
+                  @click=${() => this.clearHistory()}
+                >
+                  ${t("archive.historyClear")}
+                </button>
+              </div>
+            `
+          : nothing}
+      </div>
+    `;
+  }
+
+  /**
+   * `in_edition: false` is the sync contract's own term for an archetype
+   * that has since left the Edition -- shown greyed rather than dropped, so
+   * a reader looking for what they read last month is told it's gone
+   * rather than finding it silently vanished. Checked against the
+   * already-loaded index, the same idiom renderTreeRowItem() uses for a
+   * cross-reference that has gone stale.
+   */
+  private renderHistoryPill(entry: HistoryEntry) {
+    const known = this.archetypes.find((x) => x.id === entry.id);
+    const label = html`
+      <span class="psy-arch__history-pill-name">${known ? known.name : prettifyId(entry.id)}</span>
+      <span class="psy-arch__history-pill-time">${relativeTime(entry.lastSeen)}</span>
+    `;
+    return known
+      ? html`
+          <button type="button" class="psy-arch__history-pill" @click=${() => this.openById(entry.id)}>
+            ${label}
+          </button>
+        `
+      : html`
+          <span
+            class="psy-arch__history-pill psy-arch__history-pill--gone"
+            title=${t("archive.historyGone")}
+          >
+            ${label}
+          </span>
+        `;
   }
 
   private renderCard(a: Archetype) {
@@ -667,6 +857,8 @@ export class PsyntientArchivePage extends LitElement {
         ${this.errorText
           ? html`<p class="psy-arch__error" role="alert">${this.errorText}</p>`
           : nothing}
+
+        ${this.history.length > 0 ? this.renderHistory() : nothing}
 
         <div class="psy-arch__search">
           <input
@@ -1536,5 +1728,8 @@ export class PsyntientArchivePage extends LitElement {
     this.selected = archetypeFromRaw(record, id);
     this.detail = record;
     void this.loadEvidence(id);
+    // Same "an archetype's own page was opened" rule as open() -- a related
+    // link, a family-tree node and an "exemplifies" link all land here.
+    if (body?.kind === "archetype") this.recordArchetypeView(id);
   }
 }
