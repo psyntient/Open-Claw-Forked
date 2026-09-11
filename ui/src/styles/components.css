@@ -6787,6 +6787,106 @@ td.data-table-key-col {
   }
 }
 
+/* --- Evidence list --------------------------------------------------------
+   What used to be a bare "N exemplars" count with nothing behind it. */
+.psy-arch__evidence-provenance {
+  margin: 0 0 0.6rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.psy-arch__evidence-error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--danger, #d9534f);
+}
+.psy-arch__evidence-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.psy-arch__evidence-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color var(--duration-normal) var(--ease-out);
+}
+.psy-arch__evidence-row:hover {
+  border-color: var(--accent);
+}
+.psy-arch__evidence-bar-track {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  overflow: hidden;
+}
+.psy-arch__evidence-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.psy-arch__evidence-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.psy-arch__evidence-id {
+  color: var(--text);
+}
+.psy-arch__evidence-confidence {
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+/* --- Packet detail ---------------------------------------------------- */
+.psy-arch__packet-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem;
+}
+.psy-arch__packet-report {
+  font-size: 1rem;
+  font-style: italic;
+}
+.psy-arch__packet-chart {
+  margin-bottom: 0.5rem;
+}
+.psy-arch__packet-chart-svg {
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  border-radius: 8px;
+}
+.psy-arch__packet-chart-provenance {
+  fill: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-size: 9px;
+}
+.psy-arch__packet-chart-swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 0.3rem;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
 /* Viewer links occupy the slot the PAGES section used to. No heading: these
    are two buttons that open two viewers, and a label over them would be more
    chrome than content. Spaced from Threads below because they are the only

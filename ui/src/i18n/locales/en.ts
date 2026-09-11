@@ -2683,6 +2683,19 @@ export const en: TranslationMap = {
     treeSimulatedFallback:
       "This grouping was seeded for interface testing and is not a real product of Archive analysis.",
     treeSimulatedWarning: "Do not cite this grouping.",
+    evidence: "Evidence",
+    evidenceFailed: "Could not load the evidence for this archetype.",
+    evidenceNone: "No exemplar recordings yet.",
+    evidenceAllSimulated: "All {count} of these recordings are simulated.",
+    evidenceAllReal: "All {count} of these recordings are real.",
+    evidenceMixed: "{simulated} of {count} recordings are simulated.",
+    exemplifies: "What this recording exemplifies",
+    chartUnavailable:
+      "{channels} channels recorded, {points} timeline points — no chart available yet.",
+    chartSharedScale: "Series share one axis: values are directly comparable.",
+    chartOwnScale:
+      "Each series is scaled to its own maximum — not directly comparable across series.",
+    chartProvenance: "{edition} · simulated bootstrap data — not empirical findings",
   },
   sync: {
     inProgress: "Sending to the Archive… {done} of {total}",

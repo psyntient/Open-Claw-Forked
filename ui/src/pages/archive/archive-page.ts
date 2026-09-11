@@ -58,6 +58,30 @@ type FamilyTree = {
   relatedWhy?: Record<string, string>;
 };
 
+/** One row in an archetype's Evidence list. */
+type PacketSummary = {
+  id: string;
+  subject_id?: string;
+  timestamp?: string;
+  duration_seconds?: number;
+  simulated?: boolean;
+  confidence?: number;
+};
+
+/** One recording, opened by clicking an Evidence row. Normalized once, on
+ *  fetch, out of the raw packet_json shell -- see openPacket(). */
+type PacketDetail = {
+  id: string;
+  simulated: boolean;
+  subjectId: string | null;
+  timestamp: string | null;
+  durationSeconds: number | null;
+  reportText: string;
+  contextTags: string[];
+  neuralData: Record<string, unknown>;
+  exemplifies: { archetypeId: string; confidence: number }[];
+};
+
 const ROUTE = "/__openclaw__/psyntient/archive";
 
 /** Tier drives the visual weight; unknown tiers fall back rather than vanish. */
@@ -122,6 +146,16 @@ export class PsyntientArchivePage extends LitElement {
    *  it, so the two views never end up stacked or stale. */
   @state() private family: FamilyTree | null = null;
   @state() private familyLoading = false;
+  /** The exemplar packets behind the currently-open (non-genus) archetype.
+   *  Loaded un-awaited after the detail panel itself resolves, so a slow or
+   *  failed fetch never blocks or breaks the archetype page around it. */
+  @state() private evidence: PacketSummary[] | null = null;
+  @state() private evidenceLoading = false;
+  @state() private evidenceError: string | null = null;
+  /** One recording, opened from an Evidence row. Takes over the overlay the
+   *  same way family does -- open()/openById()/openFamily() all clear it. */
+  @state() private packet: PacketDetail | null = null;
+  @state() private packetLoading = false;
 
   private searchAbort: AbortController | null = null;
   private progressTimer: ReturnType<typeof setInterval> | null = null;
@@ -299,11 +333,15 @@ export class PsyntientArchivePage extends LitElement {
 
   private async open(a: Archetype) {
     this.family = null;
+    this.packet = null;
     this.selected = a;
     this.detail = null;
+    this.evidence = null;
+    this.evidenceError = null;
     const body = await this.get(`?id=${encodeURIComponent(a.id)}`);
     if (body?.ok !== false) {
       this.detail = (body?.record as Record<string, unknown>) ?? null;
+      void this.loadEvidence(a.id);
     }
   }
 
@@ -316,6 +354,7 @@ export class PsyntientArchivePage extends LitElement {
    */
   private async openFamily(id: string) {
     this.family = null;
+    this.packet = null;
     this.familyLoading = true;
     const body = await this.get(`?family=${encodeURIComponent(id)}`);
     this.familyLoading = false;
@@ -336,6 +375,77 @@ export class PsyntientArchivePage extends LitElement {
   private closeDetail() {
     this.selected = null;
     this.detail = null;
+    this.evidence = null;
+    this.evidenceError = null;
+  }
+
+  /**
+   * The exemplar packets behind an archetype -- fired un-awaited right after
+   * the detail panel resolves, so a slow evidence fetch never blocks the
+   * page around it, and a failure replaces only this section's own
+   * placeholder. Genus records have no exemplars of their own (the taxonomy
+   * whitepaper's layer-3 concept lives on species), so this reads the
+   * already-set this.detail rather than re-deriving isGenus from the
+   * caller, which would need to know that rule too.
+   */
+  private async loadEvidence(id: string) {
+    const meta = taxonomyOf(this.detail ?? {});
+    if (meta.taxonomic_rank === "genus") return;
+    this.evidenceLoading = true;
+    const body = await this.get(`?evidence=${encodeURIComponent(id)}`);
+    this.evidenceLoading = false;
+    if (body?.ok === false) {
+      this.evidenceError = t("archive.evidenceFailed");
+      return;
+    }
+    const items = ((body?.items as PacketSummary[] | undefined) ?? []).slice();
+    items.sort((x, y) => (y.confidence ?? 0) - (x.confidence ?? 0));
+    this.evidence = items;
+  }
+
+  /** One recording, opened from an Evidence row. Normalizes the raw
+   *  packet_json shell into a flat PacketDetail once, here, so the render
+   *  methods never have to re-unwrap it. */
+  private async openPacket(id: string) {
+    this.family = null;
+    this.selected = null;
+    this.detail = null;
+    this.packet = null;
+    this.packetLoading = true;
+    const body = await this.get(`?packet=${encodeURIComponent(id)}`);
+    this.packetLoading = false;
+    if (body?.ok === false) return;
+    const record = (body?.record as Record<string, unknown>) ?? {};
+    const nested = record.packet_json;
+    const pj = (nested && typeof nested === "object" ? nested : record) as Record<string, unknown>;
+    const exemplifiesRaw = (body?.exemplifies as Array<Record<string, unknown>>) ?? [];
+    const exemplifies = exemplifiesRaw
+      .map((e) => ({
+        archetypeId: String(e.archetype_id ?? ""),
+        confidence: Number(e.confidence ?? 0),
+      }))
+      .filter((e) => e.archetypeId)
+      .sort((x, y) => y.confidence - x.confidence);
+    this.packet = {
+      id: String(record.id ?? id),
+      simulated: record.simulated === true,
+      subjectId: typeof record.subject_id === "string" ? record.subject_id : null,
+      timestamp: typeof record.timestamp === "string" ? record.timestamp : null,
+      durationSeconds: typeof record.duration_seconds === "number" ? record.duration_seconds : null,
+      reportText: typeof pj.report_text === "string" ? pj.report_text : "",
+      contextTags: Array.isArray(pj.context_tags)
+        ? pj.context_tags.filter((v): v is string => typeof v === "string")
+        : [],
+      neuralData:
+        pj.neural_data && typeof pj.neural_data === "object"
+          ? (pj.neural_data as Record<string, unknown>)
+          : {},
+      exemplifies,
+    };
+  }
+
+  private closePacket() {
+    this.packet = null;
   }
 
   /** Closes an overlay when its backdrop itself is clicked, not a bubbled
@@ -516,11 +626,13 @@ export class PsyntientArchivePage extends LitElement {
                   : nothing}
                 <div class="psy-arch__grid">${sorted.map((a) => this.renderCard(a))}</div>
               `}
-        ${this.familyLoading || this.family
-          ? this.renderFamilyTree()
-          : this.selected
-            ? this.renderDetail(this.selected)
-            : nothing}
+        ${this.packetLoading || this.packet
+          ? this.renderPacketDetail()
+          : this.familyLoading || this.family
+            ? this.renderFamilyTree()
+            : this.selected
+              ? this.renderDetail(this.selected)
+              : nothing}
       </div>
     `;
   }
@@ -650,6 +762,13 @@ export class PsyntientArchivePage extends LitElement {
                 </p>`
               : html`<p class="psy-arch__genus psy-arch__genus--none">${t("archive.noFamily")}</p>`
             : nothing}
+          <!-- The evidence list: what used to be a bare "N exemplars" count
+               with nothing behind it. Genus records have no exemplars of
+               their own (see loadEvidence()), so this is species-only.
+               Loads after the panel itself, un-awaited -- see open()/
+               openById() -- and a failure replaces only this section's own
+               placeholder rather than the whole page. -->
+          ${!isGenus ? this.renderSection(t("archive.evidence"), this.renderEvidence()) : nothing}
           ${this.detail
             ? html`
                 <!-- The species in this family, first: "which archetypes are
@@ -947,17 +1066,301 @@ export class PsyntientArchivePage extends LitElement {
   }
 
   /**
+   * The evidence list body: strongest exemplar first, real/simulated split
+   * stated in words above the list rather than as per-row badges -- the
+   * single most important fact about an archetype's evidence belongs where
+   * a reader sees it before reading a single packet id, not buried in it.
+   */
+  private renderEvidence() {
+    if (this.evidenceError) {
+      return html`<p class="psy-arch__evidence-error">${this.evidenceError}</p>`;
+    }
+    if (this.evidenceLoading || this.evidence === null) {
+      return html`<p class="psy-arch__loading">${t("archive.loading")}</p>`;
+    }
+    if (this.evidence.length === 0) {
+      return html`<p class="psy-arch__genus--none">${t("archive.evidenceNone")}</p>`;
+    }
+    const count = this.evidence.length;
+    const simulated = this.evidence.filter((p) => p.simulated === true).length;
+    const provenance =
+      simulated === count
+        ? t("archive.evidenceAllSimulated", { count: String(count) })
+        : simulated === 0
+          ? t("archive.evidenceAllReal", { count: String(count) })
+          : t("archive.evidenceMixed", { simulated: String(simulated), count: String(count) });
+    return html`
+      <p class="psy-arch__evidence-provenance">${provenance}</p>
+      <ul class="psy-arch__evidence-list">
+        ${this.evidence.map((p) => this.renderEvidenceRow(p))}
+      </ul>
+    `;
+  }
+
+  private renderEvidenceRow(p: PacketSummary) {
+    const pct = Math.round(Math.max(0, Math.min(1, p.confidence ?? 0)) * 100);
+    return html`
+      <li>
+        <button type="button" class="psy-arch__evidence-row" @click=${() => this.openPacket(p.id)}>
+          <span class="psy-arch__evidence-bar-track">
+            <span class="psy-arch__evidence-bar-fill" style=${`width:${pct}%`}></span>
+          </span>
+          <span class="psy-arch__evidence-meta">
+            <code class="psy-arch__evidence-id">${p.id}</code>
+            ${p.subject_id ? html`<span>${p.subject_id}</span>` : nothing}
+            <span class="psy-arch__evidence-confidence">${pct}%</span>
+            ${p.simulated
+              ? html`<span class="psy-arch__tree-badge">${t("archive.testData")}</span>`
+              : nothing}
+          </span>
+        </button>
+      </li>
+    `;
+  }
+
+  private renderPacketDetail() {
+    const closeButton = html`
+      <button
+        type="button"
+        class="psy-arch__close"
+        aria-label=${t("archive.close")}
+        @click=${() => this.closePacket()}
+      >
+        ×
+      </button>
+    `;
+
+    if (this.packetLoading || !this.packet) {
+      return html`
+        <div
+          class="psy-arch__detail"
+          role="dialog"
+          aria-modal="true"
+          @click=${(e: Event) => PsyntientArchivePage.onBackdropClick(e, () => this.closePacket())}
+        >
+          <div class="psy-arch__tree-panel">
+            ${closeButton}
+            <p class="psy-arch__loading">${t("archive.loading")}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    const p = this.packet;
+    const modalities = Object.keys(p.neuralData);
+
+    return html`
+      <div
+        class="psy-arch__detail"
+        role="dialog"
+        aria-modal="true"
+        @click=${(e: Event) => PsyntientArchivePage.onBackdropClick(e, () => this.closePacket())}
+      >
+        <div class="psy-arch__tree-panel">
+          ${closeButton}
+          <p class="psy-arch__packet-eyebrow">
+            <code class="psy-arch__evidence-id">${p.id}</code>
+            ${p.simulated
+              ? html`<span class="psy-arch__tree-badge">${t("archive.testData")}</span>`
+              : nothing}
+          </p>
+          ${p.reportText
+            ? html`<p class="psy-arch__prose psy-arch__packet-report">${p.reportText}</p>`
+            : nothing}
+          ${p.contextTags.length
+            ? html`<div class="psy-arch__tree-related">
+                ${p.contextTags.map(
+                  (tag) => html`<span class="psy-arch__tree-related-chip">${tag}</span>`,
+                )}
+              </div>`
+            : nothing}
+          ${modalities.map((m) =>
+            this.renderSection(
+              m,
+              this.renderModalityChart(p.neuralData[m] as Record<string, unknown>),
+            ),
+          )}
+          ${this.renderSection(
+            t("archive.exemplifies"),
+            p.exemplifies.length
+              ? html`<ul class="psy-arch__related">
+                  ${p.exemplifies.map(
+                    (e) => html`
+                      <li>
+                        <button
+                          type="button"
+                          class="psy-arch__related-link"
+                          @click=${() => this.openById(e.archetypeId)}
+                        >
+                          ${prettifyId(e.archetypeId)}
+                        </button>
+                        <span class="psy-arch__related-why"
+                          >${Math.round(e.confidence * 100)}%</span
+                        >
+                      </li>
+                    `,
+                  )}
+                </ul>`
+              : null,
+          )}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * One modality's chart. Dispatches on the shape of its timeline rather
+   * than the modality's name: the first version read EEG's nested
+   * band_powers shape directly, so any other modality drew nothing -- and
+   * because a titled section renders nothing for an empty body, it drew
+   * nothing SILENTLY. Archetypes are derived from several modalities at
+   * once, so a renderer that only understands one of them fails quietly on
+   * exactly the packets that matter most.
+   */
+  private renderModalityChart(data: Record<string, unknown>) {
+    const timeline = Array.isArray(data.timeline) ? data.timeline : [];
+    const points = timeline.filter(
+      (pt): pt is Record<string, unknown> => !!pt && typeof pt === "object",
+    );
+    const nested =
+      points.length > 0 &&
+      points.every((pt) => pt.band_powers && typeof pt.band_powers === "object");
+    const rows: Array<Record<string, number>> = nested
+      ? (points.map((pt) => pt.band_powers) as Array<Record<string, number>>)
+      : points
+          .map((pt) => {
+            const row: Record<string, number> = {};
+            for (const [k, v] of Object.entries(pt)) {
+              if (k !== "timestamp" && typeof v === "number") row[k] = v;
+            }
+            return row;
+          })
+          .filter((row) => Object.keys(row).length > 0);
+
+    if (rows.length > 0) return this.renderSparkline(rows, nested);
+
+    const summary =
+      data.summary_features && typeof data.summary_features === "object"
+        ? (data.summary_features as Record<string, unknown>)
+        : null;
+    const table = summary ? this.renderFeatureTable(summary) : null;
+    if (table) return table;
+
+    // Rendering nothing here would be indistinguishable from having no
+    // data, and absence of data is itself a scientific claim -- say so.
+    const channels = Array.isArray(data.channels) ? data.channels.length : 0;
+    return html`<p class="psy-arch__evidence-error">
+      ${t("archive.chartUnavailable", {
+        channels: String(channels),
+        points: String(timeline.length),
+      })}
+    </p>`;
+  }
+
+  private renderFeatureTable(summary: Record<string, unknown>) {
+    const entries = Object.entries(summary).filter(
+      ([, v]) => typeof v === "number" || typeof v === "string",
+    );
+    if (entries.length === 0) return null;
+    return html`<ul class="psy-arch__list">
+      ${entries.map(([k, v]) => html`<li>${k}: ${String(v)}</li>`)}
+    </ul>`;
+  }
+
+  /**
+   * Inline SVG, no chart library, no build step. `sharedScale` means the
+   * series share a real unit (band_powers, 0-1) and so share one axis;
+   * otherwise each series is a bag of numeric keys in unknown units --
+   * plotting bpm against g on one axis would misstate their relative
+   * magnitude -- so each scales to its own max, and the caption says which
+   * happened.
+   *
+   * Provenance is baked into the SVG's own text, not just page chrome
+   * around it: a chart travels by screenshot, arriving somewhere with no
+   * page around it and nothing to say which Edition it came from or
+   * whether a participant was ever involved. A caveat in a banner above the
+   * figure does not survive that trip; one inside the figure does.
+   */
+  private renderSparkline(rows: Array<Record<string, number>>, sharedScale: boolean) {
+    const width = 560;
+    const height = 140;
+    const padX = 8;
+    const padY = 12;
+    const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+    const colors = ["var(--accent)", "#eebc4a", "#7ec4cf", "#c98bda", "#e0846b", "#8bd17c"];
+    const sharedMax = sharedScale
+      ? Math.max(...rows.flatMap((r) => keys.map((k) => r[k] ?? 0)), 1e-6)
+      : 0;
+    const maxOf = (k: string) =>
+      sharedScale ? sharedMax : Math.max(...rows.map((r) => r[k] ?? 0), 1e-6);
+    const n = rows.length;
+    const x = (i: number) => padX + (n <= 1 ? 0 : (i / (n - 1)) * (width - 2 * padX));
+    const y = (v: number, max: number) => height - padY - (v / max) * (height - 2 * padY);
+
+    const showProvenance = this.packet?.simulated === true && this.edition;
+
+    return html`
+      <div class="psy-arch__packet-chart">
+        <svg
+          viewBox="0 0 ${width} ${height + (showProvenance ? 16 : 0)}"
+          class="psy-arch__packet-chart-svg"
+          role="img"
+        >
+          ${keys.map((k) => {
+            const max = maxOf(k);
+            const d = rows
+              .map(
+                (r, i) =>
+                  `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(r[k] ?? 0, max).toFixed(1)}`,
+              )
+              .join(" ");
+            return html`<path
+              d=${d}
+              fill="none"
+              stroke=${colors[keys.indexOf(k) % colors.length]}
+              stroke-width="1.5"
+            />`;
+          })}
+          ${showProvenance
+            ? html`<text x="4" y="${height + 12}" class="psy-arch__packet-chart-provenance">
+                ${t("archive.chartProvenance", { edition: this.edition?.editionId ?? "" })}
+              </text>`
+            : nothing}
+        </svg>
+        <div class="psy-arch__tree-related">
+          ${keys.map(
+            (k, i) => html`<span class="psy-arch__tree-related-chip"
+              ><span
+                class="psy-arch__packet-chart-swatch"
+                style=${`background:${colors[i % colors.length]}`}
+              ></span
+              >${k}</span
+            >`,
+          )}
+        </div>
+        <p class="psy-arch__evidence-provenance">
+          ${sharedScale ? t("archive.chartSharedScale") : t("archive.chartOwnScale")}
+        </p>
+      </div>
+    `;
+  }
+
+  /**
    * Follow a `related` edge. The target may not be in the current grid (a
    * search can be filtered), so this fetches by id and synthesises the card
    * fields from the record rather than assuming a local lookup succeeds.
    */
   private async openById(id: string) {
     this.family = null;
+    this.packet = null;
     this.detail = null;
+    this.evidence = null;
+    this.evidenceError = null;
     const body = await this.get(`?id=${encodeURIComponent(id)}`);
     const record = body?.record as Record<string, unknown> | undefined;
     if (!record) return;
     this.selected = archetypeFromRaw(record, id);
     this.detail = record;
+    void this.loadEvidence(id);
   }
 }
