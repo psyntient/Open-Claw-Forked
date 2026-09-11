@@ -2696,6 +2696,12 @@ export const en: TranslationMap = {
     chartOwnScale:
       "Each series is scaled to its own maximum — not directly comparable across series.",
     chartProvenance: "{edition} · simulated bootstrap data — not empirical findings",
+    aboutEdition: "About this Edition",
+    editionSource: "Source: {source}",
+    inclusionRules: "Inclusion rules",
+    promotionCriteria: "Promotion criteria",
+    figures: "Figures",
+    figureNotes: "Notes from the figure generator",
   },
   sync: {
     inProgress: "Sending to the Archive… {done} of {total}",

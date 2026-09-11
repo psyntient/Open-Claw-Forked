@@ -82,6 +82,18 @@ type PacketDetail = {
   exemplifies: { archetypeId: string; confidence: number }[];
 };
 
+type FigureRef = { name: string; caption: string; url: string; bytes: number };
+
+/** This Edition's own account of itself, opened from the hero's "About this
+ *  Edition" button. `manifest` is passed through verbatim -- it is
+ *  Edition-authored content, not this client's shape to define. */
+type EditionInfo = {
+  editionId: string;
+  manifest: Record<string, unknown> | null;
+  figures: FigureRef[];
+  notes: string | null;
+};
+
 const ROUTE = "/__openclaw__/psyntient/archive";
 
 /** Tier drives the visual weight; unknown tiers fall back rather than vanish. */
@@ -156,6 +168,13 @@ export class PsyntientArchivePage extends LitElement {
    *  same way family does -- open()/openById()/openFamily() all clear it. */
   @state() private packet: PacketDetail | null = null;
   @state() private packetLoading = false;
+  /** This Edition's manifest + figures, opened from the hero. Figure bytes
+   *  are fetched as blobs (an <img src> can't carry the Authorization
+   *  header the gateway route needs) and tracked here so their object URLs
+   *  get revoked on close rather than leaking for the tab's lifetime. */
+  @state() private editionInfo: EditionInfo | null = null;
+  @state() private editionInfoLoading = false;
+  @state() private figureUrls: Map<string, string> = new Map();
 
   private searchAbort: AbortController | null = null;
   private progressTimer: ReturnType<typeof setInterval> | null = null;
@@ -163,6 +182,7 @@ export class PsyntientArchivePage extends LitElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.stopSearch();
+    for (const url of this.figureUrls.values()) URL.revokeObjectURL(url);
   }
 
   private stopSearch() {
@@ -334,6 +354,7 @@ export class PsyntientArchivePage extends LitElement {
   private async open(a: Archetype) {
     this.family = null;
     this.packet = null;
+    this.closeEditionInfo();
     this.selected = a;
     this.detail = null;
     this.evidence = null;
@@ -355,6 +376,7 @@ export class PsyntientArchivePage extends LitElement {
   private async openFamily(id: string) {
     this.family = null;
     this.packet = null;
+    this.closeEditionInfo();
     this.familyLoading = true;
     const body = await this.get(`?family=${encodeURIComponent(id)}`);
     this.familyLoading = false;
@@ -411,6 +433,7 @@ export class PsyntientArchivePage extends LitElement {
     this.selected = null;
     this.detail = null;
     this.packet = null;
+    this.closeEditionInfo();
     this.packetLoading = true;
     const body = await this.get(`?packet=${encodeURIComponent(id)}`);
     this.packetLoading = false;
@@ -446,6 +469,55 @@ export class PsyntientArchivePage extends LitElement {
 
   private closePacket() {
     this.packet = null;
+  }
+
+  /** This Edition's manifest + figures. Figure bytes load un-awaited, one
+   *  fetch each, after the manifest itself resolves -- the manifest alone
+   *  is enough to render the overlay, and a slow or failed figure fetch
+   *  should not hold up the ones that succeeded. */
+  private async openEditionInfo() {
+    this.family = null;
+    this.packet = null;
+    this.selected = null;
+    this.editionInfo = null;
+    this.editionInfoLoading = true;
+    const body = await this.get("?manifest=1");
+    this.editionInfoLoading = false;
+    if (body?.ok === false) return;
+    const figures = (body?.figures as FigureRef[] | undefined) ?? [];
+    this.editionInfo = {
+      editionId: String(body?.edition_id ?? ""),
+      manifest: (body?.manifest as Record<string, unknown> | null) ?? null,
+      figures,
+      notes: typeof body?.notes === "string" ? body.notes : null,
+    };
+    for (const fig of figures) void this.loadFigure(fig.name);
+  }
+
+  private closeEditionInfo() {
+    this.editionInfo = null;
+    for (const url of this.figureUrls.values()) URL.revokeObjectURL(url);
+    this.figureUrls = new Map();
+  }
+
+  /** Fetches one figure's bytes as a blob and stores an object URL for it --
+   *  an <img src> request carries no Authorization header, so the gateway's
+   *  figure route (like every other archive route) can't be pointed at
+   *  directly from markup. */
+  private async loadFigure(name: string) {
+    try {
+      const res = await fetch(`${ROUTE}/figure?name=${encodeURIComponent(name)}`, {
+        headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {},
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const next = new Map(this.figureUrls);
+      next.set(name, URL.createObjectURL(blob));
+      this.figureUrls = next;
+    } catch {
+      // A figure that fails to load just doesn't appear -- the manifest's
+      // own figure list already told the reader which ones exist.
+    }
   }
 
   /** Closes an overlay when its backdrop itself is clicked, not a bubbled
@@ -559,6 +631,13 @@ export class PsyntientArchivePage extends LitElement {
                 </div>
                 <p class="psy-arch__edition">
                   ${t("archive.edition", { id: this.edition.editionId })}
+                  <button
+                    type="button"
+                    class="psy-arch__edition-link"
+                    @click=${() => this.openEditionInfo()}
+                  >
+                    ${t("archive.aboutEdition")}
+                  </button>
                 </p>
                 <!-- Stated plainly rather than hidden. An Archive of
                      archetypes with no packets behind them is the real current
@@ -628,11 +707,13 @@ export class PsyntientArchivePage extends LitElement {
               `}
         ${this.packetLoading || this.packet
           ? this.renderPacketDetail()
-          : this.familyLoading || this.family
-            ? this.renderFamilyTree()
-            : this.selected
-              ? this.renderDetail(this.selected)
-              : nothing}
+          : this.editionInfoLoading || this.editionInfo
+            ? this.renderEditionInfo()
+            : this.familyLoading || this.family
+              ? this.renderFamilyTree()
+              : this.selected
+                ? this.renderDetail(this.selected)
+                : nothing}
       </div>
     `;
   }
@@ -1118,6 +1199,112 @@ export class PsyntientArchivePage extends LitElement {
     `;
   }
 
+  /**
+   * This Edition's own account of itself: the manifest's source/source_notes
+   * (stated plainly, same posture as the packetCount===0 notice above --
+   * "simulated, not clinical evidence" belongs on the page, not buried),
+   * inclusion/promotion rules, the generated figures, and the figure
+   * generator's own interpretation notes.
+   */
+  private renderEditionInfo() {
+    const closeButton = html`
+      <button
+        type="button"
+        class="psy-arch__close"
+        aria-label=${t("archive.close")}
+        @click=${() => this.closeEditionInfo()}
+      >
+        ×
+      </button>
+    `;
+
+    if (this.editionInfoLoading || !this.editionInfo) {
+      return html`
+        <div
+          class="psy-arch__detail"
+          role="dialog"
+          aria-modal="true"
+          @click=${(e: Event) =>
+            PsyntientArchivePage.onBackdropClick(e, () => this.closeEditionInfo())}
+        >
+          <div class="psy-arch__tree-panel">
+            ${closeButton}
+            <p class="psy-arch__loading">${t("archive.loading")}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    const { editionId, manifest, figures, notes } = this.editionInfo;
+    const source = typeof manifest?.source === "string" ? manifest.source : null;
+    const sourceNotes = typeof manifest?.source_notes === "string" ? manifest.source_notes : null;
+    const inclusionRules =
+      manifest?.inclusion_rules && typeof manifest.inclusion_rules === "object"
+        ? (manifest.inclusion_rules as Record<string, unknown>)
+        : null;
+    const promotionCriteria =
+      manifest?.promotion_criteria && typeof manifest.promotion_criteria === "object"
+        ? (manifest.promotion_criteria as Record<string, unknown>)
+        : null;
+
+    return html`
+      <div
+        class="psy-arch__detail"
+        role="dialog"
+        aria-modal="true"
+        @click=${(e: Event) =>
+          PsyntientArchivePage.onBackdropClick(e, () => this.closeEditionInfo())}
+      >
+        <div class="psy-arch__tree-panel">
+          ${closeButton}
+          <h2 class="psy-arch__detail-name">${t("archive.edition", { id: editionId })}</h2>
+          ${source
+            ? html`<p class="psy-arch__evidence-provenance">
+                ${t("archive.editionSource", { source })}
+              </p>`
+            : nothing}
+          ${sourceNotes ? html`<p class="psy-arch__prose">${sourceNotes}</p>` : nothing}
+          ${this.renderSection(
+            t("archive.inclusionRules"),
+            inclusionRules ? this.renderKeyValueList(inclusionRules) : null,
+          )}
+          ${this.renderSection(
+            t("archive.promotionCriteria"),
+            promotionCriteria ? this.renderKeyValueList(promotionCriteria) : null,
+          )}
+          ${this.renderSection(
+            t("archive.figures"),
+            figures.length
+              ? html`<div class="psy-arch__figure-grid">
+                  ${figures.map((fig) => {
+                    const url = this.figureUrls.get(fig.name);
+                    return html`<figure class="psy-arch__figure">
+                      ${url
+                        ? html`<img class="psy-arch__figure-img" src=${url} alt=${fig.caption} />`
+                        : html`<div class="psy-arch__figure-loading">${t("archive.loading")}</div>`}
+                      <figcaption>${fig.caption}</figcaption>
+                    </figure>`;
+                  })}
+                </div>`
+              : null,
+          )}
+          ${this.renderSection(
+            t("archive.figureNotes"),
+            notes ? html`<p class="psy-arch__prose psy-arch__figure-notes">${notes}</p>` : null,
+          )}
+        </div>
+      </div>
+    `;
+  }
+
+  private renderKeyValueList(obj: Record<string, unknown>) {
+    const entries = Object.entries(obj);
+    if (entries.length === 0) return null;
+    return html`<ul class="psy-arch__list">
+      ${entries.map(([k, v]) => html`<li>${k.replace(/_/g, " ")}: ${String(v)}</li>`)}
+    </ul>`;
+  }
+
   private renderPacketDetail() {
     const closeButton = html`
       <button
@@ -1353,6 +1540,7 @@ export class PsyntientArchivePage extends LitElement {
   private async openById(id: string) {
     this.family = null;
     this.packet = null;
+    this.closeEditionInfo();
     this.detail = null;
     this.evidence = null;
     this.evidenceError = null;
