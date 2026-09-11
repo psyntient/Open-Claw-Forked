@@ -6669,7 +6669,9 @@ td.data-table-key-col {
   border-color: var(--accent);
   box-shadow: var(--elevate-2);
 }
-.psy-arch__tree-node--genus {
+/* The top of the pyramid -- a genus when the archetype has one, otherwise
+   the archetype itself (see getFamily's fallback in archive-client.mjs). */
+.psy-arch__tree-node--hub {
   max-width: 22rem;
   margin: 0 auto;
   text-align: center;

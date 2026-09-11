@@ -2675,6 +2675,9 @@ export const en: TranslationMap = {
       "Not grouped into an archetype family yet — this Edition defines species but no genera.",
     familyTree: "Family Tree",
     speciesCount: "{count} species",
+    relatedCount: "{count} related",
+    noRelated: "Nothing related yet.",
+    notAnArchetype: "This isn't an archetype, so it has no place in a family tree.",
     testData: "Test data",
     treeSimulatedTitle: "{name} is simulated test data",
     treeSimulatedFallback:
