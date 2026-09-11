@@ -2605,7 +2605,8 @@ export const en: TranslationMap = {
     watchDirDeleteOption: "Delete files from this folder once they're imported",
     watchDirDeletesOn: "Files are deleted from this folder once imported.",
     watchDirKeepsOriginals: "Originals stay in this folder after import.",
-    watchDirMirrorOption: "Mirror this folder — deleting a file here also deletes its imported copy",
+    watchDirMirrorOption:
+      "Mirror this folder — deleting a file here also deletes its imported copy",
     watchDirMirrorOn: "Deleting a file from this folder deletes its imported copy too.",
     watchDirMirrorOff: "Deleting a file from this folder does not affect its imported copy.",
     watching: "Watching",
@@ -2672,6 +2673,14 @@ export const en: TranslationMap = {
     members: "Species in this family ({count})",
     noFamily:
       "Not grouped into an archetype family yet — this Edition defines species but no genera.",
+    familyPillIn: "▲ in {name}",
+    familyPillSpecies: "▼ {count} species",
+    speciesCount: "{count} species",
+    testData: "Test data",
+    treeSimulatedTitle: "{name} is simulated test data",
+    treeSimulatedFallback:
+      "This grouping was seeded for interface testing and is not a real product of Archive analysis.",
+    treeSimulatedWarning: "Do not cite this grouping.",
   },
   sync: {
     inProgress: "Sending to the Archive… {done} of {total}",

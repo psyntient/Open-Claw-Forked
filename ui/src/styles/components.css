@@ -6605,6 +6605,193 @@ td.data-table-key-col {
   color: var(--muted);
   font-size: 0.8125rem;
 }
+.psy-arch__chip--link {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+.psy-arch__chip--link:hover {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+/* --- Family tree ---------------------------------------------------------
+   Three tiers: genus, its species one rank beneath, and each species' own
+   related archetypes as chips below it. Grounded in real parent_archetype/
+   members edges the Architect authored -- never in packet<->archetype
+   mappings, which are 0 in this Edition (see the page's own file header). */
+.psy-arch__tree-panel {
+  position: relative;
+  width: min(56rem, 100%);
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 1.75rem 1.5rem 1.5rem;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%),
+    var(--popover)
+  );
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--elevate-3);
+}
+.psy-arch__tree-simulated-banner {
+  margin: 0 0 1.1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--danger, #d9534f) 35%, var(--border) 65%);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger, #d9534f) 8%, transparent);
+  font-size: 0.8125rem;
+}
+.psy-arch__tree-simulated-banner strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.psy-arch__tree-simulated-banner p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+.psy-arch__tree-node {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.85rem 0.95rem;
+  text-align: left;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--popover) 100%, var(--text-strong) 4%),
+    var(--popover)
+  );
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--elevate-1);
+  transition:
+    transform var(--duration-slow) var(--ease-out),
+    box-shadow var(--duration-slow) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+.psy-arch__tree-node:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--elevate-2);
+}
+.psy-arch__tree-node--genus {
+  max-width: 22rem;
+  margin: 0 auto;
+  text-align: center;
+  align-items: center;
+}
+/* The card matching the archetype the tree was opened about. */
+.psy-arch__tree-node--you {
+  border-color: var(--psy-gold, #eebc4a);
+  box-shadow:
+    var(--elevate-2),
+    0 0 0 1px var(--psy-gold, #eebc4a);
+}
+.psy-arch__tree-node-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+.psy-arch__tree-node-desc {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.psy-arch__tree-node-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.psy-arch__tree-badge {
+  align-self: center;
+  padding: 0.05rem 0.45rem;
+  margin-bottom: 0.2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--danger, #d9534f) 20%, transparent);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* Connectors are CSS borders, not SVG, so they inherit --border and survive a
+   reflow. --n (species count) drives the bar's inset: a column is not
+   100%/n wide -- the gaps between columns are not part of any column -- so
+   the naive 100%/(2n) inset left the bar short of the outer card centers. */
+.psy-arch__tree-stem {
+  width: 0;
+  height: 0.85rem;
+  margin: 0 auto;
+  border-left: 2px solid var(--border);
+}
+.psy-arch__tree-bar {
+  height: 0;
+  border-top: 2px solid var(--border);
+  margin: 0 calc((100% - (var(--n) - 1) * 0.85rem) / (2 * var(--n)));
+}
+.psy-arch__tree-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+.psy-arch__tree-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.psy-arch__tree-col-stem {
+  width: 0;
+  height: 0.85rem;
+  margin: 0 auto;
+  border-left: 2px solid var(--border);
+}
+.psy-arch__tree-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.psy-arch__tree-related-chip {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  text-transform: capitalize;
+}
+.psy-arch__tree-related-chip--link {
+  cursor: pointer;
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+/* A horizontal connector across a vertical stack means nothing, so it is
+   hidden below the breakpoint where the row collapses to one column. */
+@media (max-width: 760px) {
+  .psy-arch__tree-bar,
+  .psy-arch__tree-stem,
+  .psy-arch__tree-col-stem {
+    display: none;
+  }
+  .psy-arch__tree-row {
+    flex-direction: column;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .psy-arch__tree-node {
+    transition: none;
+  }
+  .psy-arch__tree-node:hover {
+    transform: none;
+  }
+}
 
 /* Viewer links occupy the slot the PAGES section used to. No heading: these
    are two buttons that open two viewers, and a label over them would be more

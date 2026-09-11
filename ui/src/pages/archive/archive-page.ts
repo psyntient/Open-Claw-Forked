@@ -45,6 +45,14 @@ type Edition = {
   gitRef: string | null;
 };
 
+/** The genus + sibling species around an archetype, opened via its family pill. */
+type FamilyTree = {
+  of: string;
+  genus: Record<string, unknown> | null;
+  species: Record<string, unknown>[];
+  note?: string;
+};
+
 const ROUTE = "/__openclaw__/psyntient/archive";
 
 /** Tier drives the visual weight; unknown tiers fall back rather than vanish. */
@@ -55,6 +63,23 @@ function tierOf(a: Archetype): string {
 }
 function exemplarsOf(a: Archetype): number {
   return a.exemplars ?? a.n_exemplars ?? 0;
+}
+/** Builds a card-shaped Archetype from a raw Archive record, defensively --
+ *  shared by openById and the family tree, which both jump to a record that
+ *  may not be in the current grid. */
+function archetypeFromRaw(record: Record<string, unknown>, fallbackId: string): Archetype {
+  return {
+    id: String(record.id ?? fallbackId),
+    slug: String(record.slug ?? ""),
+    name: String(record.name ?? fallbackId),
+    description: String(record.description ?? ""),
+    confidence_tier: record.confidence_tier as string | undefined,
+    n_exemplars: record.n_exemplars as number | undefined,
+  };
+}
+/** Prettifies an archetype id into display text, e.g. "numinous encounter". */
+function prettifyId(id: string): string {
+  return id.replace(/^NA-\d+-/, "").replace(/-/g, " ");
 }
 
 @customElement("psyntient-archive-page")
@@ -79,6 +104,11 @@ export class PsyntientArchivePage extends LitElement {
   @state() private searchStage: string | null = null;
   /** 0-1. Eased toward a ceiling during the long stage; only 1 when done. */
   @state() private searchProgress = 0;
+  /** The genus + sibling species around an archetype, opened via its family pill.
+   *  Takes over the detail overlay when set -- open()/openById() always clear
+   *  it, so the two views never end up stacked or stale. */
+  @state() private family: FamilyTree | null = null;
+  @state() private familyLoading = false;
 
   private searchAbort: AbortController | null = null;
   private progressTimer: ReturnType<typeof setInterval> | null = null;
@@ -255,12 +285,39 @@ export class PsyntientArchivePage extends LitElement {
   }
 
   private async open(a: Archetype) {
+    this.family = null;
     this.selected = a;
     this.detail = null;
     const body = await this.get(`?id=${encodeURIComponent(a.id)}`);
     if (body?.ok !== false) {
       this.detail = (body?.record as Record<string, unknown>) ?? null;
     }
+  }
+
+  /**
+   * The tree view for an archetype's taxonomy: its genus and every sibling
+   * species. Always requested by the CURRENTLY open archetype's own id, never
+   * the genus's -- the daemon resolves upward (parent_archetype, or the id
+   * itself when it is already a genus) so the caller never has to know which
+   * kind of record it is standing on, and the response echoes back which id
+   * was asked about so the tree can highlight it.
+   */
+  private async openFamily(id: string) {
+    this.family = null;
+    this.familyLoading = true;
+    const body = await this.get(`?family=${encodeURIComponent(id)}`);
+    this.familyLoading = false;
+    if (body?.ok === false) return;
+    this.family = {
+      of: String(body?.of ?? id),
+      genus: (body?.genus as Record<string, unknown> | null) ?? null,
+      species: (body?.species as Record<string, unknown>[]) ?? [],
+      note: typeof body?.note === "string" ? body.note : undefined,
+    };
+  }
+
+  private closeFamily() {
+    this.family = null;
   }
 
   /**
@@ -435,7 +492,11 @@ export class PsyntientArchivePage extends LitElement {
                   : nothing}
                 <div class="psy-arch__grid">${sorted.map((a) => this.renderCard(a))}</div>
               `}
-        ${this.selected ? this.renderDetail(this.selected) : nothing}
+        ${this.familyLoading || this.family
+          ? this.renderFamilyTree()
+          : this.selected
+            ? this.renderDetail(this.selected)
+            : nothing}
       </div>
     `;
   }
@@ -531,8 +592,15 @@ export class PsyntientArchivePage extends LitElement {
           <div class="psy-arch__facts">
             ${isGenus
               ? html`<span class="psy-arch__chip"
-                  >${t("archive.genusRank")}${genusKind ? ` · ${genusKind}` : ""}</span
-                >`
+                    >${t("archive.genusRank")}${genusKind ? ` · ${genusKind}` : ""}</span
+                  >
+                  <button
+                    type="button"
+                    class="psy-arch__chip psy-arch__chip--link"
+                    @click=${() => this.openFamily(a.id)}
+                  >
+                    ${t("archive.familyPillSpecies", { count: String(members.length) })}
+                  </button>`
               : html`<span>${t("archive.exemplarMany", { count: String(exemplarsOf(a)) })}</span>`}
             ${modalityKeys.map(
               (m) => html`<span class="psy-arch__chip">${m} · ${modality[m]}</span>`,
@@ -553,11 +621,9 @@ export class PsyntientArchivePage extends LitElement {
                   <button
                     type="button"
                     class="psy-arch__related-link"
-                    @click=${() => this.openById(String(raw.parent_archetype))}
+                    @click=${() => this.openFamily(a.id)}
                   >
-                    ${String(raw.parent_archetype)
-                      .replace(/^NA-\d+-/, "")
-                      .replace(/-/g, " ")}
+                    ${t("archive.familyPillIn", { name: prettifyId(String(raw.parent_archetype)) })}
                   </button>
                 </p>`
               : html`<p class="psy-arch__genus psy-arch__genus--none">${t("archive.noFamily")}</p>`
@@ -580,7 +646,7 @@ export class PsyntientArchivePage extends LitElement {
                                 class="psy-arch__related-link"
                                 @click=${() => this.openById(id)}
                               >
-                                ${id.replace(/^NA-\d+-/, "").replace(/-/g, " ")}
+                                ${prettifyId(id)}
                               </button>
                             </li>
                           `,
@@ -620,7 +686,7 @@ export class PsyntientArchivePage extends LitElement {
                                 class="psy-arch__related-link"
                                 @click=${() => this.openById(id)}
                               >
-                                ${id.replace(/^NA-\d+-/, "").replace(/-/g, " ")}
+                                ${prettifyId(id)}
                               </button>
                               <span class="psy-arch__related-why">${related[id]}</span>
                             </li>
@@ -648,23 +714,163 @@ export class PsyntientArchivePage extends LitElement {
   }
 
   /**
+   * Three tiers: the genus, its species on one rank beneath it, and under
+   * each species the archetypes it relates to. Grounded entirely in real
+   * parent_archetype/members edges the Architect authored -- never in
+   * packet<->archetype mappings, which are 0 in this Edition and would mean
+   * inventing structure the Archive does not assert (see the file header).
+   */
+  private renderFamilyTree() {
+    const closeButton = html`
+      <button
+        type="button"
+        class="psy-arch__close"
+        aria-label=${t("archive.close")}
+        @click=${() => this.closeFamily()}
+      >
+        ×
+      </button>
+    `;
+
+    if (this.familyLoading || !this.family) {
+      return html`
+        <div class="psy-arch__detail" role="dialog" aria-modal="true">
+          <div class="psy-arch__tree-panel">
+            ${closeButton}
+            <p class="psy-arch__loading">${t("archive.loading")}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    const { genus, species, note } = this.family;
+    if (!genus) {
+      return html`
+        <div class="psy-arch__detail" role="dialog" aria-modal="true">
+          <div class="psy-arch__tree-panel">
+            ${closeButton}
+            <p class="psy-arch__genus--none">${note ?? t("archive.noFamily")}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Every genus in this Edition is seeded test data as of this writing (see
+    // ARCHIVE_VIEWER.md) -- a surface built for citation that displayed a
+    // dissolved smoke test as real taxonomy would be worse than no taxonomy
+    // view at all. Read off the record, not hardcoded: a real genus the
+    // Architect derives later carries no flag and this banner simply will
+    // not appear for it.
+    const simulated = genus.SIMULATED_TEST_DATA === true;
+    const genusNote = typeof genus.note === "string" ? genus.note : null;
+    const genusKind = typeof genus.genus_kind_label === "string" ? genus.genus_kind_label : null;
+    const genusId = String(genus.id ?? "");
+
+    return html`
+      <div class="psy-arch__detail" role="dialog" aria-modal="true">
+        <div class="psy-arch__tree-panel">
+          ${closeButton}
+          ${simulated
+            ? html`<div class="psy-arch__tree-simulated-banner">
+                <strong
+                  >${t("archive.treeSimulatedTitle", { name: String(genus.name ?? "") })}</strong
+                >
+                <p>${genusNote ?? t("archive.treeSimulatedFallback")}</p>
+                <p>${t("archive.treeSimulatedWarning")}</p>
+              </div>`
+            : nothing}
+
+          <button
+            type="button"
+            class="psy-arch__tree-node psy-arch__tree-node--genus ${this.family.of === genusId
+              ? "psy-arch__tree-node--you"
+              : ""}"
+            @click=${() => this.openById(genusId)}
+          >
+            ${simulated
+              ? html`<span class="psy-arch__tree-badge">${t("archive.testData")}</span>`
+              : nothing}
+            <span class="psy-arch__tree-node-name">${String(genus.name ?? genusId)}</span>
+            <span class="psy-arch__tree-node-desc">${String(genus.description ?? "")}</span>
+            <span class="psy-arch__tree-node-meta">
+              <span class="psy-arch__chip"
+                >${t("archive.genusRank")}${genusKind ? ` · ${genusKind}` : ""}</span
+              >
+              <span>${t("archive.speciesCount", { count: String(species.length) })}</span>
+            </span>
+          </button>
+
+          ${species.length
+            ? html`
+                <div class="psy-arch__tree-stem" aria-hidden="true"></div>
+                <div class="psy-arch__tree-bar" style=${`--n:${species.length}`}></div>
+                <div class="psy-arch__tree-row" style=${`--n:${species.length}`}>
+                  ${species.map((s) => this.renderTreeSpecies(s))}
+                </div>
+              `
+            : nothing}
+        </div>
+      </div>
+    `;
+  }
+
+  private renderTreeSpecies(s: Record<string, unknown>) {
+    const id = String(s.id ?? "");
+    const a = archetypeFromRaw(s, id);
+    const related = (s.related ?? {}) as Record<string, string>;
+    const relatedIds = Object.keys(related);
+    return html`
+      <div class="psy-arch__tree-col">
+        <div class="psy-arch__tree-col-stem" aria-hidden="true"></div>
+        <button
+          type="button"
+          class="psy-arch__tree-node ${this.family?.of === id ? "psy-arch__tree-node--you" : ""}"
+          @click=${() => this.openById(id)}
+        >
+          <span class="psy-arch__tree-node-name">${a.name}</span>
+          <span class="psy-arch__tree-node-desc">${a.description}</span>
+          <span class="psy-arch__tree-node-meta">
+            <span class="psy-arch__tier psy-arch__tier--${tierOf(a)}">${tierOf(a)}</span>
+          </span>
+        </button>
+        ${relatedIds.length
+          ? html`<div class="psy-arch__tree-related">
+              ${relatedIds.map((rid) => {
+                // A cross-reference can outlive its target; render those as
+                // plain text instead of a dead link rather than fetching to
+                // find out (the index this checks against is already loaded).
+                const inEdition = this.archetypes.some((x) => x.id === rid);
+                return inEdition
+                  ? html`<button
+                      type="button"
+                      class="psy-arch__tree-related-chip psy-arch__tree-related-chip--link"
+                      title=${related[rid]}
+                      @click=${() => this.openById(rid)}
+                    >
+                      ${prettifyId(rid)}
+                    </button>`
+                  : html`<span class="psy-arch__tree-related-chip" title=${related[rid]}
+                      >${prettifyId(rid)}</span
+                    >`;
+              })}
+            </div>`
+          : nothing}
+      </div>
+    `;
+  }
+
+  /**
    * Follow a `related` edge. The target may not be in the current grid (a
    * search can be filtered), so this fetches by id and synthesises the card
    * fields from the record rather than assuming a local lookup succeeds.
    */
   private async openById(id: string) {
+    this.family = null;
     this.detail = null;
     const body = await this.get(`?id=${encodeURIComponent(id)}`);
     const record = body?.record as Record<string, unknown> | undefined;
     if (!record) return;
-    this.selected = {
-      id: String(record.id ?? id),
-      slug: String(record.slug ?? ""),
-      name: String(record.name ?? id),
-      description: String(record.description ?? ""),
-      confidence_tier: record.confidence_tier as string | undefined,
-      n_exemplars: record.n_exemplars as number | undefined,
-    };
+    this.selected = archetypeFromRaw(record, id);
     this.detail = record;
   }
 }
