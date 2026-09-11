@@ -2668,11 +2668,7 @@ export const en: TranslationMap = {
     nearNeighbours: "Easily confused with",
     related: "Related shapes",
     openQuestions: "Still unresolved",
-    family: "Family",
     genusRank: "Genus",
-    members: "Species in this family ({count})",
-    noFamily:
-      "Not grouped into an archetype family yet — this Edition defines species but no genera.",
     familyTree: "Family Tree",
     speciesCount: "{count} species",
     relatedCount: "{count} related",

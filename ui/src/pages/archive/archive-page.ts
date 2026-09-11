@@ -21,7 +21,7 @@
 //
 // It is a reading surface. Questions hand off to Cortex rather than growing an
 // analysis tool here.
-import { LitElement, html, nothing } from "lit";
+import { LitElement, html, nothing, svg } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../../i18n/index.ts";
 import { handOffPrompt } from "../../lib/psyntient-prompt-handoff.ts";
@@ -561,24 +561,38 @@ export class PsyntientArchivePage extends LitElement {
     const max = Math.max(1, ...this.archetypes.map(exemplarsOf));
     const weight = Math.min(1, n / max);
     return html`
-      <button
-        type="button"
-        class="psy-arch__card psy-arch__card--${tier}"
-        style=${`--psy-arch-weight:${weight.toFixed(3)}`}
-        @click=${() => this.open(a)}
-      >
-        <span class="psy-arch__card-bar" aria-hidden="true"></span>
-        <span class="psy-arch__card-name">${a.name}</span>
-        <span class="psy-arch__card-desc">${a.description}</span>
-        <span class="psy-arch__card-meta">
-          <span class="psy-arch__tier psy-arch__tier--${tier}">${tier}</span>
-          <span
-            >${n === 1
-              ? t("archive.exemplarOne")
-              : t("archive.exemplarMany", { count: String(n) })}</span
-          >
-        </span>
-      </button>
+      <div class="psy-arch__card-wrap">
+        <button
+          type="button"
+          class="psy-arch__card psy-arch__card--${tier}"
+          style=${`--psy-arch-weight:${weight.toFixed(3)}`}
+          @click=${() => this.open(a)}
+        >
+          <span class="psy-arch__card-bar" aria-hidden="true"></span>
+          <span class="psy-arch__card-name">${a.name}</span>
+          <span class="psy-arch__card-desc">${a.description}</span>
+          <span class="psy-arch__card-meta">
+            <span class="psy-arch__tier psy-arch__tier--${tier}">${tier}</span>
+            <span
+              >${n === 1
+                ? t("archive.exemplarOne")
+                : t("archive.exemplarMany", { count: String(n) })}</span
+            >
+          </span>
+        </button>
+        <!-- A sibling, not a child of the card button: a button can't nest
+             inside another button. Always available -- see openFamily(). -->
+        <button
+          type="button"
+          class="psy-arch__card-family-btn"
+          @click=${(e: Event) => {
+            e.stopPropagation();
+            this.openFamily(a.id);
+          }}
+        >
+          ${t("archive.familyTree")}
+        </button>
+      </div>
     `;
   }
 
@@ -766,6 +780,16 @@ export class PsyntientArchivePage extends LitElement {
       >
         <div class="psy-arch__detail-panel">
           <div class="psy-arch__detail-nav">
+            <!-- Always available: the daemon falls back to the archetype
+                 itself + what it relates to when there is no genus, so
+                 there is always a tree to show. -->
+            <button
+              type="button"
+              class="psy-arch__family-tree-btn"
+              @click=${() => this.openFamily(a.id)}
+            >
+              ${t("archive.familyTree")}
+            </button>
             <!-- Flip through without leaving the panel. Hidden for a record
                  that is not in the current list (a genus opened from a family
                  link), where "next" has no meaningful referent. -->
@@ -822,60 +846,14 @@ export class PsyntientArchivePage extends LitElement {
             )}
           </div>
 
-          <!-- Layer 3 of the taxonomy (whitepaper 2.3): species archetypes may
-               belong to a genus, itself an archetype record, via
-               parent_archetype. Rendered as a real link when present and stated
-               plainly when not -- Edition 002 ships zero genera (its only one
-               was a smoke test the Architect deliberately dissolved), so a
-               silent button here would do nothing for every archetype in the
-               Archive. -->
-          ${this.detail && !isGenus
-            ? typeof raw.parent_archetype === "string" && raw.parent_archetype
-              ? html`<p class="psy-arch__genus">
-                  <span class="psy-arch__genus-label">${t("archive.family")}</span>
-                  <button
-                    type="button"
-                    class="psy-arch__related-link"
-                    @click=${() => this.openById(String(raw.parent_archetype))}
-                  >
-                    ${prettifyId(String(raw.parent_archetype))}
-                  </button>
-                </p>`
-              : html`<p class="psy-arch__genus psy-arch__genus--none">${t("archive.noFamily")}</p>`
-            : nothing}
           <!-- The evidence list: what used to be a bare "N exemplars" count
                with nothing behind it. Genus records have no exemplars of
                their own (see loadEvidence()), so this is species-only.
                Loads after the panel itself, un-awaited -- see open()/
                openById() -- and a failure replaces only this section's own
                placeholder rather than the whole page. -->
-          ${!isGenus ? this.renderSection(t("archive.evidence"), this.renderEvidence()) : nothing}
           ${this.detail
             ? html`
-                <!-- The species in this family, first: "which archetypes are
-                     in here" is the question that made someone click through,
-                     and it is the one thing a genus record has that a species
-                     record does not. -->
-                ${this.renderSection(
-                  t("archive.members", { count: String(members.length) }),
-                  members.length
-                    ? html`<ul class="psy-arch__related">
-                        ${members.map(
-                          (id) => html`
-                            <li>
-                              <button
-                                type="button"
-                                class="psy-arch__related-link"
-                                @click=${() => this.openById(id)}
-                              >
-                                ${prettifyId(id)}
-                              </button>
-                            </li>
-                          `,
-                        )}
-                      </ul>`
-                    : null,
-                )}
                 ${this.renderSection(t("archive.invariants"), this.renderList(phenom.invariants))}
                 ${this.renderSection(
                   t("archive.variants"),
@@ -921,20 +899,21 @@ export class PsyntientArchivePage extends LitElement {
                   t("archive.openQuestions"),
                   this.renderList(raw.open_questions),
                 )}
+                <!-- Last: what used to be a bare "N exemplars" count with
+                     nothing behind it. Genus records have no exemplars of
+                     their own (see loadEvidence()), so this is species-only.
+                     Loads after the panel itself, un-awaited -- see open()/
+                     openById() -- and a failure replaces only this section's
+                     own placeholder rather than the whole page. -->
+                ${!isGenus
+                  ? this.renderSection(t("archive.evidence"), this.renderEvidence())
+                  : nothing}
               `
             : html`<p class="psy-arch__loading">${t("archive.loading")}</p>`}
 
           <div class="psy-arch__detail-actions">
             <button class="psy-arch__ask" type="button" @click=${() => this.askCortex(a)}>
               ${t("archive.askCortex")}
-            </button>
-            <!-- Always available: the daemon falls back to the archetype
-                 itself + what it relates to when there is no genus, so
-                 there is always a tree to show. The Family/Genus text above
-                 stays a separate, direct jump to one specific record -- this
-                 button is the whole pyramid. -->
-            <button class="psy-arch__ask" type="button" @click=${() => this.openFamily(a.id)}>
-              ${t("archive.familyTree")}
             </button>
             <code class="psy-arch__detail-id">${a.id}</code>
           </div>
@@ -1501,7 +1480,14 @@ export class PsyntientArchivePage extends LitElement {
                   `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(r[k] ?? 0, max).toFixed(1)}`,
               )
               .join(" ");
-            return html`<path
+            // svg`...`, not html`...`: a nested html-tagged template is parsed
+            // and cloned in its own context with no idea it will end up
+            // inside an <svg>, so its elements land in the HTML namespace --
+            // real DOM nodes, visibly nothing, since an HTML-namespace
+            // <path>/<text> isn't an SVGElement and paints nothing. This was
+            // the actual bug behind the empty EEG box: the data and the
+            // markup were both correct, and the browser still drew nothing.
+            return svg`<path
               d=${d}
               fill="none"
               stroke=${colors[keys.indexOf(k) % colors.length]}
@@ -1509,7 +1495,7 @@ export class PsyntientArchivePage extends LitElement {
             />`;
           })}
           ${showProvenance
-            ? html`<text x="4" y="${height + 12}" class="psy-arch__packet-chart-provenance">
+            ? svg`<text x="4" y="${height + 12}" class="psy-arch__packet-chart-provenance">
                 ${t("archive.chartProvenance", { edition: this.edition?.editionId ?? "" })}
               </text>`
             : nothing}

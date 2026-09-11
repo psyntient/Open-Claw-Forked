@@ -6410,9 +6410,39 @@ td.data-table-key-col {
   background: var(--accent);
   opacity: calc(0.25 + (var(--psy-arch-weight, 0) * 0.75));
 }
+/* A sibling of .psy-arch__card, not a child -- a button can't nest inside
+   another button. Positioned relative to the wrapper so .psy-arch__card's
+   own overflow:hidden (for the card-bar above) never clips it. */
+.psy-arch__card-wrap {
+  position: relative;
+}
+.psy-arch__card-family-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 1;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  color: var(--muted);
+  font-size: 0.6875rem;
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+.psy-arch__card-family-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
 .psy-arch__card-name {
   font-weight: 600;
   font-size: 0.9375rem;
+  /* Reserves room for .psy-arch__card-family-btn, which overlays this
+     corner -- without it a long title's first line runs underneath the
+     pill instead of wrapping around it. */
+  padding-right: 4.75rem;
 }
 .psy-arch__card-desc {
   font-size: 0.8125rem;
@@ -6597,22 +6627,9 @@ td.data-table-key-col {
   margin: 0;
 }
 
-/* Genus line: taxonomy layer 3. Present as a link, absent as a plain
-   statement -- never a disabled control, because "no family yet" is the
-   normal state of every archetype in this Edition, not an error. */
-.psy-arch__genus {
-  display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
-  margin: 0 0 1.1rem;
-  font-size: 0.875rem;
-}
-.psy-arch__genus-label {
-  font-size: 0.6875rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
+/* Used for every "nothing here" statement across the family tree, the
+   evidence list, and the no-family/not-an-archetype states below -- never a
+   disabled control, because these are normal states, not errors. */
 .psy-arch__genus--none {
   color: var(--muted);
   font-size: 0.8125rem;
@@ -7091,6 +7108,27 @@ td.data-table-key-col {
   font-size: 0.75rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+/* The one way into the family tree -- always available (see openFamily()),
+   so it sits with the rest of the panel chrome rather than behind a
+   condition. Leftmost in the cluster, close button stays outermost. */
+.psy-arch__family-tree-btn {
+  margin-right: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+.psy-arch__family-tree-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 /* --- Vault viewer -------------------------------------------------------
