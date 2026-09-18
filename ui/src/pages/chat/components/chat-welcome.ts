@@ -1,4 +1,5 @@
 // Control UI chat module implements chat welcome behavior.
+import { inferControlUiPublicAssetPath } from "../../../app/public-assets.ts";
 import { html, nothing } from "lit";
 import type { GatewaySessionRow, SessionsListResult } from "../../../api/types.ts";
 import { t } from "../../../i18n/index.ts";
@@ -118,7 +119,7 @@ function renderWelcomeClawd() {
       <span class="psy-elf psy-elf--hero">
         <img
           class="psy-elf__idle"
-          src="/brand/elf/elf-chat-idle-256.png"
+          src=${inferControlUiPublicAssetPath("brand/elf/elf-chat-idle-256.png")}
           alt=""
           width="112"
           height="112"

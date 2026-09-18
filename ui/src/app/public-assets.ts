@@ -9,6 +9,8 @@ type ControlUiPublicAsset =
   | "psyntient-mark.png"
   | "brand/psyntient-mark-2026.png"
   | "brand/elf/elf-chat-idle-128.png"
+  | "brand/elf/elf-chat-idle-64.png"
+  | "brand/elf/elf-chat-idle-256.png"
   | "apple-touch-icon.png"
   | "favicon-32.png"
   | "favicon.ico"

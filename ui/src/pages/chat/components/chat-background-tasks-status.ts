@@ -1,3 +1,4 @@
+import { inferControlUiPublicAssetPath } from "../../../app/public-assets.ts";
 import { html, nothing, type TemplateResult } from "lit";
 import "../../../components/elapsed-time.ts";
 import "../../../components/tooltip.ts";
@@ -115,7 +116,7 @@ export function renderBackgroundTasksStatusRow(
     <openclaw-tooltip class="chat-tasks-status__preview">
       <div class="chat-tasks-status" id=${backgroundTasks.statusRowId} role="status">
         <span class="chat-tasks-status__claw psy-elf-static" aria-hidden="true">
-          <img src="/brand/elf/elf-chat-idle-64.png" alt="" />
+          <img src=${inferControlUiPublicAssetPath("brand/elf/elf-chat-idle-64.png")} alt="" />
         </span>
         ${status.startedMs !== null
           ? html`

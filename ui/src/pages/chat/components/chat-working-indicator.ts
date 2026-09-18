@@ -1,3 +1,4 @@
+import { inferControlUiPublicAssetPath } from "../../../app/public-assets.ts";
 import { html, nothing } from "lit";
 import "../../../components/elapsed-time.ts";
 import "../../../components/working-phrase.ts";
@@ -69,7 +70,7 @@ export function renderChatWorkingIndicator(
     <div class="chat-working-indicator" role="status" aria-live="off">
       <div class="chat-bubble chat-reading-indicator ${stanceClass(part.key)}" aria-hidden="true">
         <span class="psy-elf psy-elf--indicator">
-          <img class="psy-elf__idle" src="/brand/elf/elf-chat-idle-64.png" alt="" />
+          <img class="psy-elf__idle" src=${inferControlUiPublicAssetPath("brand/elf/elf-chat-idle-64.png")} alt="" />
           <span class="psy-elf__blink"></span>
           <span class="psy-elf__talk"></span>
           <span class="psy-elf__sparks"><i></i><i></i><i></i><i></i></span>
@@ -122,7 +123,7 @@ export function renderTurnRecapRow(recap: TurnRecap) {
   return html`
     <div class="chat-tasks-status chat-turn-recap" role="status">
       <span class="chat-tasks-status__claw psy-elf-static" aria-hidden="true">
-        <img src="/brand/elf/elf-chat-idle-64.png" alt="" />
+        <img src=${inferControlUiPublicAssetPath("brand/elf/elf-chat-idle-64.png")} alt="" />
       </span>
       <span>${t("chat.turnRecap.doneIn", { duration })}</span>
       ${tokens === null

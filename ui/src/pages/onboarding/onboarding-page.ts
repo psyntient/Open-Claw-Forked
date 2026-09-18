@@ -548,7 +548,7 @@ export class PsyntientOnboarding extends LitElement {
       <div class="psy-onb">
         <img
           class="psy-onb__mark"
-          src="/brand/psyntient-mark-2026.png"
+          src=${inferControlUiPublicAssetPath("brand/psyntient-mark-2026.png")}
           alt=""
           width="112"
           height="112"

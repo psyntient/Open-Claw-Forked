@@ -1,3 +1,4 @@
+import { inferControlUiPublicAssetPath } from "../app/public-assets.ts";
 import { expectDefined } from "@openclaw/normalization-core";
 import { html, nothing, svg } from "lit";
 import { lobsterHonorific } from "./lobster-dex.ts";
@@ -333,7 +334,7 @@ export function renderLobsterSvg(
     return svg`
       <svg class="lobster-pet__svg" viewBox="0 0 120 105" aria-hidden="true">
         <image
-          href="/brand/elf/elf-chat-idle-128.png"
+          href=${inferControlUiPublicAssetPath("brand/elf/elf-chat-idle-128.png")}
           x="0"
           y="0"
           width="120"
