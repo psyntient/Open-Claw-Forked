@@ -2611,6 +2611,9 @@ export const en: TranslationMap = {
     watchDirMirrorOff: "Deleting a file from this folder does not affect its imported copy.",
     watching: "Watching",
     stopWatching: "Stop watching",
+    manageAll: "Manage projects \u2192",
+    noneYet:
+      "No projects on this account yet. Create one in the Psyntient Repo and it will appear here.",
     repoSyncOption: "Deposit this project's files to the Psyntient Repo",
     repoSyncOffHint:
       "Files stay on this machine. Turn this on to deposit them into your repository, where you can license and publish them.",

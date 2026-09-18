@@ -8,20 +8,28 @@
 // This is a scope switcher, not an agent switcher: there is exactly one
 // Cortex. See PROJECT_AS_AGENT_RESEARCH.md for why separate agents were
 // rejected.
+//
+// IT SELECTS AND IT DOES NOT MANAGE, deliberately. Creating and removing
+// projects used to live in this dropdown, and it was the wrong home twice
+// over. A project carries a description, data types, a licence, a publication
+// state and eventually a DOI; the dialog here could only ever set a title and
+// some types, so a project made from it still had to be finished on the Repo's
+// own page. That is two places to answer one question, and the weaker one was
+// a worse copy of a page that already exists and has to be kept in sync with
+// it.
+//
+// So management leaves entirely -- removed rather than hidden -- and the menu
+// ends with a link to My projects, which the Archive rail already carries.
 import { goToRoute } from "../lib/psyntient-navigate.ts";
 import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
 import {
-  DEFAULT_PROJECT_ID,
-  loadProjectsAndTypes,
+  loadProjects,
   readSelectedProjectId,
   writeSelectedProjectId,
-  type PsyntientDataType,
   type PsyntientProject,
 } from "../lib/psyntient-projects.ts";
-import "./psyntient-project-create.ts";
-import "./psyntient-project-remove.ts";
 
 @customElement("psyntient-project-select")
 export class PsyntientProjectSelect extends LitElement {
@@ -33,13 +41,7 @@ export class PsyntientProjectSelect extends LitElement {
 
   @state() private projects: PsyntientProject[] = [];
   @state() private selectedId = readSelectedProjectId();
-  /** Where the server says a project is created; undefined means this route. */
-  @state() private createAt: string | undefined;
   @state() private open = false;
-  /** The Project whose removal dialog is open, if any. */
-  @state() private removing: PsyntientProject | null = null;
-  @state() private creating = false;
-  @state() private dataTypes: PsyntientDataType[] = [];
 
   override connectedCallback() {
     super.connectedCallback();
@@ -54,24 +56,7 @@ export class PsyntientProjectSelect extends LitElement {
   }
 
   private async refresh() {
-    const { projects, dataTypes, createAt } = await loadProjectsAndTypes(this.authToken);
-    this.projects = projects;
-    this.dataTypes = dataTypes;
-    this.createAt = createAt;
-  }
-
-  /**
-   * After a removal, reload so the id cache drops the removed Project -- that
-   * cache is what makes its orphaned threads resolve back to General.
-   * Selecting Default also navigates, which reloads the sidebar; doing it in
-   * the other order would leave the user scoped to a Project that is gone.
-   */
-  private async finishRemoval(removedId: string) {
-    this.removing = null;
-    await this.refresh();
-    if (this.selectedId === removedId) {
-      this.select(DEFAULT_PROJECT_ID);
-    }
+    this.projects = await loadProjects(this.authToken);
   }
 
   private select(projectId: string) {
@@ -91,13 +76,6 @@ export class PsyntientProjectSelect extends LitElement {
     // sent, and it gives the user somewhere to type immediately -- which
     // matters most for a Project that has no threads yet.
     goToRoute("new-session");
-  }
-
-  // Was a globalThis.prompt() asking only for a name. A name is no longer
-  // enough: data types are required, and they are a multi-select.
-  private openCreate() {
-    this.open = false;
-    this.creating = true;
   }
 
   private activeTitle(): string {
@@ -138,66 +116,24 @@ export class PsyntientProjectSelect extends LitElement {
                       >
                         ${p.title}
                       </button>
-                      ${p.projectId === DEFAULT_PROJECT_ID
-                        ? nothing
-                        : html`
-                            <button
-                              type="button"
-                              class="psy-project-select__manage"
-                              aria-label=${t("projects.manage")}
-                              title=${t("projects.manage")}
-                              @click=${(event: MouseEvent) => {
-                                // Without this the row's select() fires too and
-                                // navigates away from the dialog being opened.
-                                event.stopPropagation();
-                                this.open = false;
-                                this.removing = p;
-                              }}
-                            >
-                              ⋯
-                            </button>
-                          `}
                     </li>
                   `,
                 )}
+                ${this.projects.filter((p) => p.projectId !== "default").length === 0
+                  ? html`<li class="psy-project-select__empty">${t("projects.noneYet")}</li>`
+                  : nothing}
                 <li>
-                  <button
-                    type="button"
-                    class="psy-project-select__option psy-project-select__option--new"
-                    @click=${() => this.openCreate()}
+                  <a
+                    class="psy-project-select__option psy-project-select__option--manage"
+                    href="/repo/mine"
                   >
-                    ${t("projects.new")}
-                  </button>
+                    ${t("projects.manageAll")}
+                  </a>
                 </li>
               </ul>
             `
           : nothing}
-        ${this.creating
-          ? html`
-              <psyntient-project-create
-                .authToken=${this.authToken}
-                .dataTypes=${this.dataTypes}
-                .createAt=${this.createAt}
-                .onCreated=${(projectId: string) => {
-                  this.creating = false;
-                  void this.refresh();
-                  this.select(projectId);
-                }}
-                .onCancel=${() => (this.creating = false)}
-              ></psyntient-project-create>
-            `
-          : nothing}
-        ${this.removing
-          ? html`
-              <psyntient-project-remove
-                .authToken=${this.authToken}
-                .projectId=${this.removing.projectId}
-                .projectTitle=${this.removing.title}
-                .onDone=${() => void this.finishRemoval(this.removing?.projectId ?? "")}
-                .onCancel=${() => (this.removing = null)}
-              ></psyntient-project-remove>
-            `
-          : nothing}
+
       </div>
     `;
   }
