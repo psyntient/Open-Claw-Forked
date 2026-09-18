@@ -2611,6 +2611,23 @@ export const en: TranslationMap = {
     watchDirMirrorOff: "Deleting a file from this folder does not affect its imported copy.",
     watching: "Watching",
     stopWatching: "Stop watching",
+    repoSyncOption: "Deposit this project's files to the Psyntient Repo",
+    repoSyncOffHint:
+      "Files stay on this machine. Turn this on to deposit them into your repository, where you can license and publish them.",
+    repoSyncState: "{done} of {total} files deposited.",
+    repoSyncNow: "Deposit now",
+    repoSyncWorking: "Depositing\u2026",
+    repoSyncDone: "Deposited {uploaded} file(s).",
+    repoSyncPartial: "Deposited {uploaded} file(s); {failed} could not be sent.",
+    repoSyncFailed: "That setting could not be changed.",
+    repoSyncConfirmTitle: "Deposit to your repository?",
+    repoSyncConfirmBody:
+      "This sends {files} file(s), {size}, to your Psyntient Repo \u2014 everything already in this project, not only what arrives later.",
+    repoSyncConfirmNothing:
+      "Nothing to send right now. Files imported from here on will be deposited automatically.",
+    repoSyncConfirmNote:
+      "Depositing is not publishing. Files land in your own project, and publishing them under a licence stays a separate, deliberate step in the Repo.",
+    repoSyncConfirmAction: "Deposit",
     previewLoading: "Loading preview\u2026",
     previewUnavailable: "No preview for this file type -- download to view it.",
     previewTruncated: "(truncated)",

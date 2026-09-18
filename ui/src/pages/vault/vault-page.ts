@@ -1,3 +1,4 @@
+import "../../components/modal-dialog.ts";
 import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // The Vault viewer: everything this Node holds, and what could leave it.
 //
@@ -66,6 +67,18 @@ type Project = {
   watchMirror?: boolean;
 };
 
+/** Deposit state, from this Node's own records rather than the network. */
+type RepoSyncState = {
+  enabled: boolean;
+  pending?: number;
+  pendingBytes?: number;
+  total?: number;
+  totalBytes?: number;
+  lastRunAt?: string | null;
+  lastError?: string | null;
+  unavailable?: string;
+};
+
 type Ledger = {
   ok: boolean;
   error?: string;
@@ -114,7 +127,13 @@ type Area = {
   entries: AreaEntry[];
 };
 
-type Detail = { ok: boolean; error?: string; project?: Project; areas?: Area[] };
+type Detail = {
+  ok: boolean;
+  error?: string;
+  project?: Project;
+  areas?: Area[];
+  repoSync?: RepoSyncState;
+};
 
 // Functions, not constants: psyntientRoute() reads the Control UI's base path
 // from the served document, and these routes are wrong at the origin root on
@@ -248,6 +267,10 @@ export class PsyntientVaultPage extends LitElement {
   @state() private watchDirDeleteAfterImport = false;
   @state() private watchDirMirror = false;
   @state() private savingWatchDir = false;
+  @state() private savingRepoSync = false;
+  @state() private depositResult: string | null = null;
+  /** The project whose deposit is awaiting confirmation, and what it would send. */
+  @state() private confirmDeposit: { project: Project; state: RepoSyncState } | null = null;
   /** Collapsed accordion nodes. Empty means everything is open. */
   @state() private collapsed = new Set<string>();
 
@@ -735,6 +758,126 @@ export class PsyntientVaultPage extends LitElement {
       await this.runSync(p, key);
     } finally {
       if (this.syncingFile === key) this.syncingFile = null;
+    }
+  }
+
+  /** Human bytes. A confirmation that says "40265318400" has not warned anyone. */
+  private static size(bytes: number): string {
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    let n = bytes;
+    let i = 0;
+    while (n >= 1024 && i < units.length - 1) {
+      n /= 1024;
+      i += 1;
+    }
+    return `${n < 10 && i > 0 ? n.toFixed(1) : Math.round(n)} ${units[i]}`;
+  }
+
+  /**
+   * Turn deposit on or off.
+   *
+   * TURNING IT ON ASKS FIRST, and that is the point of this control rather
+   * than a bare checkbox. Enabling does not only affect files that arrive
+   * later: it sends everything already in the project, which on work that has
+   * been accumulating for months can be many gigabytes leaving for shared
+   * storage because a box was ticked. Turning it OFF asks nothing -- stopping
+   * is not the destructive direction, and nothing already deposited is
+   * withdrawn by it.
+   */
+  private requestRepoSync(p: Project, enabled: boolean) {
+    if (!enabled) {
+      void this.setRepoSync(p, false);
+      return;
+    }
+    this.confirmDeposit = { project: p, state: this.detail?.repoSync ?? { enabled: false } };
+  }
+
+  private async setRepoSync(p: Project, enabled: boolean, depositNow = false) {
+    this.confirmDeposit = null;
+    this.savingRepoSync = true;
+    this.errorText = null;
+    this.depositResult = null;
+    try {
+      const res = await fetch(PROJECTS_ROUTE(), {
+        method: "POST",
+        headers: { ...this.headers(), "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set-repo-sync", projectId: p.projectId, enabled }),
+      });
+      const body = (await res.json()) as {
+        ok: boolean;
+        repoSync?: boolean;
+        pending?: number;
+        pendingBytes?: number;
+        total?: number;
+        totalBytes?: number;
+        error?: string;
+      };
+      if (!body.ok) {
+        this.errorText = body.error || t("vault.repoSyncFailed");
+        return;
+      }
+      if (this.detail) {
+        this.detail = {
+          ...this.detail,
+          repoSync: {
+            ...(this.detail.repoSync ?? {}),
+            enabled: Boolean(body.repoSync),
+            pending: body.pending,
+            pendingBytes: body.pendingBytes,
+            total: body.total,
+            totalBytes: body.totalBytes,
+          },
+        };
+      }
+      if (enabled && depositNow) {
+        await this.depositNow(p);
+      }
+    } catch (err) {
+      this.errorText = err instanceof Error ? err.message : String(err);
+    } finally {
+      this.savingRepoSync = false;
+    }
+  }
+
+  /**
+   * Deposit immediately rather than waiting for the loop.
+   *
+   * The watcher polls every 60 seconds, which is right for running unattended
+   * and useless in the moment somebody has just switched this on and wants to
+   * know whether it works at all. A failure here is the first place a wrong
+   * pairing or an unreachable Archive becomes visible, so the message is
+   * surfaced verbatim rather than reduced to "sync failed".
+   */
+  private async depositNow(p: Project) {
+    this.savingRepoSync = true;
+    this.depositResult = null;
+    try {
+      const res = await fetch(PROJECTS_ROUTE(), {
+        method: "POST",
+        headers: { ...this.headers(), "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "repo-sync-now", projectId: p.projectId }),
+      });
+      const body = (await res.json()) as {
+        ok: boolean;
+        uploaded?: string[];
+        skipped?: string[];
+        failed?: { filename: string; error: string }[];
+        error?: string;
+      };
+      if (body.error) {
+        this.depositResult = body.error;
+        return;
+      }
+      const up = body.uploaded?.length ?? 0;
+      const failed = body.failed ?? [];
+      this.depositResult = failed.length
+        ? t("vault.repoSyncPartial", { uploaded: up, failed: failed.length })
+        : t("vault.repoSyncDone", { uploaded: up });
+      void this.reloadDetail(p);
+    } catch (err) {
+      this.depositResult = err instanceof Error ? err.message : String(err);
+    } finally {
+      this.savingRepoSync = false;
     }
   }
 
@@ -1231,7 +1374,118 @@ export class PsyntientVaultPage extends LitElement {
                 </label>
               `}
         </div>
+
+        ${this.renderRepoSync(p)}
       </aside>
+    `;
+  }
+
+  /**
+   * Depositing this project's files into the Psyntient Repo.
+   *
+   * ITS OWN SECTION, BELOW THE WATCH CONTROLS AND NOT INSIDE THEM.
+   * deleteAfterImport and mirror are modes of the watch binding; this is not
+   * one. A project with no watched folder deposits perfectly well, and putting
+   * this in that form would tie two independent decisions together -- and
+   * leave unbinding a folder raising the question of whether depositing stops
+   * too. It does not.
+   *
+   * The status line exists because a checkbox with no feedback is the thing
+   * people click twice when nothing visibly happens.
+   */
+  private renderRepoSync(p: Project) {
+    const state = this.detail?.repoSync;
+    if (!state || state.unavailable) {
+      return nothing;
+    }
+    const pending = state.pending ?? 0;
+    const total = state.total ?? 0;
+    const done = Math.max(0, total - pending);
+    return html`
+      <div class="psy-vault__repo-sync">
+        <label class="psy-vault__watch-dir-delete">
+          <input
+            type="checkbox"
+            .checked=${state.enabled}
+            ?disabled=${this.savingRepoSync}
+            @change=${(e: Event) =>
+              this.requestRepoSync(p, (e.target as HTMLInputElement).checked)}
+          />
+          ${t("vault.repoSyncOption")}
+        </label>
+        <p class="psy-vault__watch-dir-hint">
+          ${state.enabled
+            ? t("vault.repoSyncState", { done, total })
+            : t("vault.repoSyncOffHint")}
+        </p>
+        ${state.enabled
+          ? html`
+              <div class="psy-vault__watch-dir-row">
+                <button
+                  type="button"
+                  class="psy-vault__watch-dir-save"
+                  ?disabled=${this.savingRepoSync}
+                  @click=${() => this.depositNow(p)}
+                >
+                  ${this.savingRepoSync ? t("vault.repoSyncWorking") : t("vault.repoSyncNow")}
+                </button>
+              </div>
+            `
+          : nothing}
+        ${state.lastError
+          ? html`<p class="psy-vault__watch-dir-hint">${state.lastError}</p>`
+          : nothing}
+        ${this.depositResult
+          ? html`<p class="psy-vault__more">${this.depositResult}</p>`
+          : nothing}
+      </div>
+      ${this.confirmDeposit ? this.renderDepositConfirm() : nothing}
+    `;
+  }
+
+  /**
+   * What is about to leave this machine, before it leaves.
+   *
+   * Enabling deposit sends everything already in the project, not only what
+   * arrives next. On work that has been accumulating for months that is
+   * potentially many gigabytes going to shared storage because a box was
+   * ticked, and "I did not know it would do that" is not a complaint anybody
+   * should have to make.
+   */
+  private renderDepositConfirm() {
+    const { project, state } = this.confirmDeposit!;
+    const pending = state.pending ?? 0;
+    const bytes = state.pendingBytes ?? 0;
+    return html`
+      <openclaw-modal-dialog
+        label=${t("vault.repoSyncConfirmTitle")}
+        @wa-hide=${() => (this.confirmDeposit = null)}
+      >
+        <div class="psy-vault__confirm">
+          <h2>${t("vault.repoSyncConfirmTitle")}</h2>
+          <p>
+            ${pending === 0
+              ? t("vault.repoSyncConfirmNothing")
+              : t("vault.repoSyncConfirmBody", {
+                  files: pending,
+                  size: PsyntientVaultPage.size(bytes),
+                })}
+          </p>
+          <p class="psy-vault__watch-dir-hint">${t("vault.repoSyncConfirmNote")}</p>
+          <div class="psy-vault__watch-dir-row">
+            <button type="button" @click=${() => (this.confirmDeposit = null)}>
+              ${t("common.cancel")}
+            </button>
+            <button
+              type="button"
+              class="psy-vault__watch-dir-save"
+              @click=${() => void this.setRepoSync(project, true, true)}
+            >
+              ${t("vault.repoSyncConfirmAction")}
+            </button>
+          </div>
+        </div>
+      </openclaw-modal-dialog>
     `;
   }
 
