@@ -14,7 +14,12 @@ import { renderSettingsRow, renderSettingsSection } from "../../components/setti
 import { t } from "../../i18n/index.ts";
 
 export type PsyntientAccountState = {
-  status: "loading" | "paired" | "unpaired" | "error";
+  // "absent" is not an error state. A gateway that does not serve the pairing
+  // route has no pairing to report -- a Psyntient Cloud instance is a tenant
+  // droplet, not a paired Node, and its account lives in the Archive. Saying
+  // "unknown" there offers the researcher a second account surface that can
+  // never be made to work.
+  status: "loading" | "paired" | "unpaired" | "error" | "absent";
   nodeId?: string | null;
   contextId?: string | null;
   pairedAt?: string | null;
@@ -57,6 +62,12 @@ export async function loadPsyntientAccount(
       headers: authHeaders(token),
       credentials: "same-origin",
     });
+    // 404 is a capability answer, not a failure: this gateway has no pairing
+    // plugin. Distinguished from 5xx and from a network error, which are the
+    // same route being genuinely broken and should still be reported.
+    if (res.status === 404) {
+      return { status: "absent" };
+    }
     if (!res.ok) {
       return { status: "error", error: `HTTP ${res.status}` };
     }
@@ -150,6 +161,11 @@ export function renderPsyntientAccountSection(state: PsyntientAccountState, onUn
         })
       : nothing;
 
+  // Render nothing at all, rather than an empty section with a heading. A
+  // heading over no rows reads as something that failed to load.
+  if (state.status === "absent") {
+    return nothing;
+  }
   return renderSettingsSection(
     { title: t("psyntientAccount.title") },
     html`${statusRow(state)}${details}${unpairRow}`,
