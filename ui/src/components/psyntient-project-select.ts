@@ -42,6 +42,8 @@ export class PsyntientProjectSelect extends LitElement {
   @state() private projects: PsyntientProject[] = [];
   @state() private selectedId = readSelectedProjectId();
   @state() private open = false;
+  /** The list could not be fetched -- which is not the same as having none. */
+  @state() private loadFailed = false;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -56,7 +58,9 @@ export class PsyntientProjectSelect extends LitElement {
   }
 
   private async refresh() {
-    this.projects = await loadProjects(this.authToken);
+    const out = await loadProjects(this.authToken);
+    this.projects = out.projects;
+    this.loadFailed = out.failed;
   }
 
   private select(projectId: string) {
@@ -119,9 +123,11 @@ export class PsyntientProjectSelect extends LitElement {
                     </li>
                   `,
                 )}
-                ${this.projects.filter((p) => p.projectId !== "default").length === 0
-                  ? html`<li class="psy-project-select__empty">${t("projects.noneYet")}</li>`
-                  : nothing}
+                ${this.loadFailed
+                  ? html`<li class="psy-project-select__empty">${t("projects.loadFailed")}</li>`
+                  : this.projects.filter((p) => p.projectId !== "default").length === 0
+                    ? html`<li class="psy-project-select__empty">${t("projects.noneYet")}</li>`
+                    : nothing}
                 <li>
                   <a
                     class="psy-project-select__option psy-project-select__option--manage"

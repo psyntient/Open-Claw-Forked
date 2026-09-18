@@ -63,8 +63,11 @@ function headers(token: string | null): Record<string, string> {
 }
 
 /** Never throws: a Node without the plugin routes still shows its threads. */
-export async function loadProjects(token: string | null): Promise<PsyntientProject[]> {
-  return (await loadProjectsAndTypes(token)).projects;
+export async function loadProjects(
+  token: string | null,
+): Promise<{ projects: PsyntientProject[]; failed: boolean }> {
+  const out = await loadProjectsAndTypes(token);
+  return { projects: out.projects, failed: Boolean(out.failed) };
 }
 
 /**
@@ -80,11 +83,12 @@ export async function loadProjectsAndTypes(token: string | null): Promise<{
   projects: PsyntientProject[];
   dataTypes: PsyntientDataType[];
   createAt?: string;
+  failed?: boolean;
 }> {
   try {
     const res = await fetch(route(), { headers: headers(token) });
     if (!res.ok) {
-      return { projects: [], dataTypes: [] };
+      return { projects: [], dataTypes: [], failed: true };
     }
     const body = (await res.json()) as {
       projects?: PsyntientProject[];
@@ -99,7 +103,7 @@ export async function loadProjectsAndTypes(token: string | null): Promise<{
     }
     return { projects, dataTypes: body.dataTypes ?? [], createAt: body.createAt };
   } catch {
-    return { projects: [], dataTypes: [] };
+    return { projects: [], dataTypes: [], failed: true };
   }
 }
 
