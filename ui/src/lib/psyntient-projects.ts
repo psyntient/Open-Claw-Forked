@@ -67,10 +67,20 @@ export async function loadProjects(token: string | null): Promise<PsyntientProje
   return (await loadProjectsAndTypes(token)).projects;
 }
 
-/** Projects plus the data-type vocabulary, in one round trip. */
-export async function loadProjectsAndTypes(
-  token: string | null,
-): Promise<{ projects: PsyntientProject[]; dataTypes: PsyntientDataType[] }> {
+/**
+ * Projects plus the data-type vocabulary, in one round trip.
+ *
+ * `createAt` is the server saying where a project is created. A Node creates
+ * them here and sends none; a Psyntient Cloud instance holds no credential for
+ * the Repo and sends the Repo's own endpoint, which the browser can reach
+ * same-origin under the researcher's existing sign-in. The client follows what
+ * it is told rather than deciding by deployment.
+ */
+export async function loadProjectsAndTypes(token: string | null): Promise<{
+  projects: PsyntientProject[];
+  dataTypes: PsyntientDataType[];
+  createAt?: string;
+}> {
   try {
     const res = await fetch(route(), { headers: headers(token) });
     if (!res.ok) {
@@ -79,6 +89,7 @@ export async function loadProjectsAndTypes(
     const body = (await res.json()) as {
       projects?: PsyntientProject[];
       dataTypes?: PsyntientDataType[];
+      createAt?: string;
     };
     const projects = body.projects ?? [];
     try {
@@ -86,7 +97,7 @@ export async function loadProjectsAndTypes(
     } catch {
       // Cache is an optimisation for the synchronous menu; never block on it.
     }
-    return { projects, dataTypes: body.dataTypes ?? [] };
+    return { projects, dataTypes: body.dataTypes ?? [], createAt: body.createAt };
   } catch {
     return { projects: [], dataTypes: [] };
   }
@@ -104,7 +115,11 @@ export async function createProject(
   token: string | null,
   title: string,
   dataTypes: string[],
-): Promise<{ project: PsyntientProject | null; error?: string }> {
+  createAt?: string,
+): Promise<{ project: PsyntientProject | null; error?: string; existed?: boolean }> {
+  if (createAt) {
+    return createInRepo(createAt, title, dataTypes);
+  }
   try {
     const res = await fetch(route(), {
       method: "POST",
@@ -119,6 +134,61 @@ export async function createProject(
     return body.ok && body.project
       ? { project: body.project }
       : { project: null, error: body.error };
+  } catch (err) {
+    return { project: null, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/**
+ * Create the project in the Repo, on the researcher's own session.
+ *
+ * `credentials: "include"` and no bearer: the identity is the sign-in the
+ * browser already holds, not the gateway token, and the Repo reads it from
+ * headers its own edge sets. Sending the gateway token here would be handing a
+ * credential for one service to another.
+ *
+ * `project_id` is deliberately not sent. The id is a directory name in a
+ * Vault and a session category at once, and the Repo owns that rule; deriving
+ * a slug here would be a second opinion on what survives both.
+ *
+ * The Repo's refusals are worth showing verbatim -- "not signed in" and
+ * "researcher not verified" are different problems with different fixes, and
+ * collapsing them into "could not create" sends people to fix the wrong one.
+ */
+async function createInRepo(
+  endpoint: string,
+  title: string,
+  dataTypes: string[],
+): Promise<{ project: PsyntientProject | null; error?: string; existed?: boolean }> {
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, data_types: dataTypes, origin: "repo" }),
+    });
+    const body = (await res.json().catch(() => ({}))) as {
+      project_id?: string;
+      title?: string;
+      created?: boolean;
+      created_at?: string;
+      error?: string;
+      message?: string;
+    };
+    if (!res.ok || !body.project_id) {
+      return { project: null, error: body.message || body.error || `Repo returned ${res.status}` };
+    }
+    return {
+      project: {
+        projectId: body.project_id,
+        title: body.title ?? title,
+        createdAt: body.created_at ?? null,
+        dataTypes,
+      },
+      // create() is idempotent on project_id, so a repeated title opens the
+      // project that already exists rather than making a second one. Say so.
+      existed: body.created === false,
+    };
   } catch (err) {
     return { project: null, error: err instanceof Error ? err.message : String(err) };
   }

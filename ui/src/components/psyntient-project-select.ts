@@ -32,6 +32,8 @@ export class PsyntientProjectSelect extends LitElement {
 
   @state() private projects: PsyntientProject[] = [];
   @state() private selectedId = readSelectedProjectId();
+  /** Where the server says a project is created; undefined means this route. */
+  @state() private createAt: string | undefined;
   @state() private open = false;
   /** The Project whose removal dialog is open, if any. */
   @state() private removing: PsyntientProject | null = null;
@@ -51,9 +53,10 @@ export class PsyntientProjectSelect extends LitElement {
   }
 
   private async refresh() {
-    const { projects, dataTypes } = await loadProjectsAndTypes(this.authToken);
+    const { projects, dataTypes, createAt } = await loadProjectsAndTypes(this.authToken);
     this.projects = projects;
     this.dataTypes = dataTypes;
+    this.createAt = createAt;
   }
 
   /**
@@ -173,6 +176,7 @@ export class PsyntientProjectSelect extends LitElement {
               <psyntient-project-create
                 .authToken=${this.authToken}
                 .dataTypes=${this.dataTypes}
+                .createAt=${this.createAt}
                 .onCreated=${(projectId: string) => {
                   this.creating = false;
                   void this.refresh();

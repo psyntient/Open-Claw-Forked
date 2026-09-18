@@ -22,6 +22,13 @@ export class PsyntientProjectCreate extends LitElement {
 
   @property({ attribute: false }) authToken: string | null = null;
   @property({ attribute: false }) dataTypes: PsyntientDataType[] = [];
+  /**
+   * Where the projects route says a project is created. Absent on a Node,
+   * where it is created by the route itself; on a Psyntient Cloud instance it
+   * is the Repo's own endpoint, reached same-origin on the researcher's
+   * existing sign-in.
+   */
+  @property({ attribute: false }) createAt: string | undefined;
   @property({ attribute: false }) onCreated: ((projectId: string) => void) | null = null;
   @property({ attribute: false }) onCancel: (() => void) | null = null;
 
@@ -49,11 +56,17 @@ export class PsyntientProjectCreate extends LitElement {
     if (!this.projectTitle.trim() || this.selected.size === 0 || this.busy) return;
     this.busy = true;
     this.errorText = null;
-    const { project, error } = await createProject(this.authToken, this.projectTitle.trim(), [
-      ...this.selected,
-    ]);
+    const { project, error } = await createProject(
+      this.authToken,
+      this.projectTitle.trim(),
+      [...this.selected],
+      this.createAt,
+    );
     this.busy = false;
     if (project) {
+      // `existed` is not an error: create is idempotent on the derived id, so
+      // a repeated title opens the project already there. Selecting it is the
+      // useful outcome either way.
       this.onCreated?.(project.projectId);
       return;
     }
