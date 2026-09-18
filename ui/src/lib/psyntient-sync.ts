@@ -1,3 +1,4 @@
+import { psyntientRoute } from "./psyntient-route.ts";
 // Archive sync state: settings, per-project toggles, and run progress.
 //
 // Backed by /__openclaw__/psyntient/sync (gateway plugin -> daemon/archive-sync.mjs).
@@ -5,7 +6,7 @@
 // A run is started and then POLLED rather than awaited. Submitting a backlog
 // takes minutes; holding a request open for it gives the UI nothing to render
 // and dies on the first proxy timeout.
-const ROUTE = "/__openclaw__/psyntient/sync";
+const route = () => psyntientRoute("sync");
 
 function headers(token: string | null): Record<string, string> {
   const h: Record<string, string> = { "Content-Type": "application/json" };
@@ -49,7 +50,7 @@ const EMPTY: SyncState = { autoSyncAll: false, projects: [], active: null };
 /** Never throws: sync status is ambient chrome and must not break the sidebar. */
 export async function loadSyncState(token: string | null): Promise<SyncState> {
   try {
-    const res = await fetch(ROUTE, { headers: headers(token) });
+    const res = await fetch(route(), { headers: headers(token) });
     if (!res.ok) {
       return EMPTY;
     }
@@ -66,7 +67,7 @@ export async function loadSyncState(token: string | null): Promise<SyncState> {
 
 async function post(token: string | null, body: unknown): Promise<boolean> {
   try {
-    const res = await fetch(ROUTE, {
+    const res = await fetch(route(), {
       method: "POST",
       headers: headers(token),
       body: JSON.stringify(body),

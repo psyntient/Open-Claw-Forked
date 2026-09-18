@@ -1,3 +1,5 @@
+import { psyntientRoute } from "./psyntient-route.ts";
+
 // Psyntient Projects: the Slack-channel scope over threads.
 //
 // A Project is a Vault-backed record in daemon/working-memory.mjs whose
@@ -47,7 +49,10 @@ export type PsyntientDataType = {
   archiveEligible: boolean;
 };
 
-const ROUTE = "/__openclaw__/psyntient/projects";
+// Resolved on use, not at import: the base path comes from the served
+// document, and a constant captured at module-evaluation time is one
+// ordering change away from being wrong on exactly one deployment.
+const route = () => psyntientRoute("projects");
 
 function headers(token: string | null): Record<string, string> {
   const h: Record<string, string> = { "Content-Type": "application/json" };
@@ -67,7 +72,7 @@ export async function loadProjectsAndTypes(
   token: string | null,
 ): Promise<{ projects: PsyntientProject[]; dataTypes: PsyntientDataType[] }> {
   try {
-    const res = await fetch(ROUTE, { headers: headers(token) });
+    const res = await fetch(route(), { headers: headers(token) });
     if (!res.ok) {
       return { projects: [], dataTypes: [] };
     }
@@ -101,7 +106,7 @@ export async function createProject(
   dataTypes: string[],
 ): Promise<{ project: PsyntientProject | null; error?: string }> {
   try {
-    const res = await fetch(ROUTE, {
+    const res = await fetch(route(), {
       method: "POST",
       headers: headers(token),
       body: JSON.stringify({ title, dataTypes }),
@@ -135,7 +140,7 @@ export async function removeProject(
   action: ProjectRemoval,
 ): Promise<{ ok: boolean; needsSync?: boolean; error?: string }> {
   try {
-    const res = await fetch(ROUTE, {
+    const res = await fetch(route(), {
       method: "POST",
       headers: headers(token),
       body: JSON.stringify({ action, projectId }),

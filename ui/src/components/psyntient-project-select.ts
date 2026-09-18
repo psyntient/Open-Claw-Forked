@@ -182,20 +182,6 @@ export class PsyntientProjectSelect extends LitElement {
               ></psyntient-project-create>
             `
           : nothing}
-        ${this.creating
-          ? html`
-              <psyntient-project-create
-                .authToken=${this.authToken}
-                .dataTypes=${this.dataTypes}
-                .onCreated=${(projectId: string) => {
-                  this.creating = false;
-                  void this.refresh();
-                  this.select(projectId);
-                }}
-                .onCancel=${() => (this.creating = false)}
-              ></psyntient-project-create>
-            `
-          : nothing}
         ${this.removing
           ? html`
               <psyntient-project-remove

@@ -1,3 +1,4 @@
+import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // Psyntient onboarding wizard, ported from the WebClaw build.
 //
 // Steps: welcome -> key -> pairing -> vault -> install. This is OUR wizard,
@@ -50,9 +51,9 @@ type Status = {
 type Provider = { id: string; label?: string };
 
 const ROUTES = {
-  onboarding: "/__openclaw__/psyntient/onboarding",
-  key: "/__openclaw__/psyntient/provider-key",
-  pairing: "/__openclaw__/psyntient/pairing",
+  onboarding: () => psyntientRoute("onboarding"),
+  key: () => psyntientRoute("provider-key"),
+  pairing: () => psyntientRoute("pairing"),
 };
 
 /**
@@ -257,7 +258,7 @@ export class PsyntientOnboarding extends LitElement {
   /** Runs once on mount. The provider check inside is the expensive part. */
   private async bootstrap() {
     try {
-      const res = await fetch(ROUTES.onboarding, { headers: this.headers() });
+      const res = await fetch(ROUTES.onboarding(), { headers: this.headers() });
       const status = (await res.json()) as Status;
       this.viaInstaller = status.viaInstaller === true;
       this.hadProvider = status.hasProvider === true;
@@ -272,7 +273,7 @@ export class PsyntientOnboarding extends LitElement {
 
   private async loadProviders() {
     try {
-      const res = await fetch(ROUTES.key, { headers: this.headers() });
+      const res = await fetch(ROUTES.key(), { headers: this.headers() });
       const body = (await res.json()) as { providers?: Provider[] };
       this.providers = body.providers ?? [];
       this.providerId = this.providers[0]?.id ?? "";
@@ -285,7 +286,7 @@ export class PsyntientOnboarding extends LitElement {
     this.errorText = null;
     this.busy = true;
     try {
-      const res = await fetch(ROUTES.key, {
+      const res = await fetch(ROUTES.key(), {
         method: "POST",
         headers: this.headers(),
         body: JSON.stringify({ providerId: this.providerId, apiKey: this.apiKey }),
@@ -316,7 +317,7 @@ export class PsyntientOnboarding extends LitElement {
     this.errorText = null;
     this.busy = true;
     try {
-      const res = await fetch(ROUTES.pairing, { method: "POST", headers: this.headers() });
+      const res = await fetch(ROUTES.pairing(), { method: "POST", headers: this.headers() });
       const body = (await res.json()) as { ok?: boolean; isPaired?: boolean; error?: string };
       if (!body.ok || !body.isPaired) {
         throw new Error(body.error ?? t("onboarding.pairingFailed"));
@@ -331,7 +332,7 @@ export class PsyntientOnboarding extends LitElement {
 
   private async finish() {
     try {
-      await fetch(ROUTES.onboarding, {
+      await fetch(ROUTES.onboarding(), {
         method: "POST",
         headers: this.headers(),
         body: JSON.stringify({ action: "complete" }),

@@ -1,3 +1,4 @@
+import { psyntientRoute } from "../lib/psyntient-route.ts";
 // Update indicator for the sidebar footer.
 //
 // Shows nothing when the Node is current: an always-present "up to date" chip
@@ -38,7 +39,7 @@ type UpdateStatus = {
   state?: { autoUpdate?: boolean; lastCheckAt?: string | null };
 };
 
-const ROUTE = "/__openclaw__/psyntient/update";
+const route = () => psyntientRoute("update");
 
 @customElement("psyntient-update-badge")
 export class PsyntientUpdateBadge extends LitElement {
@@ -100,7 +101,7 @@ export class PsyntientUpdateBadge extends LitElement {
     if (this.loading) return;
     this.loading = true;
     try {
-      const res = await fetch(ROUTE, { headers: this.headers() });
+      const res = await fetch(route(), { headers: this.headers() });
       if (!res.ok) return;
       this.status = (await res.json()) as UpdateStatus;
       // Auto-update is the ONLY thing that turns mounting into a network
@@ -123,7 +124,7 @@ export class PsyntientUpdateBadge extends LitElement {
     if (this.checking) return;
     this.checking = true;
     try {
-      const res = await fetch(ROUTE, {
+      const res = await fetch(route(), {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
         body: JSON.stringify({ action: "check" }),
@@ -142,7 +143,7 @@ export class PsyntientUpdateBadge extends LitElement {
 
   private async setAuto(enabled: boolean) {
     try {
-      await fetch(ROUTE, {
+      await fetch(route(), {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
         body: JSON.stringify({ action: "auto", enabled }),
@@ -161,7 +162,7 @@ export class PsyntientUpdateBadge extends LitElement {
     this.stage = t("update.starting");
 
     try {
-      const res = await fetch(ROUTE, {
+      const res = await fetch(route(), {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
         body: JSON.stringify({ action: "apply" }),

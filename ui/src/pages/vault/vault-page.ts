@@ -1,3 +1,4 @@
+import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // The Vault viewer: everything this Node holds, and what could leave it.
 //
 // WHY BROWSE-FIRST, WHERE THE ARCHIVE VIEWER IS SEARCH-FIRST
@@ -115,12 +116,15 @@ type Area = {
 
 type Detail = { ok: boolean; error?: string; project?: Project; areas?: Area[] };
 
-const LEDGER_ROUTE = "/__openclaw__/psyntient/vault-ledger";
-const SEARCH_ROUTE = "/__openclaw__/psyntient/vault/search";
-const PROJECT_ROUTE = "/__openclaw__/psyntient/vault/project";
-const DOWNLOAD_ROUTE = "/__openclaw__/psyntient/vault/download";
-const UPLOAD_ROUTE = "/__openclaw__/psyntient/vault/upload";
-const PROJECTS_ROUTE = "/__openclaw__/psyntient/projects";
+// Functions, not constants: psyntientRoute() reads the Control UI's base path
+// from the served document, and these routes are wrong at the origin root on
+// any deployment that mounts the dashboard under a prefix.
+const LEDGER_ROUTE = () => psyntientRoute("vault-ledger");
+const SEARCH_ROUTE = () => psyntientRoute("vault/search");
+const PROJECT_ROUTE = () => psyntientRoute("vault/project");
+const DOWNLOAD_ROUTE = () => psyntientRoute("vault/download");
+const UPLOAD_ROUTE = () => psyntientRoute("vault/upload");
+const PROJECTS_ROUTE = () => psyntientRoute("projects");
 
 function formatBytes(n: number): string {
   if (n >= 1024 * 1024 * 1024) return `${(n / 1024 / 1024 / 1024).toFixed(1)} GB`;
@@ -296,7 +300,7 @@ export class PsyntientVaultPage extends LitElement {
     this.loading = true;
     this.errorText = null;
     try {
-      const res = await fetch(LEDGER_ROUTE, { headers: this.headers() });
+      const res = await fetch(LEDGER_ROUTE(), { headers: this.headers() });
       if (!current()) return;
       if (!res.ok) {
         // 401 is not a fault in the Vault; it means this browser has no
@@ -374,7 +378,7 @@ export class PsyntientVaultPage extends LitElement {
     }, 220);
 
     try {
-      const res = await fetch(`${SEARCH_ROUTE}?query=${encodeURIComponent(q)}`, {
+      const res = await fetch(`${SEARCH_ROUTE()}?query=${encodeURIComponent(q)}`, {
         headers: this.headers(),
       });
       if (!res.ok || !res.body) {
@@ -465,7 +469,7 @@ export class PsyntientVaultPage extends LitElement {
     this.detail = null;
     this.detailLoading = true;
     try {
-      const url = `${PROJECT_ROUTE}?project=${encodeURIComponent(p.projectId)}&device=${encodeURIComponent(p.device)}`;
+      const url = `${PROJECT_ROUTE()}?project=${encodeURIComponent(p.projectId)}&device=${encodeURIComponent(p.device)}`;
       const res = await fetch(url, { headers: this.headers() });
       this.detail = (await res.json()) as Detail;
     } catch (err) {
@@ -547,7 +551,7 @@ export class PsyntientVaultPage extends LitElement {
     if (!IMAGE_PREVIEW_EXTENSIONS.has(entry.ext.toLowerCase())) return;
     this.previewLoading = true;
     const url =
-      `${DOWNLOAD_ROUTE}?project=${encodeURIComponent(p.projectId)}` +
+      `${DOWNLOAD_ROUTE()}?project=${encodeURIComponent(p.projectId)}` +
       `&device=${encodeURIComponent(p.device)}` +
       `&path=${encodeURIComponent(`${area}/${entry.path}`)}`;
     fetch(url, { headers: this.headers() })
@@ -578,7 +582,7 @@ export class PsyntientVaultPage extends LitElement {
     this.downloading = true;
     try {
       const url =
-        `${DOWNLOAD_ROUTE}?project=${encodeURIComponent(p.projectId)}` +
+        `${DOWNLOAD_ROUTE()}?project=${encodeURIComponent(p.projectId)}` +
         `&device=${encodeURIComponent(p.device)}` +
         `&path=${encodeURIComponent(`${area}/${entry.path}`)}`;
       // fetch + blob rather than a plain <a href>: this route needs the gateway
@@ -645,7 +649,7 @@ export class PsyntientVaultPage extends LitElement {
     this.uploading = true;
     this.errorText = null;
     try {
-      const url = `${UPLOAD_ROUTE}?project=${encodeURIComponent(p.projectId)}`;
+      const url = `${UPLOAD_ROUTE()}?project=${encodeURIComponent(p.projectId)}`;
       const res = await fetch(url, {
         method: "POST",
         headers: { ...this.headers(), "X-Filename": encodeURIComponent(file.name) },
@@ -686,7 +690,7 @@ export class PsyntientVaultPage extends LitElement {
   private async runSync(p: Project, path?: string) {
     this.errorText = null;
     try {
-      const res = await fetch(PROJECTS_ROUTE, {
+      const res = await fetch(PROJECTS_ROUTE(), {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
         body: JSON.stringify({ action: "sync-now", projectId: p.projectId, path }),
@@ -747,7 +751,7 @@ export class PsyntientVaultPage extends LitElement {
     this.savingWatchDir = true;
     this.errorText = null;
     try {
-      const res = await fetch(PROJECTS_ROUTE, {
+      const res = await fetch(PROJECTS_ROUTE(), {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -789,7 +793,7 @@ export class PsyntientVaultPage extends LitElement {
     this.savingWatchDir = true;
     this.errorText = null;
     try {
-      const res = await fetch(PROJECTS_ROUTE, {
+      const res = await fetch(PROJECTS_ROUTE(), {
         method: "POST",
         headers: { ...this.headers(), "Content-Type": "application/json" },
         body: JSON.stringify({ action: "unset-watch-dir", projectId: p.projectId }),

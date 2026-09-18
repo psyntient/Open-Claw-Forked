@@ -1,3 +1,4 @@
+import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // The Archive viewer: a way to see what is in the Noetic Archive without
 // already knowing what to ask.
 //
@@ -99,7 +100,7 @@ type EditionInfo = {
   notes: string | null;
 };
 
-const ROUTE = "/__openclaw__/psyntient/archive";
+const ROUTE = () => psyntientRoute("archive");
 
 /** Tier drives the visual weight; unknown tiers fall back rather than vanish. */
 const TIER_ORDER = ["established", "emerging", "tentative"];
@@ -229,7 +230,7 @@ export class PsyntientArchivePage extends LitElement {
 
   private async get(params = ""): Promise<Record<string, unknown> | null> {
     try {
-      const res = await fetch(`${ROUTE}${params}`, {
+      const res = await fetch(`${ROUTE()}${params}`, {
         headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {},
       });
       if (!res.ok) {
@@ -325,7 +326,7 @@ export class PsyntientArchivePage extends LitElement {
     const controller = new AbortController();
     this.searchAbort = controller;
     try {
-      const res = await fetch(`${ROUTE}/search?query=${encodeURIComponent(query)}`, {
+      const res = await fetch(`${ROUTE()}/search?query=${encodeURIComponent(query)}`, {
         headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {},
         signal: controller.signal,
       });
@@ -554,7 +555,7 @@ export class PsyntientArchivePage extends LitElement {
    *  directly from markup. */
   private async loadFigure(name: string) {
     try {
-      const res = await fetch(`${ROUTE}/figure?name=${encodeURIComponent(name)}`, {
+      const res = await fetch(`${ROUTE()}/figure?name=${encodeURIComponent(name)}`, {
         headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {},
       });
       if (!res.ok) return;
@@ -576,7 +577,7 @@ export class PsyntientArchivePage extends LitElement {
    *  "failed, keep what's on screen" apart from "succeeded, genuinely empty". */
   private async historyRequest(init?: RequestInit): Promise<HistoryEntry[] | null> {
     try {
-      const res = await fetch(`${ROUTE}/history`, {
+      const res = await fetch(`${ROUTE()}/history`, {
         ...init,
         headers: {
           ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),

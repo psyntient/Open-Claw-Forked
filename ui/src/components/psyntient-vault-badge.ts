@@ -1,3 +1,4 @@
+import { psyntientRoute } from "../lib/psyntient-route.ts";
 // Vault status indicator for the top bar.
 //
 // BRANDING.md section 6 calls for a Vault sync indicator / provider badge whose
@@ -21,7 +22,7 @@ type VaultStatus = {
   error?: string;
 };
 
-const VAULT_ROUTE = "/__openclaw__/psyntient/vault";
+const vaultRoute = () => psyntientRoute("vault");
 
 @customElement("psyntient-vault-badge")
 export class PsyntientVaultBadge extends LitElement {
@@ -60,7 +61,7 @@ export class PsyntientVaultBadge extends LitElement {
       if (this.authToken) {
         headers.Authorization = `Bearer ${this.authToken}`;
       }
-      const res = await fetch(VAULT_ROUTE, { headers, credentials: "same-origin" });
+      const res = await fetch(vaultRoute(), { headers, credentials: "same-origin" });
       if (!res.ok) {
         this.failed = true;
         return;

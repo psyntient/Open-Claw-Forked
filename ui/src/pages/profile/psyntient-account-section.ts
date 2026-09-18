@@ -1,3 +1,4 @@
+import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // Psyntient Account — real psyntient.io pairing state on the Profile page.
 //
 // Data comes from the Psyntient gateway plugin route, which is backed by
@@ -20,7 +21,7 @@ export type PsyntientAccountState = {
   error?: string | null;
 };
 
-const PAIRING_ROUTE = "/__openclaw__/psyntient/pairing";
+const PAIRING_ROUTE = () => psyntientRoute("pairing");
 
 function authHeaders(token: string | null): Record<string, string> {
   const headers: Record<string, string> = { Accept: "application/json" };
@@ -39,7 +40,7 @@ export async function unpairPsyntientNode(
   token: string | null,
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    const res = await fetch(PAIRING_ROUTE, { method: "DELETE", headers: authHeaders(token) });
+    const res = await fetch(PAIRING_ROUTE(), { method: "DELETE", headers: authHeaders(token) });
     if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
     return { ok: true };
   } catch (err) {
@@ -52,7 +53,7 @@ export async function loadPsyntientAccount(
   token: string | null = null,
 ): Promise<PsyntientAccountState> {
   try {
-    const res = await fetch(PAIRING_ROUTE, {
+    const res = await fetch(PAIRING_ROUTE(), {
       headers: authHeaders(token),
       credentials: "same-origin",
     });
