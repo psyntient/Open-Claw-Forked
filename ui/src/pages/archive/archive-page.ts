@@ -1,3 +1,4 @@
+import { goToRoute } from "../../lib/psyntient-navigate.ts";
 import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // The Archive viewer: a way to see what is in the Noetic Archive without
 // already knowing what to ask.
@@ -662,7 +663,7 @@ export class PsyntientArchivePage extends LitElement {
       ? `Tell me about the "${a.name}" archetype in the Noetic Archive and the evidence behind it. It belongs to the genus ${genus} — afterwards, ask me whether I want to hear about that whole family and how its species relate.`
       : `Tell me about the "${a.name}" archetype in the Noetic Archive and the evidence behind it. Afterwards, ask me whether I want to explore the archetype family it would sit in — and say plainly if this Edition has not grouped it into a genus yet.`;
     handOffPrompt(prompt);
-    location.href = "/new";
+    goToRoute("new-session");
   }
 
   private renderStat(label: string, value: string | number) {

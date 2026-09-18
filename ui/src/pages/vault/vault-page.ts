@@ -1,3 +1,4 @@
+import { goToRoute } from "../../lib/psyntient-navigate.ts";
 import "../../components/modal-dialog.ts";
 import { psyntientRoute } from "../../lib/psyntient-route.ts";
 // The Vault viewer: everything this Node holds, and what could leave it.
@@ -528,7 +529,7 @@ export class PsyntientVaultPage extends LitElement {
   private askCortex(p: Project) {
     writeSelectedProjectId(p.projectId);
     handOffPrompt(t("vault.askCortexPrompt", { title: p.title, id: p.projectId }));
-    window.location.href = "/new";
+    goToRoute("new-session");
   }
 
   /**

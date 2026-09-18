@@ -8,6 +8,7 @@
 // This is a scope switcher, not an agent switcher: there is exactly one
 // Cortex. See PROJECT_AS_AGENT_RESEARCH.md for why separate agents were
 // rejected.
+import { goToRoute } from "../lib/psyntient-navigate.ts";
 import { LitElement, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { t } from "../i18n/index.ts";
@@ -89,7 +90,7 @@ export class PsyntientProjectSelect extends LitElement {
     // General thread. The new-thread draft belongs to no Project until it is
     // sent, and it gives the user somewhere to type immediately -- which
     // matters most for a Project that has no threads yet.
-    location.href = "/new";
+    goToRoute("new-session");
   }
 
   // Was a globalThis.prompt() asking only for a name. A name is no longer

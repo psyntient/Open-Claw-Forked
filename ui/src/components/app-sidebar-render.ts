@@ -1,3 +1,4 @@
+import { goToPath } from "../lib/psyntient-navigate.ts";
 import { html, nothing } from "lit";
 import "./psyntient-project-select.ts";
 import type { GatewayControlUiPluginTab } from "../api/gateway.ts";
@@ -55,7 +56,7 @@ export function renderAppSidebarBrand(host: AppSidebarRenderHost, authToken: str
             type="button"
             aria-label=${t("nav.openProjectFiles")}
             @click=${() => {
-              window.location.href = `/vault?project=${encodeURIComponent(readSelectedProjectId())}`;
+              goToPath(`/vault?project=${encodeURIComponent(readSelectedProjectId())}`);
             }}
           >
             ${icons.folder}
