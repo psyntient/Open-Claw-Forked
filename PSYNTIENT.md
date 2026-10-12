@@ -1,3 +1,11 @@
+> **Where you are.** One repository in [Psyntient](https://github.com/psyntient) — the platform (accounts, billing,
+> the Node, Cortex, Psyntient Cloud) and **the Noetic Archive**, the research
+> system it hosts. **This repo is the OpenClaw fork both the Node and Cloud run on.**
+>
+> - **Overview of everything** — [github.com/psyntient](https://github.com/psyntient)
+> - **How the Archive droplet fits together** — [psyntient-droplet](https://github.com/psyntient/psyntient-droplet)
+> - **How Psyntient Cloud works** — [psyntient-cloud](https://github.com/psyntient/psyntient-cloud)
+
 # This is a fork. Read this before the README.
 
 **The `README.md` in this repository is upstream OpenClaw's** — upstream's banner,
