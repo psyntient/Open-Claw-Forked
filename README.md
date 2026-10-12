@@ -1,3 +1,9 @@
+> ### ⚠️ This is the Psyntient fork of OpenClaw, not OpenClaw itself.
+>
+> Everything below this line is **upstream's README**. For what this fork is, what
+> it changes, how to build it and which branch to use, read
+> **[PSYNTIENT.md](PSYNTIENT.md)** first.
+
 # 🦞 OpenClaw — Personal AI Assistant
 
 <p align="center">
