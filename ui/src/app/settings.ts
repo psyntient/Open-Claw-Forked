@@ -415,7 +415,12 @@ export function loadSettings(): UiSettings {
     theme: "psyntient",
     themeMode: "system",
     chatShowThinking: true,
-    chatShowToolCalls: true,
+    // OFF BY DEFAULT. A researcher is not debugging an agent: the raw tool
+    // rows are call names, arguments and JSON results, and they read as
+    // something going wrong rather than something being done. The agent still
+    // says what it is doing in its own words, and anyone who wants the
+    // machinery can turn this back on in chat controls.
+    chatShowToolCalls: false,
     chatPersistCommentary: true,
     chatSendShortcut: "enter",
     catalogOpenTarget: "viewer",

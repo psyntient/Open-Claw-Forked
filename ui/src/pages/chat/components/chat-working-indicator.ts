@@ -122,8 +122,35 @@ export function renderTurnRecapRow(recap: TurnRecap) {
       : null;
   return html`
     <div class="chat-tasks-status chat-turn-recap" role="status">
-      <span class="chat-tasks-status__claw psy-elf-static" aria-hidden="true">
-        <img src=${inferControlUiPublicAssetPath("brand/elf/elf-chat-idle-64.png")} alt="" />
+      <span class="chat-tasks-status__claw psy-architect" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" role="img">
+          <style>
+            .psy-arc-o1 { transform-origin: 12px 12px;
+              animation: psy-arc-spin 7s linear infinite; }
+            .psy-arc-o2 { transform-origin: 12px 12px;
+              animation: psy-arc-spin 4.5s linear infinite reverse; }
+            .psy-arc-core { transform-origin: 12px 12px;
+              animation: psy-arc-pulse 2.8s ease-in-out infinite; }
+            @keyframes psy-arc-spin { to { transform: rotate(360deg); } }
+            @keyframes psy-arc-pulse {
+              0%, 100% { opacity: .95; transform: scale(1); }
+              50%      { opacity: .62; transform: scale(.86); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .psy-arc-o1, .psy-arc-o2, .psy-arc-core { animation: none; }
+            }
+          </style>
+          <circle cx="12" cy="12" r="11" fill="#141021" />
+          <circle cx="12" cy="12" r="10.4" fill="none" stroke="#c9a24a"
+                  stroke-width="1" opacity=".55" />
+          <ellipse class="psy-arc-o1" cx="12" cy="12" rx="8.6" ry="3.5"
+                   fill="none" stroke="#f5c76a" stroke-width="1.25"
+                   opacity=".9" />
+          <ellipse class="psy-arc-o2" cx="12" cy="12" rx="3.3" ry="8.2"
+                   fill="none" stroke="#f5d9a8" stroke-width="1"
+                   opacity=".55" />
+          <circle class="psy-arc-core" cx="12" cy="12" r="2.5" fill="#f5c76a" />
+        </svg>
       </span>
       <span>${t("chat.turnRecap.doneIn", { duration })}</span>
       ${tokens === null

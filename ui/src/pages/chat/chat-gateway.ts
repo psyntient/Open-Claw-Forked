@@ -138,18 +138,52 @@ function normalizeChatErrorComparisonText(text: string): string {
     .trim();
 }
 
+/**
+ * Does this read as something written for whoever built the thing?
+ *
+ * A researcher asked a question and got back "GatewayTransportError: gateway
+ * closed (1008): pairing required ... requestId: ae87475e". That is a true
+ * sentence and a useless one: it describes machinery they did not know
+ * existed, cannot act on, and will reasonably read as their work being
+ * broken. Provider messages written for a person -- a model saying it cannot
+ * answer, a quota notice -- are worth showing exactly as they are, so the
+ * test is for the developer markers rather than for errors in general.
+ */
+function looksLikeDeveloperError(text: string): boolean {
+  return (
+    /\b[A-Z][A-Za-z]*(Error|Exception)\b/u.test(text) ||
+    /\brequestId\b/iu.test(text) ||
+    /\b(wss?|https?):\/\//u.test(text) ||
+    /\bat\s+\S+\s+\(.*:\d+:\d+\)/u.test(text) ||
+    /(^|\s)\/(usr|opt|root|var)\//u.test(text) ||
+    text.length > 320
+  );
+}
+
+const PLAIN_FAILURE =
+  "That did not go through. Nothing was lost -- try again, and tell us if it " +
+  "keeps happening.";
+
 function resolveGatewayErrorText(
   payload: ChatEventPayload,
   message: Record<string, unknown> | null,
 ): string {
   const errorText = payload.errorMessage?.trim();
   if (errorText) {
+    if (looksLikeDeveloperError(errorText)) {
+      return PLAIN_FAILURE;
+    }
     return errorText.startsWith("⚠️") || errorText.startsWith("Error:")
       ? stripChatErrorMarker(errorText)
-      : `Error: ${errorText}`;
+      : errorText;
   }
   const messageText = message ? extractText(message)?.trim() : null;
-  return messageText ? stripChatErrorMarker(messageText) : "chat error";
+  if (!messageText) {
+    return PLAIN_FAILURE;
+  }
+  return looksLikeDeveloperError(messageText)
+    ? PLAIN_FAILURE
+    : stripChatErrorMarker(messageText);
 }
 
 function payloadMessageIsErrorProjection(
